@@ -106,3 +106,14 @@ app.use('/api/contact', require('./routes/contact'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(PORT, () => console.log(`Itqan server running on http://localhost:${PORT}`));
+
+// Export app for Vercel serverless
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Itqan server running on http://localhost:${PORT}`);
+  });
+}
+module.exports = app;
+
+// Export app for Vercel serverless deployment
+module.exports = app;
