@@ -36,8 +36,9 @@ app.use((req, res, next) => {
     ].join('; ')
   );
   if (process.env.NODE_ENV === 'production') {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   if (req.path.includes('itqan-cp9x')) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.setHeader('X-Frame-Options', 'DENY');
