@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const getClientIp = require('../lib/getClientIp');
 
-const router = express.Router();
+const router = express.Router();h
 const PASS_FILE = path.join(__dirname, '../data/password.txt');
 
 // In-memory IP lockout: { ip: { attempts, lockedUntil } }
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
 
   let hash;
   try {
-    hash = fs.readFileSync(PASS_FILE, 'utf8').trim();
+    hash = process.env.ADMIN_PASS_HASH || fs.readFileSync(PASS_FILE, 'utf8').trim();
   } catch {
     return res.status(500).json({ error: 'Server configuration error' });
   }
@@ -97,7 +97,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
   let hash;
   try {
-    hash = fs.readFileSync(PASS_FILE, 'utf8').trim();
+    hash = process.env.ADMIN_PASS_HASH || fs.readFileSync(PASS_FILE, 'utf8').trim();
   } catch {
     return res.status(500).json({ error: 'Server configuration error' });
   }
