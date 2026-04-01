@@ -106,7 +106,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Old password is incorrect' });
 
   const newHash = await bcrypt.hash(newPassword, 10);
-  fs.writeFileSync(PASS_FILE, newHash);
+  try { fs.writeFileSync(PASS_FILE, newHash); } catch { /* on Vercel filesystem is read-only */ }
   res.json({ ok: true });
 });
 

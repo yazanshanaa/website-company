@@ -1,10 +1,8 @@
-const express = require('express');
+const express    = require('express');
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
+const { getData } = require('../lib/storage');
 
 const router = express.Router();
-const DATA_FILE = path.join(__dirname, '../data/site.json');
 
 function sanitizeHeader(s) {
   return String(s || '').replace(/[\r\n\t]/g, ' ').slice(0, 100);
@@ -26,7 +24,7 @@ router.post('/', async (req, res) => {
   // Get recipient from site data
   let recipient = process.env.SMTP_FROM;
   try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const data = await getData();
     if (data.company && data.company.email) recipient = data.company.email;
   } catch { /* fallback to SMTP_FROM */ }
 

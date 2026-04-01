@@ -1,18 +1,17 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { requireAuth } = require('./auth');
+'use strict';
+const express                = require('express');
+const { requireAuth }        = require('./auth');
+const { getData, saveData }  = require('../lib/storage');
 
 const router = express.Router();
-const DATA_FILE = path.join(__dirname, '../data/site.json');
 
-// GET /api/data — public (strips company.email); authenticated admin gets the full record
-router.get('/', (req, res) => {
+// GET /api/data — public (strips company.email); admin gets full record
+router.get('/', async (req, res) => {
   try {
-    const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const raw = await getData();
     // Strip email from public response to prevent scraping.
-    // Skip the strip when the request comes from an authenticated admin session
-    // so that saveAll() in admin.html never overwrites email with an empty string.
+    // Skip when request comes from an authenticated admin so saveAll()
+    // never overwrites email with an empty string.
     if (!req.session?.admin && raw.company) {
       const { email: _stripped, ...safeCompany } = raw.company;
       raw.company = safeCompany;
@@ -24,19 +23,20 @@ router.get('/', (req, res) => {
 });
 
 // PUT /api/data — requires admin session
-router.put('/', requireAuth, (req, res) => {
+router.put('/', requireAuth, async (req, res) => {
   const body = req.body;
-  // Validate top-level structure
+
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return res.status(400).json({ error: 'Invalid data: expected object' });
   }
+
   const required = ['company', 'content', 'services', 'stats', 'portfolio'];
   for (const key of required) {
     if (!body[key] || typeof body[key] !== 'object') {
       return res.status(400).json({ error: `Invalid data: missing or invalid key "${key}"` });
     }
   }
-  // Validate array fields
+
   const arrays = ['services', 'stats', 'portfolio', 'process', 'aboutPoints'];
   for (const key of arrays) {
     if (body[key]) {
@@ -47,12 +47,14 @@ router.put('/', requireAuth, (req, res) => {
       }
     }
   }
+
+  const json = JSON.stringify(body);
+  if (json.length > 500000) {
+    return res.status(400).json({ error: 'Data too large' });
+  }
+
   try {
-    const json = JSON.stringify(body, null, 2);
-    if (json.length > 500000) {
-      return res.status(400).json({ error: 'Data too large' });
-    }
-    fs.writeFileSync(DATA_FILE, json);
+    await saveData(body);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Could not save site data' });
