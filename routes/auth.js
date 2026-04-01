@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const getClientIp = require('../lib/getClientIp');
 
-const router = express.Router();h
+const router = express.Router();
 const PASS_FILE = path.join(__dirname, '../data/password.txt');
 
 // In-memory IP lockout: { ip: { attempts, lockedUntil } }
