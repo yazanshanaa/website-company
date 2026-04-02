@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const getDb = require('../lib/db');
+const { getDb } = require('../lib/db');
 
 // Brute-force protection: max 5 attempts per IP per 15 minutes
 const loginAttempts = new Map();
@@ -51,10 +51,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid password' });
     }
 
-    // Reset brute-force counter on success
     loginAttempts.delete(ip);
-
-    // Set session - avoid regenerate() which hangs with MongoStore
     req.session.admin = true;
     req.session.save(err => {
       if (err) {
@@ -121,6 +118,5 @@ router.put('/change-password', requireAuth, async (req, res) => {
   }
 });
 
-module.exports = { router, requireAuth };
 router.requireAuth = requireAuth;
 module.exports = router;
