@@ -4,19 +4,21 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
 const getClientIp = require('./lib/getClientIp');
-const { seedDatabase } = require('./lib/seed');
 
-// Fail fast if SESSION_SECRET is missing or weak
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
-  console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars). Set it in .env');
+  console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars).');
+  process.exit(1);
+}
+
+if (!process.env.MONGODB_URI) {
+  console.error('FATAL: MONGODB_URI is missing.');
   process.exit(1);
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Trust proxy when behind reverse proxy (Vercel, Nginx, etc.)
-if (process.env.BEHIND_PROXY === 'true' || process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
+// Always trust proxy (needed on Vercel)
+app.set('trust proxy', 1);
 
 // Security headers
 app.use((req, res, next) => {
@@ -50,7 +52,6 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '1mb' }));
 
-// Initialize session store with MongoDB
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -59,8 +60,8 @@ app.use(session({
     mongoUrl: process.env.MONGODB_URI,
     dbName: 'itqan',
     collectionName: 'sessions',
-    touchAfter: 24 * 3600,
-    crypto: { secret: process.env.SESSION_SECRET },
+    ttl: 2 * 60 * 60,
+    touchAfter: 24 * 3600
   }),
   cookie: {
     httpOnly: true,
@@ -70,7 +71,7 @@ app.use(session({
   }
 }));
 
-// CSRF check
+// CSRF protection: reject cross-origin state-changing requests
 app.use((req, res, next) => {
   if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
     const originHeader = req.headers.origin || req.headers.referer || '';
@@ -103,9 +104,7 @@ app.use('/api/contact', (req, res, next) => {
   if (now > record.resetAt) { record.count = 0; record.resetAt = now + 60000; }
   record.count++;
   contactRateMap.set(ip, record);
-  if (record.count > 5) {
-    return res.status(429).json({ error: 'Too many requests. Try again in a minute.' });
-  }
+  if (record.count > 5) return res.status(429).json({ error: 'Too many requests.' });
   next();
 });
 
@@ -114,17 +113,14 @@ app.use('/api/data', require('./routes/data'));
 app.use('/api/contact', require('./routes/contact'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize database and seed if needed
-const initPromise = seedDatabase().catch(err => {
-  console.error('Failed to seed database:', err);
-});
+// Seed DB on startup
+const { seedDatabase } = require('./lib/seed');
+seedDatabase().catch(err => console.error('Seed error:', err));
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  initPromise.then(() => {
-    app.listen(PORT, () => console.log(`Itqan server running on http://localhost:${PORT}`));
-  });
+// Only listen when run directly (not on Vercel serverless)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log('Itqan server running on http://localhost:' + PORT));
 }
 
-// Export for Vercel serverless
 module.exports = app;
