@@ -1,138 +1,126 @@
-const express = require('express');
+const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const getClientIp = require('../lib/getClientIp');
-const { getDb } = require('../lib/db');
+const getDb = require('../lib/db');
 
-const router = express.Router();
-
-const lockouts = new Map();
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000;
-
+// Brute-force protection: max 5 attempts per IP per 15 minutes
+const loginAttempts = new Map();
 setInterval(() => {
   const now = Date.now();
-  for (const [ip, r] of lockouts) {
-    if (r.lockedUntil && r.lockedUntil <= now) lockouts.delete(ip);
+  for (const [ip, rec] of loginAttempts) {
+    if (rec.resetAt < now) loginAttempts.delete(ip);
   }
-}, 10 * 60 * 1000).unref();
+}, 5 * 60 * 1000).unref();
 
-function getRecord(ip) {
-  if (!lockouts.has(ip)) lockouts.set(ip, { attempts: 0, lockedUntil: 0 });
-  return lockouts.get(ip);
-}
-
-function isLocked(ip) {
-  const r = getRecord(ip);
-  if (r.lockedUntil > Date.now()) return true;
-  if (r.lockedUntil && r.lockedUntil <= Date.now()) {
-    lockouts.delete(ip);
-  }
-  return false;
+function checkBruteForce(ip) {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip) || { count: 0, resetAt: now + 15 * 60 * 1000 };
+  if (now > rec.resetAt) { rec.count = 0; rec.resetAt = now + 15 * 60 * 1000; }
+  return rec;
 }
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.admin) return next();
-  res.status(401).json({ error: 'Unauthorized' });
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
-router.get('/me', (req, res) => {
-  res.json({ admin: req.session.admin === true });
-});
-
+// POST /api/auth/login
 router.post('/login', async (req, res) => {
-  const ip = getClientIp(req);
-  if (isLocked(ip)) {
-    const r = getRecord(ip);
-    const remaining = Math.ceil((r.lockedUntil - Date.now()) / 60000);
-    return res.status(429).json({ error: 'locked', remaining });
-  }
-
-  const { password } = req.body;
-  if (!password) return res.status(400).json({ error: 'Password required' });
-
-  let hash;
   try {
-    const db = await getDb();
-    const settingsCollection = db.collection('settings');
-    const settingsDoc = await settingsCollection.findOne({ _id: 'adminPassword' });
-    hash = settingsDoc?.hash || process.env.ADMIN_PASS_HASH;
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    const rec = checkBruteForce(ip);
+    if (rec.count >= 5) {
+      const wait = Math.ceil((rec.resetAt - Date.now()) / 60000);
+      return res.status(429).json({ error: `Too many attempts. Try again in ${wait} min.` });
+    }
 
-    if (!hash) {
+    const { password } = req.body;
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Password required' });
+    }
+
+    const db = await getDb();
+    const settings = await db.collection('settings').findOne({ key: 'admin' });
+    if (!settings || !settings.passwordHash) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
-  } catch (error) {
-    console.error('Error retrieving password hash:', error);
-    return res.status(500).json({ error: 'Server configuration error' });
-  }
 
-  const ok = await bcrypt.compare(password, hash);
-  if (!ok) {
-    const r = getRecord(ip);
-    r.attempts += 1;
-    if (r.attempts >= MAX_ATTEMPTS) {
-      r.lockedUntil = Date.now() + LOCKOUT_MS;
-      return res.status(429).json({ error: 'locked', remaining: 15 });
+    const match = await bcrypt.compare(password, settings.passwordHash);
+    if (!match) {
+      rec.count++;
+      loginAttempts.set(ip, rec);
+      return res.status(401).json({ error: 'Invalid password' });
     }
-    return res.status(401).json({ error: 'wrong' });
-  }
 
-  lockouts.delete(ip);
-  req.session.regenerate((err) => {
-    if (err) return res.status(500).json({ error: 'Session error' });
+    // Reset brute-force counter on success
+    loginAttempts.delete(ip);
+
+    // Set session - avoid regenerate() which hangs with MongoStore
     req.session.admin = true;
-    res.json({ ok: true });
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session error' });
+      }
+      return res.json({ ok: true });
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/auth/logout
+router.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.clearCookie('connect.sid');
+    return res.json({ ok: true });
   });
 });
 
-router.post('/logout', (req, res) => {
-  req.session.destroy(() => res.json({ ok: true }));
+// GET /api/auth/me
+router.get('/me', (req, res) => {
+  return res.json({ admin: !!(req.session && req.session.admin) });
 });
 
-router.post('/change-password', requireAuth, async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  if (!oldPassword || !newPassword) return res.status(400).json({ error: 'Both fields required' });
-  if (newPassword.length < 8) return res.status(400).json({ error: 'Password too short (min 8)' });
-
-  let hash;
+// PUT /api/auth/change-password
+router.put('/change-password', requireAuth, async (req, res) => {
   try {
-    const db = await getDb();
-    const settingsCollection = db.collection('settings');
-    const settingsDoc = await settingsCollection.findOne({ _id: 'adminPassword' });
-    hash = settingsDoc?.hash || process.env.ADMIN_PASS_HASH;
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Both passwords required' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
 
-    if (!hash) {
+    const db = await getDb();
+    const settings = await db.collection('settings').findOne({ key: 'admin' });
+    if (!settings || !settings.passwordHash) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
-  } catch (error) {
-    console.error('Error retrieving password hash:', error);
-    return res.status(500).json({ error: 'Server configuration error' });
-  }
 
-  const ok = await bcrypt.compare(oldPassword, hash);
-  if (!ok) return res.status(401).json({ error: 'Old password is incorrect' });
+    const match = await bcrypt.compare(currentPassword, settings.passwordHash);
+    if (!match) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
 
-  try {
     const newHash = await bcrypt.hash(newPassword, 10);
-    const db = await getDb();
-    const settingsCollection = db.collection('settings');
-
-    await settingsCollection.updateOne(
-      { _id: 'adminPassword' },
-      {
-        $set: {
-          hash: newHash,
-          updatedAt: new Date(),
-        },
-      },
-      { upsert: true }
+    await db.collection('settings').updateOne(
+      { key: 'admin' },
+      { $set: { passwordHash: newHash, updatedAt: new Date() } }
     );
 
-    res.json({ ok: true });
-  } catch (error) {
-    console.error('Error updating password hash:', error);
-    res.status(500).json({ error: 'Could not update password' });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 
+module.exports = { router, requireAuth };
+router.requireAuth = requireAuth;
 module.exports = router;
-module.exports.requireAuth = requireAuth;
