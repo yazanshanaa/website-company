@@ -8,26 +8,33 @@ const router = express.Router();
 const DATA_FILE = path.join(__dirname, '../data/site.json');
 
 router.get('/', async (req, res) => {
+  let raw = null;
+
+  // Try MongoDB first (with timeout already set in db.js)
   try {
     const db = await getDb();
     const siteDataCollection = db.collection('siteData');
-
-    let siteDataDoc = await siteDataCollection.findOne({ _id: 'site' });
-    let raw = siteDataDoc?.data;
-
-    if (!raw) {
-      raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    }
-
-    if (!req.session?.admin && raw.company) {
-      const { email: _stripped, ...safeCompany } = raw.company;
-      raw.company = safeCompany;
-    }
-    res.json(raw);
-  } catch (error) {
-    console.error('Error reading site data:', error);
-    res.status(500).json({ error: 'Could not read site data' });
+    const siteDataDoc = await siteDataCollection.findOne({ _id: 'site' });
+    raw = siteDataDoc?.data || null;
+  } catch (mongoErr) {
+    console.error('MongoDB read failed, falling back to file:', mongoErr.message);
   }
+
+  // Fall back to static file if MongoDB failed or has no data
+  if (!raw) {
+    try {
+      raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    } catch (fileErr) {
+      console.error('File read failed:', fileErr.message);
+      return res.status(500).json({ error: 'Could not read site data' });
+    }
+  }
+
+  if (!req.session?.admin && raw.company) {
+    const { email: _stripped, ...safeCompany } = raw.company;
+    raw.company = safeCompany;
+  }
+  res.json(raw);
 });
 
 router.put('/', requireAuth, async (req, res) => {
