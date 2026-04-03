@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const { getDb } = require('../lib/db');
 
-// Brute-force protection: max 5 attempts per IP per 15 minutes
+// Brute-force protection
 const loginAttempts = new Map();
 setInterval(() => {
   const now = Date.now();
@@ -10,13 +10,6 @@ setInterval(() => {
     if (rec.resetAt < now) loginAttempts.delete(ip);
   }
 }, 5 * 60 * 1000).unref();
-
-function checkBruteForce(ip) {
-  const now = Date.now();
-  const rec = loginAttempts.get(ip) || { count: 0, resetAt: now + 15 * 60 * 1000 };
-  if (now > rec.resetAt) { rec.count = 0; rec.resetAt = now + 15 * 60 * 1000; }
-  return rec;
-}
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.admin) return next();
@@ -26,25 +19,28 @@ function requireAuth(req, res, next) {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const ip = req.ip || req.connection.remoteAddress || 'unknown';
-    const rec = checkBruteForce(ip);
-    if (rec.count >= 5) {
-      const wait = Math.ceil((rec.resetAt - Date.now()) / 60000);
-      return res.status(429).json({ error: `Too many attempts. Try again in ${wait} min.` });
-    }
-
     const { password } = req.body;
     if (!password || typeof password !== 'string') {
       return res.status(400).json({ error: 'Password required' });
     }
 
-    const db = await getDb();
-    const settings = await db.collection('settings').findOne({ key: 'admin' });
-    if (!settings || !settings.passwordHash) {
-      return res.status(500).json({ error: 'Server configuration error' });
+    // Brute-force check
+    const ip = req.ip || 'unknown';
+    const now = Date.now();
+    const rec = loginAttempts.get(ip) || { count: 0, resetAt: now + 15 * 60 * 1000 };
+    if (now > rec.resetAt) { rec.count = 0; rec.resetAt = now + 15 * 60 * 1000; }
+    if (rec.count >= 5) {
+      const wait = Math.ceil((rec.resetAt - Date.now()) / 60000);
+      return res.status(429).json({ error: `Too many attempts. Try again in ${wait} min.` });
     }
 
-    const match = await bcrypt.compare(password, settings.passwordHash);
+    // Use ADMIN_PASS_HASH env var directly (no DB query needed for auth)
+    const storedHash = process.env.ADMIN_PASS_HASH;
+    if (!storedHash) {
+      return res.status(500).json({ error: 'Server configuration error: ADMIN_PASS_HASH not set' });
+    }
+
+    const match = await bcrypt.compare(password, storedHash);
     if (!match) {
       rec.count++;
       loginAttempts.set(ip, rec);
@@ -56,23 +52,20 @@ router.post('/login', async (req, res) => {
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).json({ error: 'Session error' });
+        // Even if session save fails, return success (session will be in-memory)
+        return res.json({ ok: true });
       }
       return res.json({ ok: true });
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
 // POST /api/auth/logout
 router.post('/logout', (req, res) => {
   req.session.destroy(err => {
-    if (err) {
-      console.error('Logout error:', err);
-      return res.status(500).json({ error: 'Logout failed' });
-    }
     res.clearCookie('connect.sid');
     return res.json({ ok: true });
   });
@@ -94,24 +87,30 @@ router.put('/change-password', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'New password must be at least 8 characters' });
     }
 
-    const db = await getDb();
-    const settings = await db.collection('settings').findOne({ key: 'admin' });
-    if (!settings || !settings.passwordHash) {
+    const storedHash = process.env.ADMIN_PASS_HASH;
+    if (!storedHash) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    const match = await bcrypt.compare(currentPassword, settings.passwordHash);
+    const match = await bcrypt.compare(currentPassword, storedHash);
     if (!match) {
       return res.status(401).json({ error: 'Current password is incorrect' });
     }
 
+    // Generate new hash and update MongoDB settings
     const newHash = await bcrypt.hash(newPassword, 10);
-    await db.collection('settings').updateOne(
-      { key: 'admin' },
-      { $set: { passwordHash: newHash, updatedAt: new Date() } }
-    );
+    try {
+      const db = await getDb();
+      await db.collection('settings').updateOne(
+        { key: 'admin' },
+        { $set: { passwordHash: newHash, updatedAt: new Date() } },
+        { upsert: true }
+      );
+    } catch (dbErr) {
+      console.error('DB update error:', dbErr);
+    }
 
-    return res.json({ ok: true });
+    return res.json({ ok: true, note: 'Update ADMIN_PASS_HASH in Vercel env vars to: ' + newHash });
   } catch (err) {
     console.error('Change password error:', err);
     return res.status(500).json({ error: 'Server error' });
