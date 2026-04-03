@@ -9,7 +9,6 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
   console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars).');
   process.exit(1);
 }
-
 if (!process.env.MONGODB_URI) {
   console.error('FATAL: MONGODB_URI is missing.');
   process.exit(1);
@@ -52,7 +51,7 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '1mb' }));
 
-app.use(session({
+const sessionHandler = session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
@@ -69,7 +68,19 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     maxAge: 2 * 60 * 60 * 1000
   }
-}));
+});
+
+// Wrap session middleware to handle store errors gracefully
+app.use((req, res, next) => {
+  sessionHandler(req, res, (err) => {
+    if (err) {
+      console.error('[SessionError]', err.message, err.stack);
+      if (!req.session) req.session = {};
+      return next();
+    }
+    next();
+  });
+});
 
 // CSRF protection: reject cross-origin state-changing requests
 app.use((req, res, next) => {
@@ -101,7 +112,10 @@ app.use('/api/contact', (req, res, next) => {
   const ip = getClientIp(req);
   const now = Date.now();
   const record = contactRateMap.get(ip) || { count: 0, resetAt: now + 60000 };
-  if (now > record.resetAt) { record.count = 0; record.resetAt = now + 60000; }
+  if (now > record.resetAt) {
+    record.count = 0;
+    record.resetAt = now + 60000;
+  }
   record.count++;
   contactRateMap.set(ip, record);
   if (record.count > 5) return res.status(429).json({ error: 'Too many requests.' });
@@ -111,11 +125,19 @@ app.use('/api/contact', (req, res, next) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/contact', require('./routes/contact'));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Seed DB on startup
 const { seedDatabase } = require('./lib/seed');
 seedDatabase().catch(err => console.error('Seed error:', err));
+
+// Global JSON error handler (must be last, after all routes)
+app.use((err, req, res, next) => {
+  console.error('[GlobalError]', err.message, err.stack);
+  if (res.headersSent) return next(err);
+  res.status(err.status || err.statusCode || 500).json({ error: err.message || 'Internal server error' });
+});
 
 // Only listen when run directly (not on Vercel serverless)
 if (require.main === module) {
