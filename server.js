@@ -70,11 +70,23 @@ const sessionHandler = session({
   }
 });
 
-// Wrap session middleware to handle store errors gracefully
+// Wrap session middleware with timeout to handle store failures gracefully
 app.use((req, res, next) => {
+  let settled = false;
+  const timer = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    console.error('[SessionTimeout] Session middleware timed out after 5s');
+    if (!req.session) req.session = {};
+    next();
+  }, 5000);
+
   sessionHandler(req, res, (err) => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timer);
     if (err) {
-      console.error('[SessionError]', err.message, err.stack);
+      console.error('[SessionError]', err.message);
       if (!req.session) req.session = {};
       return next();
     }
