@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const path = require('path');
 const getClientIp = require('./lib/getClientIp');
 
@@ -51,48 +50,19 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '1mb' }));
 
-const sessionHandler = session({
+// Use in-memory sessions — avoids MongoDB connection issues on serverless
+// Sessions persist within the same warm function instance (typical for a single admin user)
+app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    dbName: 'itqan',
-    collectionName: 'sessions',
-    ttl: 2 * 60 * 60,
-    touchAfter: 24 * 3600
-  }),
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     maxAge: 2 * 60 * 60 * 1000
   }
-});
-
-// Wrap session middleware with timeout to handle store failures gracefully
-app.use((req, res, next) => {
-  let settled = false;
-  const timer = setTimeout(() => {
-    if (settled) return;
-    settled = true;
-    console.error('[SessionTimeout] Session middleware timed out after 5s');
-    if (!req.session) req.session = {};
-    next();
-  }, 5000);
-
-  sessionHandler(req, res, (err) => {
-    if (settled) return;
-    settled = true;
-    clearTimeout(timer);
-    if (err) {
-      console.error('[SessionError]', err.message);
-      if (!req.session) req.session = {};
-      return next();
-    }
-    next();
-  });
-});
+}));
 
 // CSRF protection: reject cross-origin state-changing requests
 app.use((req, res, next) => {
@@ -140,7 +110,7 @@ app.use('/api/contact', require('./routes/contact'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Seed DB on startup
+// Seed DB on startup (non-blocking)
 const { seedDatabase } = require('./lib/seed');
 seedDatabase().catch(err => console.error('Seed error:', err));
 
