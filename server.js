@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const path = require('path');
 const getClientIp = require('./lib/getClientIp');
+const { getClient } = require('./lib/db');
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
   console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars).');
@@ -50,12 +52,19 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '1mb' }));
 
-// Use in-memory sessions — avoids MongoDB connection issues on serverless
-// Sessions persist within the same warm function instance (typical for a single admin user)
+// حفظ الجلسات في MongoDB حتى تبقى محفوظة عبر استدعاءات Vercel المختلفة
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    clientPromise: getClient(),
+    dbName: 'itqan',
+    collectionName: 'sessions',
+    ttl: 2 * 60 * 60,        // انتهاء الجلسة بعد ساعتين (بالثواني)
+    autoRemove: 'native',    // حذف الجلسات المنتهية تلقائياً عبر MongoDB TTL index
+    touchAfter: 24 * 3600   // تحديث الجلسة مرة واحدة كل 24 ساعة فقط لتقليل الكتابات
+  }),
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
