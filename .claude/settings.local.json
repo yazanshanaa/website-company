@@ -30,7 +30,8 @@
       "Bash(node -e \"const fs=require\\('fs'\\); const d=JSON.parse\\(fs.readFileSync\\('data/site.json','utf8'\\)\\); console.log\\('products.ar length:', d.products.ar.length\\); console.log\\('products.en length:', d.products.en.length\\); console.log\\('products has ar?', 'ar' in d.products\\); console.log\\('products has en?', 'en' in d.products\\); if\\(d.products.en.length>0\\) console.log\\('First product keys:', Object.keys\\(d.products.en[0]\\)\\);\")",
       "Bash(npm audit:*)",
       "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);const vulns=j.vulnerabilities||{};Object.entries\\(vulns\\).forEach\\(\\([k,v]\\)=>console.log\\(v.severity.toUpperCase\\(\\)+': '+k+' — '+v.via.map\\(x=>typeof x==='string'?x:x.title\\).join\\(', '\\)\\)\\)\")",
-      "Read(//c/Users/YAZAN/.claude/plans/**)"
+      "Read(//c/Users/YAZAN/.claude/plans/**)",
+      "Bash(grep -r \"require\\\\|import\" /c/Users/YAZAN/Desktop/itqan-company1/routes/*.js /c/Users/YAZAN/Desktop/itqan-company1/lib/*.js /c/Users/YAZAN/Desktop/itqan-company1/server.js)"
     ],
     "additionalDirectories": [
       "c:\\Users\\YAZAN\\Downloads\\itqan company",
