@@ -6,6 +6,23 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <title>إتقان تك | حلول تقنية متكاملة</title>
   <meta name="description" content="إتقان تك — شركة تقنية متخصصة في تطوير المواقع والتطبيقات والأنظمة الذكية. نبني حلولاً رقمية متكاملة تُحقق أهداف عملك.">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="إتقان تك">
+  <meta property="og:title" content="إتقان تك | حلول تقنية متكاملة">
+  <meta property="og:description" content="إتقان تك — شركة تقنية متخصصة في تطوير المواقع والتطبيقات والأنظمة الذكية. نبني حلولاً رقمية متكاملة تُحقق أهداف عملك.">
+  <meta property="og:image" content="img/orginal.png">
+  <meta property="og:locale" content="ar_PS">
+  <meta property="og:locale:alternate" content="en_US">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="إتقان تك | حلول تقنية متكاملة">
+  <meta name="twitter:description" content="إتقان تك — شركة تقنية متخصصة في تطوير المواقع والتطبيقات والأنظمة الذكية.">
+  <meta name="twitter:image" content="img/orginal.png">
+  <!-- Canonical -->
+  <link rel="canonical" href="/">
+  <!-- Structured Data -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"إتقان تك","alternateName":"Itqan Tech","description":"شركة تقنية متخصصة في تطوير المواقع والتطبيقات والأنظمة الذكية","logo":"img/orginal.png","areaServed":"PS","knowsLanguage":["ar","en"]}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Syne:wght@600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -370,9 +387,9 @@
         <li><a href="#contact" data-key="nav.contact">تواصل معنا</a></li>
       </ul>
       <div class="nav-actions">
-        <div class="lang-toggle">
-          <button class="lang-btn active" id="btn-ar" onclick="setLang('ar')">ع</button>
-          <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+        <div class="lang-toggle" role="group" aria-label="اختيار اللغة">
+          <button class="lang-btn active" id="btn-ar" onclick="setLang('ar')" aria-label="عربي" aria-pressed="true">ع</button>
+          <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English" aria-pressed="false">EN</button>
         </div>
         <a href="#contact" class="btn btn-primary" data-key="nav.cta">ابدأ مشروعك</a>
       </div>
@@ -391,9 +408,9 @@
     <a href="#products" id="nav-products-mob" onclick="toggleMobile()" data-key="nav.products" style="display:none">أنظمتنا</a>
     <a href="#about" onclick="toggleMobile()" data-key="nav.about">عنّا</a>
     <a href="#contact" onclick="toggleMobile()" data-key="nav.contact">تواصل معنا</a>
-    <div class="lang-toggle" style="margin-top:16px">
-      <button class="lang-btn active" id="btn-ar-m" onclick="setLang('ar')">ع</button>
-      <button class="lang-btn" id="btn-en-m" onclick="setLang('en')">EN</button>
+    <div class="lang-toggle" style="margin-top:16px" role="group" aria-label="اختيار اللغة">
+      <button class="lang-btn active" id="btn-ar-m" onclick="setLang('ar')" aria-label="عربي" aria-pressed="true">ع</button>
+      <button class="lang-btn" id="btn-en-m" onclick="setLang('en')" aria-label="English" aria-pressed="false">EN</button>
     </div>
   </div>
 
@@ -753,8 +770,8 @@
     const isAr = lang === 'ar';
     html.setAttribute('lang', isAr ? 'ar' : 'en');
     html.setAttribute('dir', isAr ? 'rtl' : 'ltr');
-    ['btn-ar','btn-ar-m'].forEach(id => { const el=document.getElementById(id); if(el) el.classList.toggle('active', isAr); });
-    ['btn-en','btn-en-m'].forEach(id => { const el=document.getElementById(id); if(el) el.classList.toggle('active', !isAr); });
+    ['btn-ar','btn-ar-m'].forEach(id => { const el=document.getElementById(id); if(el) { el.classList.toggle('active', isAr); el.setAttribute('aria-pressed', isAr ? 'true' : 'false'); } });
+    ['btn-en','btn-en-m'].forEach(id => { const el=document.getElementById(id); if(el) { el.classList.toggle('active', !isAr); el.setAttribute('aria-pressed', isAr ? 'false' : 'true'); } });
     const arr = isAr ? 'fa-arrow-left' : 'fa-arrow-right';
     document.getElementById('hero-arr').className = 'fas '+arr;
     document.getElementById('port-arr').className = 'fas '+arr;

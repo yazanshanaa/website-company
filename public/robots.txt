@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /itqan-cp9x.html
+Disallow: /api/
+
+Sitemap: /sitemap.xml
