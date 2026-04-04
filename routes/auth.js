@@ -102,8 +102,8 @@ router.put('/change-password', requireAuth, async (req, res) => {
     try {
       const db = await getDb();
       await db.collection('settings').updateOne(
-        { key: 'admin' },
-        { $set: { passwordHash: newHash, updatedAt: new Date() } },
+        { _id: 'adminPassword' },
+        { $set: { hash: newHash, updatedAt: new Date() } },
         { upsert: true }
       );
     } catch (dbErr) {

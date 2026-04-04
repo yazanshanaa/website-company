@@ -42,13 +42,13 @@ router.put('/', requireAuth, async (req, res) => {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return res.status(400).json({ error: 'Invalid data: expected object' });
   }
-  const required = ['company', 'content', 'services', 'stats', 'portfolio'];
+  const required = ['company', 'content', 'services', 'stats', 'portfolio', 'process', 'aboutPoints', 'testimonials'];
   for (const key of required) {
     if (!body[key] || typeof body[key] !== 'object') {
       return res.status(400).json({ error: `Invalid data: missing or invalid key "${key}"` });
     }
   }
-  const arrays = ['services', 'stats', 'portfolio', 'process', 'aboutPoints'];
+  const arrays = ['services', 'stats', 'portfolio', 'process', 'aboutPoints', 'testimonials'];
   for (const key of arrays) {
     if (body[key]) {
       for (const lang of ['ar', 'en']) {

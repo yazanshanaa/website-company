@@ -25,7 +25,9 @@
       "Bash(node -e \"const c = require\\(''./playwright.config.js''\\); console.log\\(''testDir:'', c.testDir, ''| workers:'', c.workers, ''| webServer cmd:'', c.webServer?.command\\)\")",
       "Bash(grep -rn \"admin\\\\.html\" \"c:/Users/YAZAN/Downloads/itqan company/\" --exclude-dir=node_modules --include=\"*.{js,html,json,md}\")",
       "Bash(node -e \"try{JSON.parse\\(require\\(''fs''\\).readFileSync\\(''data/site.json'',''utf8''\\)\\);console.log\\(''site.json: OK''\\);}catch\\(e\\){console.error\\(''ERROR:'',e.message\\);}\")",
-      "Bash(node -e \"const bcrypt = require\\(''bcryptjs''\\); bcrypt.hash\\(''Yazan@123456#'', 10\\).then\\(h => console.log\\(h\\)\\)\")"
+      "Bash(node -e \"const bcrypt = require\\(''bcryptjs''\\); bcrypt.hash\\(''Yazan@123456#'', 10\\).then\\(h => console.log\\(h\\)\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const data=JSON.parse\\(fs.readFileSync\\('data/site.json','utf8'\\)\\); console.log\\('Top-level keys:', Object.keys\\(data\\)\\); console.log\\('Has process:', 'process' in data\\); console.log\\('Has testimonials:', 'testimonials' in data\\); console.log\\('Has aboutPoints:', 'aboutPoints' in data\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const d=JSON.parse\\(fs.readFileSync\\('data/site.json','utf8'\\)\\); console.log\\('products.ar length:', d.products.ar.length\\); console.log\\('products.en length:', d.products.en.length\\); console.log\\('products has ar?', 'ar' in d.products\\); console.log\\('products has en?', 'en' in d.products\\); if\\(d.products.en.length>0\\) console.log\\('First product keys:', Object.keys\\(d.products.en[0]\\)\\);\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\YAZAN\\Downloads\\itqan company"

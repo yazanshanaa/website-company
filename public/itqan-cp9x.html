@@ -713,7 +713,7 @@
         loadAllForms();
         showToast('مرحباً! تم الدخول بنجاح ✓');
       } else if(res.status === 429) {
-        err.textContent = `تم تجاوز عدد المحاولات. حاول بعد ${data.remaining} دقيقة.`;
+        err.textContent = data.error || 'تم تجاوز عدد المحاولات. حاول لاحقاً.';
         err.style.display = 'block';
       } else {
         err.textContent = 'كلمة المرور غير صحيحة';
@@ -735,9 +735,9 @@
     if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','#EF4444'); return; }
     try {
       const res = await fetch('/api/auth/change-password', {
-        method: 'POST',
+        method: 'PUT',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({oldPassword: old, newPassword: nw})
+        body: JSON.stringify({currentPassword: old, newPassword: nw})
       });
       const data = await res.json();
       if(res.ok) {
@@ -1150,7 +1150,9 @@
       currency: document.getElementById('prod-currency').value.trim() || '₪',
       url: document.getElementById('prod-url').value.trim(),
       showUrl: document.getElementById('prod-show-url').checked,
-      visible: true
+      visible: (idx !== -1 && D.products[lang] && D.products[lang][idx])
+        ? D.products[lang][idx].visible !== false
+        : true
     };
     if (!prod.title) { showToast('أدخل اسم المنتج أو النظام','#EF4444'); return; }
     if (!D.products) D.products = { visible: true, ar: [], en: [] };
@@ -1198,7 +1200,10 @@
   }
   function collectStats() {
     ['ar','en'].forEach(lang => {
-      D.stats[lang] = D.stats[lang].map((s,i) => ({n:+v(`st-n-${lang}-${i}`)||s.n, s:v(`st-s-${lang}-${i}`)||s.s, l:v(`st-l-${lang}-${i}`)||s.l}));
+      D.stats[lang] = D.stats[lang].map((s,i) => {
+        const rawN = v(`st-n-${lang}-${i}`);
+        return {n: rawN !== '' ? +rawN : s.n, s: v(`st-s-${lang}-${i}`) || s.s, l: v(`st-l-${lang}-${i}`) || s.l};
+      });
     });
   }
 
@@ -1215,9 +1220,9 @@
     D.content.ar['con.titlehl'] = v('con-titlehl-ar'); D.content.ar['con.subtitle'] = v('con-sub-ar');
     D.content.en['con.titlehl'] = v('con-titlehl-en'); D.content.en['con.subtitle'] = v('con-sub-en');
     // sync contact info back to company
-    if(v('con-phone')) D.company.phone = v('con-phone');
-    if(v('con-wa')) D.company.whatsapp = v('con-wa');
-    if(v('con-email') !== undefined) D.company.email = v('con-email');
+    D.company.phone = v('con-phone');
+    D.company.whatsapp = v('con-wa');
+    D.company.email = v('con-email');
     if(v('con-addr-ar')) { D.company.address = v('con-addr-ar'); D.content.ar['con.address'] = v('con-addr-ar'); }
     if(v('con-addr-en')) { D.company.addressEn = v('con-addr-en'); D.content.en['con.address'] = v('con-addr-en'); }
   }
@@ -1234,7 +1239,7 @@
     ['ar','en'].forEach(lang => {
       ['nav.services','nav.portfolio','nav.about','nav.contact','nav.cta','svc.more','about.cta','foot.desc','foot.copy'].forEach(key => {
         const el = document.getElementById('txt-'+lang+'-'+key.replace(/\./g,'-'));
-        if(el && el.value) D.content[lang][key] = el.value;
+        if(el) D.content[lang][key] = el.value;
       });
     });
   }

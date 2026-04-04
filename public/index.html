@@ -778,7 +778,7 @@
     });
   }
   function renderServices() {
-    const svcs = (D.services[lang] || D.services.ar).filter(s => s.visible !== false);
+    const svcs = ((D.services[lang] && D.services[lang].length) ? D.services[lang] : D.services.ar).filter(s => s.visible !== false);
     const delays = ['','reveal-delay-1','reveal-delay-2','reveal-delay-3','reveal-delay-4','reveal-delay-5'];
     const more = t('svc.more');
     const arr = lang==='ar' ? 'fa-arrow-left' : 'fa-arrow-right';
@@ -791,7 +791,7 @@
       </div>`).join('');
   }
   function renderStats() {
-    const stats = D.stats[lang] || D.stats.ar;
+    const stats = ((D.stats[lang] && D.stats[lang].length) ? D.stats[lang] : D.stats.ar);
     document.getElementById('stats-grid').innerHTML = stats.map(s => `
       <div class="stat-item reveal">
         <div class="stat-number" data-target="${esc(String(s.n))}" data-suf="${esc(s.s)}">0${esc(s.s)}</div>
@@ -800,12 +800,12 @@
     animateCounters();
   }
   function renderAbout() {
-    const pts = D.aboutPoints[lang] || D.aboutPoints.ar;
+    const pts = ((D.aboutPoints[lang] && D.aboutPoints[lang].length) ? D.aboutPoints[lang] : D.aboutPoints.ar);
     document.getElementById('about-points').innerHTML = pts.map(p =>
       `<li><i class="fas fa-check-circle" aria-hidden="true"></i>${esc(p)}</li>`).join('');
   }
   function renderPortfolio() {
-    const projs = (D.portfolio[lang] || D.portfolio.ar).filter(p => p.visible !== false);
+    const projs = ((D.portfolio[lang] && D.portfolio[lang].length) ? D.portfolio[lang] : D.portfolio.ar).filter(p => p.visible !== false);
     const delays = ['','reveal-delay-1','reveal-delay-2'];
     document.getElementById('portfolio-grid').innerHTML = projs.map((p,i) => `
       <div class="port-card reveal ${delays[i%3]}">
@@ -842,7 +842,7 @@
     if(sig){ sig.href = safeUrl(c.instagram)||'#'; sig.style.display = sv.instagram===false?'none':''; }
     if(stt){ stt.href = safeUrl(c.tiktok)||'#'; stt.style.display = sv.tiktok===false?'none':''; }
     if(sli){ sli.href = safeUrl(c.linkedin)||'#'; sli.style.display = sv.linkedin===false?'none':''; }
-    const svcs = D.services[lang] || D.services.ar;
+    const svcs = ((D.services[lang] && D.services[lang].length) ? D.services[lang] : D.services.ar);
     document.getElementById('f-services').innerHTML = svcs.slice(0,5).map(s=>`<li><a href="#services">${esc(s.title)}</a></li>`).join('');
     const pickLabel = t('form.pick');
     document.getElementById('f-service').innerHTML =
@@ -855,7 +855,7 @@
     if(fNameEl) fNameEl.textContent = nm;
   }
   function renderProcess() {
-    const steps = D.process[lang] || D.process.ar;
+    const steps = ((D.process[lang] && D.process[lang].length) ? D.process[lang] : D.process.ar);
     const delays = ['','reveal-delay-1','reveal-delay-2','reveal-delay-3','reveal-delay-4'];
     document.getElementById('process-grid').innerHTML = steps.map((s,i) => `
       <div class="process-step reveal ${delays[i]||''}">
@@ -865,7 +865,7 @@
       </div>`).join('');
   }
   function renderTestimonials() {
-    const reviews = D.testimonials[lang] || D.testimonials.ar;
+    const reviews = ((D.testimonials[lang] && D.testimonials[lang].length) ? D.testimonials[lang] : D.testimonials.ar);
     const delays = ['','reveal-delay-1','reveal-delay-2'];
     document.getElementById('testi-grid').innerHTML = reviews.map((r,i) => `
       <div class="testi-card reveal ${delays[i%3]}">
@@ -888,7 +888,7 @@
       if (navMob) navMob.style.display = 'none';
       return;
     }
-    const items = (D.products[lang] || D.products.ar || []).filter(p => p.visible !== false);
+    const items = ((D.products[lang] && D.products[lang].length) ? D.products[lang] : (D.products.ar || [])).filter(p => p.visible !== false);
     if (!items.length) {
       sec.style.display = 'none';
       if (navLi) navLi.style.display = 'none';

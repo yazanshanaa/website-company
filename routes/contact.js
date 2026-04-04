@@ -1,6 +1,6 @@
 const express    = require('express');
 const nodemailer = require('nodemailer');
-const { getData } = require('../lib/storage');
+const { getDb }  = require('../lib/db');
 
 const router = express.Router();
 
@@ -21,11 +21,14 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-  // Get recipient from site data
+  // رقم البريد الإلكتروني للمستلم من قاعدة البيانات
   let recipient = process.env.SMTP_FROM;
   try {
-    const data = await getData();
-    if (data.company && data.company.email) recipient = data.company.email;
+    const db = await getDb();
+    const doc = await db.collection('siteData').findOne({ _id: 'site' });
+    if (doc && doc.data && doc.data.company && doc.data.company.email) {
+      recipient = doc.data.company.email;
+    }
   } catch { /* fallback to SMTP_FROM */ }
 
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
