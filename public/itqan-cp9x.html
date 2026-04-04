@@ -780,12 +780,17 @@
   // ======= TABS =======
   function switchTab(btn, showId) {
     const parent = btn.closest('.section-page');
-    parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const sibIds = Array.from(parent.querySelectorAll('[id]')).map(e=>e.id).filter(id=>id.startsWith(showId.split('-')[0]+'-'));
-    sibIds.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+    // استخراج البادئة من آخر شرطة حتى لا يتأثر المحتوى الداخلي للتبويب
+    // مثال: 'svcs-en' → prefix = 'svcs' → يُخفي 'svcs-ar' و 'svcs-en' فقط
+    const prefix = showId.slice(0, showId.lastIndexOf('-'));
+    ['ar', 'en'].forEach(lang => {
+      const el = document.getElementById(prefix + '-' + lang);
+      if (el) el.style.display = 'none';
+    });
     const show = document.getElementById(showId);
-    if(show) show.style.display='block';
+    if (show) show.style.display = 'block';
   }
 
   // ======= PROCESS =======
