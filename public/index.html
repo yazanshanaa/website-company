@@ -758,12 +758,37 @@
   };
 
   // ======= STATE =======
-  let lang = localStorage.getItem('ht-lang') || 'ar';
+  const SUPPORTED_LANGS = ['ar', 'en'];
+  const DEFAULT_LANG = 'ar';
+  const LANG_KEY = 'lang';
+
+  function detectLang() {
+    // 1. Saved user preference (new key)
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved && SUPPORTED_LANGS.includes(saved)) return saved;
+    // 2. Legacy key migration (ht-lang → lang)
+    const legacy = localStorage.getItem('ht-lang');
+    if (legacy && SUPPORTED_LANGS.includes(legacy)) {
+      localStorage.setItem(LANG_KEY, legacy);
+      localStorage.removeItem('ht-lang');
+      return legacy;
+    }
+    // 3. Browser language
+    try {
+      const browser = (navigator.language || '').split('-')[0].toLowerCase();
+      if (SUPPORTED_LANGS.includes(browser)) return browser;
+    } catch { /* ignore */ }
+    // 4. Default
+    return DEFAULT_LANG;
+  }
+
+  let lang = detectLang();
   let D = DEFAULT;
 
   // ======= LANG =======
   function setLang(l) {
-    lang = l; localStorage.setItem('ht-lang', l); applyLang(); renderAll();
+    if (!SUPPORTED_LANGS.includes(l)) return;
+    lang = l; localStorage.setItem(LANG_KEY, l); applyLang(); renderAll();
   }
   function applyLang() {
     const html = document.getElementById('html-root');
