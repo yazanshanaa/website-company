@@ -10,12 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Syne:wght@600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Syne:wght@600;700&display=swap"></noscript>
+  <link rel="preload" as="image" href="img/orginal.png" fetchpriority="high">
   <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
   <style>
-    @font-face { font-family: 'Font Awesome 6 Free'; font-display: swap; }
-    @font-face { font-family: 'Font Awesome 6 Brands'; font-display: swap; }
-    .skip-link{position:absolute;top:-100px;left:16px;padding:8px 16px;background:var(--primary);color:#050B18;font-weight:700;border-radius:0 0 8px 8px;text-decoration:none;z-index:9999;transition:top .2s}
+.skip-link{position:absolute;top:-100px;left:16px;padding:8px 16px;background:var(--primary);color:#050B18;font-weight:700;border-radius:0 0 8px 8px;text-decoration:none;z-index:9999;transition:top .2s}
     .skip-link:focus{top:0}
     :root {
       --bg: #060D1F;
@@ -54,8 +53,8 @@
     .reveal-delay-4{transition-delay:.4s}.reveal-delay-5{transition-delay:.5s}
 
     /* NAVBAR */
-    .navbar{position:fixed;top:0;width:100%;z-index:1000;padding:20px 0;transition:all .4s ease}
-    .navbar.scrolled{background:rgba(6,13,31,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 0}
+    .navbar{position:fixed;top:0;width:100%;z-index:1000;padding:20px 0;transition:background-color .4s ease,backdrop-filter .4s ease,box-shadow .4s ease}
+    .navbar.scrolled{background:rgba(6,13,31,0.95);backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border)}
     .navbar .container{display:flex;align-items:center;justify-content:space-between;gap:20px}
     .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
     .nav-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#050B18;font-weight:800;font-family:var(--font-en)}
@@ -359,7 +358,7 @@
   <nav class="navbar" id="navbar">
     <div class="container">
       <a href="#" class="nav-logo">
-        <img src="img/orginal.png" alt="إتقان تك" class="site-logo-img" width="169" height="92" loading="eager" decoding="async">
+        <img src="img/orginal.png" alt="إتقان تك" class="site-logo-img" width="169" height="92" loading="eager" decoding="sync" fetchpriority="high">
         <span id="logo-name" style="display:none">إتقان</span>
       </a>
       <ul class="nav-menu">
@@ -451,13 +450,13 @@
         <h2 class="section-title reveal reveal-delay-1"><span data-key="svc.titleprefix">حلول تقنية </span><span class="highlight" data-key="svc.titlehl">متكاملة</span></h2>
         <p class="section-subtitle reveal reveal-delay-2" data-key="svc.subtitle">نقدم طيفاً واسعاً من الخدمات التقنية لمساعدة عملك على النمو والتوسع في العالم الرقمي</p>
       </div>
-      <div class="services-grid" id="services-grid"></div>
+      <div class="services-grid" id="services-grid" style="min-height:320px"></div>
     </div>
   </section>
 
   <!-- STATS -->
   <section class="stats-wrap" id="stats-section">
-    <div class="container"><div class="stats-grid" id="stats-grid"></div></div>
+    <div class="container"><div class="stats-grid" id="stats-grid" style="min-height:120px"></div></div>
   </section>
 
   <!-- ABOUT -->
@@ -476,7 +475,7 @@
           <div class="section-badge reveal"><i class="fas fa-building" aria-hidden="true"></i><span data-key="about.badge">من نحن</span></div>
           <h2 class="section-title reveal reveal-delay-1"><span data-key="about.titleprefix">فريق متخصص في </span><span class="highlight" data-key="about.titlehl">بناء الحلول التقنية</span></h2>
           <p class="section-subtitle reveal reveal-delay-2" data-key="about.desc">هايتك شركة تقنية متخصصة في تطوير الحلول الرقمية. نجمع بين الإبداع التقني والفهم العميق لاحتياجات السوق.</p>
-          <ul class="about-points reveal reveal-delay-3" id="about-points"></ul>
+          <ul class="about-points reveal reveal-delay-3" id="about-points" style="min-height:80px"></ul>
           <div style="margin-top:32px" class="reveal reveal-delay-4">
             <a href="#contact" class="btn btn-primary"><i class="fas fa-handshake" aria-hidden="true"></i><span data-key="about.cta">تواصل مع فريقنا</span></a>
           </div>
@@ -493,7 +492,7 @@
         <h2 class="section-title reveal reveal-delay-1"><span data-key="proc.titleprefix">من </span><span class="highlight" data-key="proc.titlehl">الفكرة إلى التسليم</span></h2>
         <p class="section-subtitle reveal reveal-delay-2" style="margin:0 auto" data-key="proc.subtitle">عملية واضحة ومنظمة تضمن لك نتائج استثنائية في كل مشروع</p>
       </div>
-      <div class="process-grid" id="process-grid"></div>
+      <div class="process-grid" id="process-grid" style="min-height:200px"></div>
     </div>
   </section>
 
@@ -506,7 +505,7 @@
         <h2 class="section-title reveal reveal-delay-1"><span data-key="testi.titleprefix">عملاؤنا </span><span class="highlight" data-key="testi.titlehl">يتحدثون عنا</span></h2>
         <p class="section-subtitle reveal reveal-delay-2" style="margin:0 auto" data-key="testi.subtitle">ثقة عملائنا هي أكبر جائزة نحصل عليها — اقرأ تجاربهم الحقيقية معنا</p>
       </div>
-      <div class="testi-grid" id="testi-grid"></div>
+      <div class="testi-grid" id="testi-grid" style="min-height:200px"></div>
     </div>
   </section>
 
@@ -520,7 +519,7 @@
         </div>
         <a href="#contact" class="btn btn-outline reveal"><span data-key="port.cta">ابدأ مشروعك</span><i class="fas fa-arrow-left" id="port-arr" aria-hidden="true"></i></a>
       </div>
-      <div class="portfolio-grid" id="portfolio-grid"></div>
+      <div class="portfolio-grid" id="portfolio-grid" style="min-height:320px"></div>
     </div>
   </section>
 
@@ -535,7 +534,7 @@
         </div>
         <a href="#contact" class="btn btn-outline reveal"><span data-key="nav.cta">ابدأ مشروعك</span><i class="fas fa-arrow-left" id="prod-arr" aria-hidden="true"></i></a>
       </div>
-      <div class="products-grid" id="products-grid"></div>
+      <div class="products-grid" id="products-grid" style="min-height:200px"></div>
     </div>
   </section>
 
@@ -926,17 +925,21 @@
 
   // ======= COUNTERS =======
   function animateCounters() {
+    function animateEl(el, target, suffix) {
+      let cur = 0; const step = Math.ceil(target / 60);
+      function tick() {
+        cur = Math.min(cur + step, target);
+        el.textContent = cur + suffix;
+        if (cur < target) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
     document.querySelectorAll('.stat-number[data-target]').forEach(el => {
-      const target = +el.getAttribute('data-target');
-      const suf = el.getAttribute('data-suf') || '';
-      let cur = 0; const step = Math.ceil(target/60);
-      const t = setInterval(() => { cur = Math.min(cur+step, target); el.textContent = cur+suf; if(cur>=target) clearInterval(t); }, 30);
+      animateEl(el, +el.getAttribute('data-target'), el.getAttribute('data-suf') || '');
     });
     document.querySelectorAll('[data-counter]').forEach(el => {
       const target = +el.getAttribute('data-counter');
-      const isSat = target > 50;
-      let cur = 0; const step = Math.ceil(target/60);
-      const t = setInterval(() => { cur = Math.min(cur+step, target); el.textContent = cur+(isSat?'%':'+'); if(cur>=target) clearInterval(t); }, 30);
+      animateEl(el, target, target > 50 ? '%' : '+');
     });
   }
 
@@ -996,12 +999,13 @@
   }
 
   // ======= INIT =======
-  (async function init() {
-    try {
-      const res = await fetch('/api/data');
-      if(res.ok) { const sd = await res.json(); if(sd && sd.company) D = sd; }
-    } catch(e) { /* use DEFAULT fallback */ }
+  (function init() {
+    // عرض فوري من البيانات الافتراضية لتحسين LCP و FCP
     applyLang(); renderAll(); animateCounters(); initReveal();
+    // جلب البيانات من الخادم في الخلفية وتحديث الواجهة عند الاستجابة
+    fetch('/api/data').then(r => r.ok ? r.json() : null).then(sd => {
+      if (sd && sd.company) { D = sd; applyLang(); renderAll(); }
+    }).catch(() => {});
   })();
   </script>
 </body>
