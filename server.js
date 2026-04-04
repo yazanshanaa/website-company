@@ -117,7 +117,20 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/contact', require('./routes/contact'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (/\.(png|jpg|jpeg|gif|webp|avif|ico|svg)$/i.test(filePath)) {
+      // الصور: تخزين مؤقت لمدة سنة (محتوى ثابت)
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(woff|woff2|ttf|otf)$/i.test(filePath)) {
+      // الخطوط: تخزين مؤقت لمدة سنة
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.html$/i.test(filePath)) {
+      // HTML: لا تخزين مؤقت لضمان ظهور التحديثات فوراً
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Seed DB on startup (non-blocking)
 const { seedDatabase } = require('./lib/seed');
@@ -127,7 +140,12 @@ seedDatabase().catch(err => console.error('Seed error:', err));
 app.use((err, req, res, next) => {
   console.error('[GlobalError]', err.message, err.stack);
   if (res.headersSent) return next(err);
-  res.status(err.status || err.statusCode || 500).json({ error: err.message || 'Internal server error' });
+  const status = err.status || err.statusCode || 500;
+  // لا نكشف تفاصيل الأخطاء الداخلية في الإنتاج
+  const message = process.env.NODE_ENV === 'production' && status === 500
+    ? 'Internal server error'
+    : (err.message || 'Internal server error');
+  res.status(status).json({ error: message });
 });
 
 // Only listen when run directly (not on Vercel serverless)

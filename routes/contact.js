@@ -21,13 +21,14 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-  // رقم البريد الإلكتروني للمستلم من قاعدة البيانات
+  // البريد الإلكتروني للمستلم من قاعدة البيانات مع التحقق من الصيغة
   let recipient = process.env.SMTP_FROM;
   try {
     const db = await getDb();
     const doc = await db.collection('siteData').findOne({ _id: 'site' });
-    if (doc && doc.data && doc.data.company && doc.data.company.email) {
-      recipient = doc.data.company.email;
+    const dbEmail = doc?.data?.company?.email;
+    if (dbEmail && /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(dbEmail)) {
+      recipient = dbEmail;
     }
   } catch { /* fallback to SMTP_FROM */ }
 
