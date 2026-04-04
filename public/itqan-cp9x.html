@@ -1019,14 +1019,16 @@
   function previewPortImg(url) {
     const preview = document.getElementById('port-img-preview');
     const img = document.getElementById('port-img-preview-img');
-    if(url.trim()) { img.src = url.trim(); preview.style.display='block'; }
-    else { preview.style.display='none'; }
+    const safe = safeUrl(url);
+    if (safe) { img.src = safe; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; img.src = ''; }
   }
   function previewSvcImg(url) {
     const preview = document.getElementById('svc-img-preview');
     const img = document.getElementById('svc-img-preview-img');
-    if(url.trim()) { img.src = url.trim(); preview.style.display='block'; }
-    else { preview.style.display='none'; }
+    const safe = safeUrl(url);
+    if (safe) { img.src = safe; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; img.src = ''; }
   }
   function openAddPort(lang) {
     document.getElementById('port-edit-idx').value=-1; document.getElementById('port-edit-lang').value=lang;
