@@ -1,26 +1,28 @@
+'use strict';
 require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const path = require('path');
+const path    = require('path');
 const getClientIp = require('./lib/getClientIp');
-const { getClient } = require('./lib/db');
+
+// âââ Startup guards âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
-  console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars).');
-  process.exit(1);
-}
-if (!process.env.MONGODB_URI) {
-  console.error('FATAL: MONGODB_URI is missing.');
+  console.error('FATAL: SESSION_SECRET is missing or too short (min 32 chars). Set it in .env');
   process.exit(1);
 }
 
-const app = express();
+// âââ App setup ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-// Always trust proxy (needed on Vercel)
-app.set('trust proxy', 1);
+const app  = express();
+const PORT = process.env.PORT || 3000;
 
-// Security headers
+// Trust the first proxy when running behind Nginx / reverse proxy
+if (process.env.BEHIND_PROXY === 'true') app.set('trust proxy', 1);
+
+// âââ Security headers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -36,61 +38,61 @@ app.use((req, res, next) => {
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
       "img-src 'self' data: https: blob:",
       "connect-src 'self'",
-      "frame-ancestors 'self'"
+      "frame-ancestors 'self'",
     ].join('; ')
   );
+
   if (process.env.NODE_ENV === 'production') {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
+
+  // Extra hardening for the admin panel
   if (req.path.includes('itqan-cp9x')) {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   }
+
   next();
 });
 
+// âââ Body parsing & sessions ââââââââââââââââââââââââââââââââââââââââââââââââââ
+
 app.use(express.json({ limit: '1mb' }));
 
-// حفظ الجلسات في MongoDB حتى تبقى محفوظة عبر استدعاءات Vercel المختلفة
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    clientPromise: getClient(),
-    dbName: 'itqan',
-    collectionName: 'sessions',
-    ttl: 2 * 60 * 60,        // انتهاء الجلسة بعد ساعتين (بالثواني)
-    autoRemove: 'native',    // حذف الجلسات المنتهية تلقائياً عبر MongoDB TTL index
-    touchAfter: 24 * 3600   // تحديث الجلسة مرة واحدة كل 24 ساعة فقط لتقليل الكتابات
-  }),
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 2 * 60 * 60 * 1000
-  }
+    maxAge: 2 * 60 * 60 * 1000, // 2 hours
+  },
 }));
 
-// CSRF protection: reject cross-origin state-changing requests
+// âââ CSRF protection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Reject cross-origin state-changing requests by comparing Origin/Referer host
 app.use((req, res, next) => {
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
-    const originHeader = req.headers.origin || req.headers.referer || '';
-    if (originHeader) {
-      try {
-        const originHost = new URL(originHeader).host;
-        if (originHost !== req.headers.host) return res.status(403).json({ error: 'Forbidden' });
-      } catch {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-    }
+  if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) return next();
+  const originHeader = req.headers.origin || req.headers.referer || '';
+  if (!originHeader) return next();
+  try {
+    const originHost = new URL(originHeader).host;
+    if (originHost !== req.headers.host) return res.status(403).json({ error: 'Forbidden' });
+  } catch {
+    return res.status(403).json({ error: 'Forbidden' });
   }
   next();
 });
 
-// Rate limit contact form
+// âââ Rate limiting (contact form) ââââââââââââââââââââââââââââââââââââââââââââ
+// Max 5 POST requests per IP per minute
+
 const contactRateMap = new Map();
+
+// Prune expired entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [ip, record] of contactRateMap) {
@@ -100,58 +102,30 @@ setInterval(() => {
 
 app.use('/api/contact', (req, res, next) => {
   if (req.method !== 'POST') return next();
-  const ip = getClientIp(req);
+  const ip  = getClientIp(req);
   const now = Date.now();
-  const record = contactRateMap.get(ip) || { count: 0, resetAt: now + 60000 };
-  if (now > record.resetAt) {
-    record.count = 0;
-    record.resetAt = now + 60000;
-  }
+  const record = contactRateMap.get(ip) || { count: 0, resetAt: now + 60_000 };
+  if (now > record.resetAt) { record.count = 0; record.resetAt = now + 60_000; }
   record.count++;
   contactRateMap.set(ip, record);
-  if (record.count > 5) return res.status(429).json({ error: 'Too many requests.' });
+  if (record.count > 5) {
+    return res.status(429).json({ error: 'Too many requests. Try again in a minute.' });
+  }
   next();
 });
 
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/data', require('./routes/data'));
+// âââ Routes âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+app.use('/api/auth',    require('./routes/auth'));
+app.use('/api/data',    require('./routes/data'));
 app.use('/api/contact', require('./routes/contact'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, filePath) => {
-    if (/\.(png|jpg|jpeg|gif|webp|avif|ico|svg)$/i.test(filePath)) {
-      // الصور: تخزين مؤقت لمدة سنة (محتوى ثابت)
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else if (/\.(woff|woff2|ttf|otf)$/i.test(filePath)) {
-      // الخطوط: تخزين مؤقت لمدة سنة
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else if (/\.html$/i.test(filePath)) {
-      // HTML: لا تخزين مؤقت لضمان ظهور التحديثات فوراً
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    }
-  }
-}));
+// âââ Start ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-// Seed DB on startup (non-blocking)
-const { seedDatabase } = require('./lib/seed');
-seedDatabase().catch(err => console.error('Seed error:', err));
-
-// Global JSON error handler (must be last, after all routes)
-app.use((err, req, res, next) => {
-  console.error('[GlobalError]', err.message, err.stack);
-  if (res.headersSent) return next(err);
-  const status = err.status || err.statusCode || 500;
-  // لا نكشف تفاصيل الأخطاء الداخلية في الإنتاج
-  const message = process.env.NODE_ENV === 'production' && status === 500
-    ? 'Internal server error'
-    : (err.message || 'Internal server error');
-  res.status(status).json({ error: message });
-});
-
-// Only listen when run directly (not on Vercel serverless)
+// Only start the HTTP listener when running directly (not when imported by Vercel)
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log('Itqan server running on http://localhost:' + PORT));
+  app.listen(PORT, () => console.log(`Itqan server running on http://localhost:${PORT}`));
 }
 
 module.exports = app;
