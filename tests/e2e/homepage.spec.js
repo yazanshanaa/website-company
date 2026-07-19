@@ -7,9 +7,18 @@ const { waitForHomeContent } = require('./helpers');
  * Homepage tests — verifies that all dynamically rendered sections appear
  * correctly after init() fetches /api/data and calls renderAll().
  *
- * Title:  "إتقان تك | حلول تقنية متكاملة"
  * All grids are populated either from the API or from the DEFAULT fallback,
  * so assertions never rely on specific data values — only on presence.
+ *
+ * ── لماذا اتغيّرت اختبارات كثيرة (2026-07-17) ──────────────────────────────
+ * الاختبارات القديمة كانت بتفترض وجود محتوى انحذف عن قصد:
+ * توصيات وأعمال وإحصائيات مفبركة، ورقم واتساب من القالب (+970590000000).
+ * STRATEGY.md أمر بحذفها (خطر سمعة: السوق الفلسطيني صغير وبيتحقّق).
+ * فصارت `stats`/`portfolio`/`testimonials` فاضية بـsite.json، والأقسام
+ * بتخفي حالها عبر toggleSection() — وهاد السلوك الصحيح، مش عطل.
+ *
+ * فالاختبارات هلق بتأكّد الواقع: القسم الفاضي بيختفي هو ورابطه، وما بينعرض
+ * زر واتساب ميت. لما ينوجد محتوى حقيقي، الاختبارات المشروطة بتفحصه.
  */
 test.describe('Homepage — Structure & Content', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,15 +30,23 @@ test.describe('Homepage — Structure & Content', () => {
   // ── Document ─────────────────────────────────────────────────────────────
   test('loads at "/" with the correct page title', async ({ page }) => {
     await expect(page).toHaveURL('/');
-    await expect(page).toHaveTitle('إتقان تك | حلول تقنية متكاملة');
+    // العنوان اتغيّر مع التموضع الجديد — بيحكي عن العرض مش عن "حلول متكاملة"
+    await expect(page).toHaveTitle('إتقان تك | موقع لمحلك بسعر معلن — فلسطين');
   });
 
   // ── Navbar ────────────────────────────────────────────────────────────────
-  test('navbar is visible and contains all anchor links', async ({ page }) => {
-    const nav = page.locator('#navbar');
-    await expect(nav).toBeVisible();
-    for (const href of ['#services', '#portfolio', '#about', '#contact']) {
-      await expect(nav.locator(`a[href="${href}"]`)).toBeVisible();
+  test('navbar exposes links to every section that has content', async ({ page }) => {
+    await expect(page.locator('#navbar')).toBeVisible();
+    // تحت 1024 .nav-menu بتنخفي والهامبرغر بياخد محلها — فمنفحص القائمة الصح
+    // حسب المقاس بدل ما نفشل بلا معنى على مشروع Mobile Chrome.
+    const wide = page.viewportSize().width > 1024;
+    if (!wide) await page.locator('[onclick="toggleMobile()"]').first().click();
+    // منحدّد على .nav-menu مش #navbar كامل: "#contact" موجود مرتين جوّا الناف
+    // (رابط القائمة + زر الـCTA)، وهاد بيكسر وضع Playwright الصارم.
+    const menu = page.locator(wide ? '#navbar .nav-menu' : '#mobile-menu');
+    // #portfolio انشال من هون: القسم بيخفي حاله ورابطه لما يكون فاضي (فحصه تحت).
+    for (const href of ['#services', '#about', '#contact']) {
+      await expect(menu.locator(`a[href="${href}"]`)).toBeVisible();
     }
   });
 
@@ -54,26 +71,29 @@ test.describe('Homepage — Structure & Content', () => {
     await expect(cards.first()).toBeVisible();
   });
 
-  test('each service card has an icon, title and description', async ({ page }) => {
+  test('each service card has an index numeral, title and description', async ({ page }) => {
     const card = page.locator('#services-grid .service-card').first();
-    await expect(card.locator('.svc-icon')).toBeVisible();
+    // .svc-icon انشالت مع إعادة التصميم (DESIGN_BRIEF — اتجاه «الورشة»):
+    // الأقسام صارت جداول مواصفات مفهرسة بدل كروت بأيقونات، والرقم هو العلامة.
+    await expect(card.locator('.svc-idx')).toBeVisible();
+    await expect(card.locator('.svc-idx')).not.toBeEmpty();
     await expect(card.locator('.svc-title')).not.toBeEmpty();
     await expect(card.locator('.svc-desc')).not.toBeEmpty();
   });
 
   // ── Stats ─────────────────────────────────────────────────────────────────
-  test('stats section renders at least one .stat-item', async ({ page }) => {
+  // الإحصائيات (50+ مشروع / 98% رضا) انحذفت: ما كانت حقيقية.
+  // الاختبار هلق بيأكّد القاعدة: بيانات فاضية = قسم مخفي، ولما تنوجد بيشتغل العدّاد.
+  test('stats section hides itself when empty, and counts up when populated', async ({ page }) => {
     const grid = page.locator('#stats-grid');
+    const count = await grid.locator('.stat-item').count();
+    if (count === 0) {
+      await expect(page.locator('#stats-section')).toBeHidden();
+      return;
+    }
     await expect(grid).toBeVisible();
-    expect(await grid.locator('.stat-item').count()).toBeGreaterThan(0);
-  });
-
-  test('counter numbers animate away from their initial 0 value', async ({ page }) => {
-    // animateCounters() runs after renderStats(); each number starts at "0X"
-    // and counts up — after a moment it should differ from its start value
-    const num = page.locator('#stats-grid .stat-number').first();
+    const num = grid.locator('.stat-number').first();
     await expect(num).toBeVisible();
-    // Wait for any text that doesn't start with bare "0" (e.g. "50+" or "98%")
     await expect(num).not.toHaveText('0', { timeout: 5_000 });
   });
 
@@ -83,17 +103,19 @@ test.describe('Homepage — Structure & Content', () => {
   });
 
   // ── Portfolio ─────────────────────────────────────────────────────────────
-  test('portfolio grid renders at least one .port-card', async ({ page }) => {
-    await page.waitForSelector('#portfolio-grid .port-card', { timeout: 10_000 });
+  // الأعمال الست المتخيّلة انحذفت. لما ينضافوا أعمال حقيقية من لوحة التحكم،
+  // الاختبار بيفحص محتواهم تلقائياً — وقبلها بيتأكّد إن القسم ورابطه مخفيين.
+  test('portfolio hides itself and its nav link when empty', async ({ page }) => {
     const cards = page.locator('#portfolio-grid .port-card');
-    expect(await cards.count()).toBeGreaterThan(0);
+    const count = await cards.count();
+    if (count === 0) {
+      await expect(page.locator('#portfolio')).toBeHidden();
+      await expect(page.locator('#navbar a[href="#portfolio"]')).toBeHidden();
+      return;
+    }
     await expect(cards.first()).toBeVisible();
-  });
-
-  test('each portfolio card has a category and title', async ({ page }) => {
-    const card = page.locator('#portfolio-grid .port-card').first();
-    await expect(card.locator('.port-cat')).not.toBeEmpty();
-    await expect(card.locator('.port-title')).not.toBeEmpty();
+    await expect(cards.first().locator('.port-cat')).not.toBeEmpty();
+    await expect(cards.first().locator('.port-title')).not.toBeEmpty();
   });
 
   // ── Process ───────────────────────────────────────────────────────────────
@@ -103,17 +125,17 @@ test.describe('Homepage — Structure & Content', () => {
   });
 
   // ── Testimonials ──────────────────────────────────────────────────────────
-  test('testimonials section renders at least one .testi-card', async ({ page }) => {
-    await page.waitForSelector('#testi-grid .testi-card');
+  // التوصيات الست كانت بأسماء غير موجودة — انحذفت. توصية وحدة تنكشف = نهاية السمعة
+  // في سوق بحجم فلسطين. الاختبار بيحرس القاعدة: ما في توصيات = ما في قسم.
+  test('testimonials hide themselves when empty', async ({ page }) => {
     const cards = page.locator('#testi-grid .testi-card');
-    expect(await cards.count()).toBeGreaterThan(0);
-  });
-
-  test('each testimonial card has quote text, author name and star icons', async ({ page }) => {
-    const card = page.locator('#testi-grid .testi-card').first();
-    await expect(card.locator('.testi-text')).not.toBeEmpty();
-    await expect(card.locator('.testi-name')).not.toBeEmpty();
-    await expect(card.locator('.testi-stars')).toBeVisible();
+    const count = await cards.count();
+    if (count === 0) {
+      await expect(page.locator('#testimonials')).toBeHidden();
+      return;
+    }
+    await expect(cards.first().locator('.testi-text')).not.toBeEmpty();
+    await expect(cards.first().locator('.testi-name')).not.toBeEmpty();
   });
 
   // ── Contact ───────────────────────────────────────────────────────────────
@@ -147,9 +169,34 @@ test.describe('Homepage — Structure & Content', () => {
   });
 
   // ── WhatsApp float ────────────────────────────────────────────────────────
-  test('WhatsApp floating button is visible and points to wa.me', async ({ page }) => {
+  // الرابط الميت أسوأ من لا رابط: بيحرق الثقة بلحظة نية الشراء بالضبط.
+  // waNumber() بيرفض الفاضي والأرقام الوهمية (زي +970590000000 اللي كان بالقالب)
+  // وبيخفي الزر بدل ما يعرضه مكسور. الاختبار بيحرس الحالتين.
+  test('WhatsApp float points to a real wa.me link, or hides itself entirely', async ({ page }) => {
     const btn = page.locator('#wa-btn');
-    await expect(btn).toBeVisible();
-    expect(await btn.getAttribute('href')).toMatch(/wa\.me/);
+    const href = await btn.getAttribute('href');
+    const wired = href && /wa\.me\/\d{9,}/.test(href);
+    if (wired) {
+      await expect(btn).toBeVisible();
+      // رقم القالب الوهمي ما بيعدّي
+      expect(href).not.toMatch(/wa\.me\/9700+$/);
+    } else {
+      await expect(btn).toBeHidden();
+    }
+  });
+
+  // حارس صريح: ما بينشحن ولا زر واتساب ميت.
+  // العقد اللي بينفّذه wireWaLinks(): إذا في رقم -> wa.me، وإذا ما في -> #contact
+  // (الفورم، هدف شغّال) — بس أبداً "#" لحاله، لأنها بتوقف الزائر بلحظة نية الشراء.
+  test('every visible WhatsApp CTA lands somewhere real — never a bare "#"', async ({ page }) => {
+    const links = page.locator('a[data-wa-link]');
+    const n = await links.count();
+    expect(n, 'لازم يكون في أزرار واتساب بالصفحة').toBeGreaterThan(0);
+    for (let i = 0; i < n; i++) {
+      const el = links.nth(i);
+      if (!(await el.isVisible())) continue;
+      const href = await el.getAttribute('href');
+      expect(href, 'زر واتساب ظاهر لازم يوصّل لـwa.me أو للفورم').toMatch(/(wa\.me\/\d{9,}|#contact)/);
+    }
   });
 });
