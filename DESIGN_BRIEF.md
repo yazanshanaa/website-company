@@ -127,6 +127,26 @@ Light-mode only by design — the calm paper tone *is* the brand decision, not a
 
 ---
 
+## Implementation log — QA pass (2026-07-19)
+
+Decisions taken while closing the QA gate, recorded here per the brief-is-the-contract rule.
+
+**Added to the token layer**
+- `--fb` / `--ig` / `--li` (Facebook, Instagram, LinkedIn) join `--wa` as *platform* colors — not brand colors. They were previously inline hex on the admin panel's social icons.
+- `--danger` / `--success` were already defined but unused; the JS was still passing raw hex from the pre-restyle design.
+
+**Toast: fill → border.** `.toast` was restyled to ivory surface + colored border, but `showToast()` still overrode `background` inline. That put near-black text on a dark fill at **3.04:1**. The state is now carried by `borderColor`, keeping the ivory surface — **16.04:1**. The admin panel's toast is a different pattern (ivory text on a colored fill) and measured 4.53:1 / 4.97:1, so it was left alone.
+
+**Focus rings.** `:focus-visible` covered only `.btn` on the site, and was *completely absent* from the admin panel — keyboard navigation there had no visible focus at all. A global rule now covers `a/button/input/select/textarea/[tabindex]` in both files, switching to `--band-text` over the dark band, footer and sidebar.
+
+**Touch targets.** Enlarged to ≥44×44 under `@media (pointer:coarse)` only, so the desktop's deliberately compact proportions are untouched. Previously undersized: language toggle (32×30), hamburger (40×38), mobile close (42×42), footer links (21px tall).
+
+**Contrast, measured not eyeballed.** All token pairs pass at their applicable threshold. `--brass` on `--bg` is **3.12:1** — below the 4.5:1 body-text bar, but brass is used *only* for icons, hairline rules, star glyphs and the large price (`--price` ≥26px), all of which sit under the 3:1 large-text/graphic threshold. This was already reasoned about in a CSS comment at the `.product-price` rule and remains correct. On the dark band brass measures 4.76:1.
+
+**Open deviation — numerals.** The brief specifies Arabic-Indic index numerals (٠١ ٠٢ ٠٣). The build renders Latin (01 02 03) across services, process and pricing. This is left as-is deliberately: prices, opening hours and the `₪` amounts all use Latin numerals, and Palestinian/Levantine usage commonly favours them — mixing scripts would read as inconsistent rather than editorial. **Flagged for the owner's call**, not silently settled.
+
+---
+
 ## What does NOT change
 
 All copy, positioning, WhatsApp-link logic (`waLink`, `wireWaLinks`), empty-section hiding (`pickList`, `toggleSection`), honest form behavior, and the MongoDB sync flow already built stay exactly as implemented. This brief is a **visual system replacement only** — no regression on the trust/conversion fixes already shipped, from either pass.
