@@ -77,6 +77,24 @@ ul{list-style:none}
 }
 .skip-link:focus{top:0}
 
+/* ── حلقة التركيز (كيبورد) ───────────────────────────────────
+   قاعدة عامة لكل عنصر تفاعلي — قبلها كانت محصورة بـ.btn وحدها،
+   فالروابط ومبدّل اللغة وروابط الفوتر كانوا بلا أي أثر تركيز.
+   :focus-visible مش :focus — فما بتظهر الحلقة عند الكبس بالفأرة. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--radius-sm)
+}
+/* فوق الشريط الغامق التركوازي ما بينقرا — بنقلب للعاجي */
+.guarantee-band a:focus-visible,
+.guarantee-band button:focus-visible,
+footer a:focus-visible,
+footer button:focus-visible{outline-color:var(--band-text)}
+
 /* ── الطباعة ──────────────────────────────────────────────────
    ما في letter-spacing على العربي الجاري: الخط متصل، والـtracking
    بيفكّه وبيقرا كعطل رندر. الاستثناء الوحيد: تسميات العناوين القصيرة
@@ -506,6 +524,21 @@ footer .site-logo-img{height:64px}
 }
 @media (max-width:480px){
   .products-header{flex-direction:column;align-items:flex-start}
+}
+
+/* ── أهداف اللمس ≥44×44 ──────────────────────────────────────
+   على الأجهزة اللمسية بس (pointer:coarse) — فالنسب المضغوطة
+   الأنيقة بتضل كما هي على الديسكتوب حيث المؤشر دقيق.
+   كانت: مبدّل اللغة ٣٢×٣٠ والهامبرغر ٤٠×٣٨ — تحت العتبة. */
+@media (pointer:coarse){
+  .lang-btn{min-height:44px;min-width:44px;padding:6px 14px}
+  .hamburger{min-height:44px;min-width:44px;align-items:center;justify-content:center}
+  .nav-logo{min-height:44px;display:inline-flex;align-items:center}
+  .mobile-close{min-height:44px;min-width:44px}
+  /* روابط الفوتر: مساحة لمس بالحشوة بدون ما يتغيّر حجم الخط.
+     block عشان العرض كمان يوصل ٤٤ — كانت روابط ضيّقة (٣٥px). */
+  .footer-links a{display:block;padding:14px 0;line-height:1.2}
+  .footer-links li{margin-bottom:0}
 }
 
 /* ── احترام تقليل الحركة ─────────────────────────────────── */
@@ -1616,7 +1649,7 @@ footer .site-logo-img{height:64px}
     const email = document.getElementById('f-email').value.trim();
     const msg = document.getElementById('f-msg').value.trim();
     const svc = document.getElementById('f-service').value;
-    if(!name || !email || !msg) { showToast(lang==='ar'?'يرجى ملء جميع الحقول':'Please fill all fields','#EF4444'); return; }
+    if(!name || !email || !msg) { showToast(lang==='ar'?'يرجى ملء جميع الحقول':'Please fill all fields','var(--danger)'); return; }
     const payload = JSON.stringify({name, email, message: msg, service: svc});
     const send = () => fetch('/api/contact', {
       method: 'POST', headers: {'Content-Type':'application/json'}, body: payload
@@ -1634,23 +1667,25 @@ footer .site-logo-img{height:64px}
       send().catch(() => {}); // نسخة على الإيميل كسجل
       window.open(link, '_blank');
       // بنقول الحقيقة: الرسالة لسا ما انبعتت — لازم يضغط إرسال جوّا الواتساب
-      showToast(lang==='ar'?'فتحنا لك واتساب — اضغط إرسال هناك':'WhatsApp opened — press send there','#34D399');
+      showToast(lang==='ar'?'فتحنا لك واتساب — اضغط إرسال هناك':'WhatsApp opened — press send there','var(--success)');
       clear();
       return;
     }
     // ما في رقم واتساب مضبوط: منعتمد على الإيميل، ومنقول النتيجة الحقيقية مش "تم الإرسال" دايماً
     send()
       .then(r => {
-        if (r.ok) { showToast(lang==='ar'?'وصلتنا رسالتك ✓':'Message received ✓','#34D399'); clear(); }
-        else showToast(lang==='ar'?'ما زبطت — جرّب مرة ثانية':'Failed — please try again','#EF4444');
+        if (r.ok) { showToast(lang==='ar'?'وصلتنا رسالتك ✓':'Message received ✓','var(--success)'); clear(); }
+        else showToast(lang==='ar'?'ما زبطت — جرّب مرة ثانية':'Failed — please try again','var(--danger)');
       })
-      .catch(() => showToast(lang==='ar'?'ما زبطت — جرّب مرة ثانية':'Failed — please try again','#EF4444'));
+      .catch(() => showToast(lang==='ar'?'ما زبطت — جرّب مرة ثانية':'Failed — please try again','var(--danger)'));
   }
 
   // ======= TOAST =======
-  function showToast(msg, color='#34D399') {
+  function showToast(msg, color='var(--success)') {
     const t = document.getElementById('toast');
-    t.textContent = msg; t.style.background = color;
+    // الحشوة بتضل عاجية والحدّ هو اللي بيحمل الحالة — كان قبلها بيلوّن
+    // الخلفية غامق والنص ضلّ أسود، فالتباين بينزل لـ3:1 وما بينقرا.
+    t.textContent = msg; t.style.borderColor = color;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
   }

@@ -44,6 +44,21 @@
     .login-btn:hover{opacity:.9;transform:translateY(-1px)}
     .login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none}
 
+    /* ── حلقة التركيز (كيبورد) ───────────────────────────────
+       اللوحة كانت بلا أي قاعدة تركيز نهائياً — تنقّل بالكيبورد
+       أعمى بالكامل. نفس قاعدة الموقع، وبالعاجي فوق الشريط الجانبي
+       الغامق لأن التركوازي ما بينقرا عليه. */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible{
+      outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--radius-sm)
+    }
+    .sidebar a:focus-visible,
+    .sidebar button:focus-visible{outline-color:var(--band-text)}
+
     /* ADMIN LAYOUT */
     .admin-wrap{display:none;min-height:100vh}
     .admin-wrap.active{display:flex}
@@ -303,12 +318,12 @@
           <p style="font-size:12px;color:var(--muted);margin-bottom:14px"><i class="fas fa-info-circle"></i> يمكنك إخفاء أي منصة من الموقع بإلغاء تفعيل مفتاحها</p>
           <div style="display:grid;gap:12px">
             <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-facebook" style="color:#1877F2;font-size:20px;text-align:center"></i>
+              <i class="fab fa-facebook" style="color:var(--fb);font-size:20px;text-align:center"></i>
               <input id="c-fb" placeholder="https://facebook.com/..." dir="ltr">
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-facebook" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
             </div>
             <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-instagram" style="color:#E1306C;font-size:20px;text-align:center"></i>
+              <i class="fab fa-instagram" style="color:var(--ig);font-size:20px;text-align:center"></i>
               <input id="c-ig" placeholder="https://instagram.com/..." dir="ltr">
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-instagram" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
             </div>
@@ -318,7 +333,7 @@
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-tiktok" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
             </div>
             <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-linkedin" style="color:#0A66C2;font-size:20px;text-align:center"></i>
+              <i class="fab fa-linkedin" style="color:var(--li);font-size:20px;text-align:center"></i>
               <input id="c-li" placeholder="https://linkedin.com/..." dir="ltr">
               <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-linkedin" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
             </div>
@@ -1130,7 +1145,7 @@
     const old = document.getElementById('p-old').value;
     const nw = document.getElementById('p-new').value;
     const cf = document.getElementById('p-conf').value;
-    if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','#EF4444'); return; }
+    if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','var(--danger)'); return; }
     try {
       const res = await fetch('/api/auth/change-password', {
         method: 'PUT',
@@ -1142,10 +1157,10 @@
         showToast('تم تغيير كلمة المرور بنجاح ✓');
         document.getElementById('p-old').value=''; document.getElementById('p-new').value=''; document.getElementById('p-conf').value='';
       } else {
-        showToast(data.error || 'فشل تغيير كلمة المرور','#EF4444');
+        showToast(data.error || 'فشل تغيير كلمة المرور','var(--danger)');
       }
     } catch(e) {
-      showToast('تعذر الاتصال بالخادم','#EF4444');
+      showToast('تعذر الاتصال بالخادم','var(--danger)');
     }
   }
 
@@ -1222,7 +1237,7 @@
     const idx=+document.getElementById('step-edit-idx').value;
     const lang=document.getElementById('step-edit-lang').value;
     const step={icon:v('step-icon')||'⚙️',title:v('step-title'),desc:v('step-desc')};
-    if(!step.title){showToast('أدخل عنوان الخطوة','#EF4444');return;}
+    if(!step.title){showToast('أدخل عنوان الخطوة','var(--danger)');return;}
     if(!D.process[lang]) D.process[lang]=[];
     if(idx===-1) D.process[lang].push(step); else D.process[lang][idx]=step;
     renderStepList(lang); closeModal('step-modal'); saveAll();
@@ -1268,7 +1283,7 @@
     const idx=+document.getElementById('testi-edit-idx').value;
     const lang=document.getElementById('testi-edit-lang').value;
     const r={avatar:v('testi-avatar')||'؟',name:v('testi-name'),role:v('testi-role'),text:v('testi-text'),stars:5};
-    if(!r.name||!r.text){showToast('أدخل الاسم والنص','#EF4444');return;}
+    if(!r.name||!r.text){showToast('أدخل الاسم والنص','var(--danger)');return;}
     if(!D.testimonials) D.testimonials={ar:[],en:[]};
     if(!D.testimonials[lang]) D.testimonials[lang]=[];
     if(idx===-1) D.testimonials[lang].push(r); else D.testimonials[lang][idx]=r;
@@ -1293,10 +1308,10 @@
         showToast('تم حفظ جميع التغييرات بنجاح ✓');
       } else {
         const data = await res.json();
-        showToast(data.error || 'فشل الحفظ','#EF4444');
+        showToast(data.error || 'فشل الحفظ','var(--danger)');
       }
     } catch(e) {
-      showToast('تعذر الاتصال بالخادم','#EF4444');
+      showToast('تعذر الاتصال بالخادم','var(--danger)');
     }
     updateOverview();
   }
@@ -1385,7 +1400,7 @@
     const lang = document.getElementById('svc-edit-lang').value;
     const existing = (idx !== -1 && D.services[lang]) ? D.services[lang][idx] : {};
     const svc = {icon:v('svc-icon')||'fa-cog', image:document.getElementById('svc-image-url').value.trim()||existing.image||'', title:v('svc-title'), desc:v('svc-desc'), visible: existing.visible !== false};
-    if(!svc.title) { showToast('أدخل عنوان الخدمة','#EF4444'); return; }
+    if(!svc.title) { showToast('أدخل عنوان الخدمة','var(--danger)'); return; }
     if(!D.services[lang]) D.services[lang]=[];
     if(idx===-1) D.services[lang].push(svc); else D.services[lang][idx]=svc;
     renderSvcList(lang); closeModal('svc-modal'); saveAll();
@@ -1463,7 +1478,7 @@
       showUrl: document.getElementById('port-show-url').checked,
       visible: existing.visible !== false
     };
-    if(!proj.title) { showToast('أدخل اسم المشروع','#EF4444'); return; }
+    if(!proj.title) { showToast('أدخل اسم المشروع','var(--danger)'); return; }
     if(!D.portfolio[lang]) D.portfolio[lang]=[];
     if(idx===-1) D.portfolio[lang].push(proj); else D.portfolio[lang][idx]=proj;
     renderPortList(lang); closeModal('port-modal'); saveAll();
@@ -1559,7 +1574,7 @@
         ? D.products[lang][idx].visible !== false
         : true
     };
-    if (!prod.title) { showToast('أدخل اسم المنتج أو النظام','#EF4444'); return; }
+    if (!prod.title) { showToast('أدخل اسم المنتج أو النظام','var(--danger)'); return; }
     if (!D.products) D.products = { visible: true, ar: [], en: [] };
     if (!D.products[lang]) D.products[lang] = [];
     if (idx === -1) D.products[lang].push(prod); else D.products[lang][idx] = prod;
@@ -1659,7 +1674,7 @@
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
   // ======= TOAST =======
-  function showToast(msg, color='#34D399') {
+  function showToast(msg, color='var(--success)') {
     const t = document.getElementById('toast');
     t.textContent = ' '+msg;
     t.insertAdjacentHTML('afterbegin','<i class="fas fa-check-circle"></i>');
