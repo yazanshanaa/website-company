@@ -14,3 +14,7 @@ data/password.txt
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# إعدادات Claude Code المحلية — بتحتوي أوامر مسموحة فيها أسرار صريحة
+.claude/settings.local.json
+.claude/settings.json
