@@ -9,173 +9,392 @@
   <title>إتقان تك | لوحة التحكم</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap"></noscript>
+  <!-- كان مكتوب هون: "اللوحة أداة إدارية بحتة فما بتحمّل خط العرض".
+       هالمنطق سقط. المرجع البصري (Velorah) لوحاته الثلاث مبنية على سيريف
+       العرض نفسه — الأرقام والعناوين هي اللحظة السينمائية باللوحة، وهي
+       بالضبط وعد الشركة للعميل ("بتاخد لوحة عربية بتسوقها بنفسك").
+       الطلب ضل خفيف: وزن واحد من كل خط عرض بدل العائلة كاملة.
+       Instrument Serif للأرقام واللاتيني، Markazi Text للعناوين العربية.
+       CSP بيسمح بـfonts.googleapis/gstatic أصلاً — ولا أصل جديد انضاف. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Instrument+Serif&family=Markazi+Text:wght@500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Instrument+Serif&family=Markazi+Text:wght@500&display=swap"></noscript>
+  <!-- الترميز المشترك مع الموقع — CSP بيسمح بـstyle-src 'self' (متحقّق منه) -->
+  <link rel="stylesheet" href="css/tokens.css">
   <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
   <style>
-    :root{
-      --bg:#060D1F; --sidebar:#091528; --card:#0C1A35; --card2:#112040;
-      --primary:#38BDF8; --secondary:#818CF8; --success:#34D399; --warning:#FBBF24; --danger:#EF4444;
-      --text:#F1F5F9; --muted:#94A3B8; --border:rgba(56,189,248,0.12);
-      --font:'Cairo',sans-serif; --radius:12px;
-    }
+    /* الترميز انتقل لـcss/tokens.css (مربوط فوق) — مصدر وحيد مشترك مع الموقع.
+       قبل هيك كانت هون نسخة متباينة: --card بدل --bg-card، و--radius:12px
+       بينما الموقع 16px — فكل تعديل لازم ينكتب مرتين. --font-* بتيجي من الترميز. */
+    :root{ --font:var(--font-text); }
     *{margin:0;padding:0;box-sizing:border-box}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+    /* ── الغلاف الجوّي ────────────────────────────────────────────
+       المرجع بيبني العمق بالضوء مش بالظل. بقعتين شعاعيتين عريضتين
+       ورا كل شي بتخلّي الفراغ الكحلي يتنفّس بدل ما يطلع لون مسطّح.
+       انعملت pseudo-element على body عن قصد: صفر عناصر جديدة بالـDOM،
+       والـJS بيمشي على querySelectorAll ما بيهمّه هيك طبقة. */
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(58vw 58vw at 88% -12%, var(--atmo-teal), transparent 72%),
+        radial-gradient(48vw 48vw at -8% 108%, var(--atmo-ice), transparent 72%);
+    }
+    /* كل المحتوى بيقعد فوق الغلاف. المودال والتوست إلهم z-index أعلى أصلاً. */
+    .login-wrap,.admin-wrap{position:relative;z-index:1}
+
+    /* ── شريط التمرير ────────────────────────────────────────────
+       خيط رفيع زي المرجع — شريط النظام العريض بيكسر الإحساس الزجاجي. */
+    *{scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+    *::-webkit-scrollbar{width:6px;height:6px}
+    *::-webkit-scrollbar-track{background:transparent}
+    *::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:var(--radius-pill)}
 
     /* LOGIN */
-    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative}
-    .login-wrap::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
-    .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;position:relative;z-index:1}
-    .login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:32px}
-    .login-logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#050B18;font-weight:800}
-    .login-logo-text{font-size:26px;font-weight:800}
-    .login-logo-text span{color:var(--primary)}
-    .site-logo-img{height:68px;width:auto;border-radius:10px;display:block;object-fit:contain}
-    .login-logo .site-logo-img{height:126px;border-radius:14px}
-    .login-title{text-align:center;font-size:22px;font-weight:700;margin-bottom:8px}
-    .login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
-    .inp-group{margin-bottom:20px}
-    .inp-group label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px}
-    .inp-group input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:all .3s}
-    .inp-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
-    .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),var(--secondary));border:none;border-radius:var(--radius);color:#050B18;font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer;transition:all .3s}
-    .login-btn:hover{opacity:.9;transform:translateY(-1px)}
-    .login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none}
+    /* أول شي بيشوفه العميل — فلازم يحس إنه غالي. كرت زجاجي وحيد
+       بنص فراغ، وتوهّج خلفه بدل ما يكون مربّع طافي بلا سبب. */
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:transparent;position:relative;z-index:1;padding:24px}
+    /* شبكة الخلفية انشالت — كليشيه "dark techno" بلا نية، وDESIGN_BRIEF بيمنعها */
+    .login-wrap::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(40vmax 40vmax at 50% 40%, var(--atmo-teal), transparent 70%)}
+    .login-card{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:54px 40px 42px;width:100%;max-width:440px;position:relative;z-index:1}
+    .login-logo{display:flex;align-items:center;justify-content:center;margin-bottom:30px;position:relative}
+    /* الشعار درع معدني أزرق-تركوازي: على الفراغ الكحلي هو بمكانه أخيراً.
+       هالة سماوية خلفه بتربطه بالخلفية بدل ما يطفو كملصق. */
+    /* توسيط صريح: .login-logo عنصر flex، والـpseudo لو ما ثبّتناه بياخد
+       "موقعه الساكن" من ترتيب الفليكس وبيطلع مزحلق حسب المتصفح. */
+    .login-logo::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px;border-radius:50%;background:radial-gradient(closest-side,var(--teal-soft),transparent);pointer-events:none}
+    .login-logo .site-logo-img{position:relative;z-index:1}
+    .login-logo-icon{width:48px;height:48px;background:var(--teal);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--bg);font-weight:800}
+    .login-logo-text{font-family:var(--font-display);font-size:30px;font-weight:500}
+    .login-logo-text span{color:var(--teal)}
+    .site-logo-img{height:68px;width:auto;display:block;object-fit:contain}
+    .login-logo .site-logo-img{height:140px}
+    .login-title{text-align:center;font-family:var(--font-display);font-size:34px;font-weight:500;line-height:1.25;margin-bottom:6px}
+    .login-sub{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:34px}
+    /* الحقل: حدّ سفلي بس، ٤٨px، وبالتركيز بيصير ٢px سماوي — بلا حلقة
+       box-shadow لأن المرجع بيمنع الظل كأداة. الارتفاع ثابت وborder-box
+       فزيادة الحدّ ١px ما بتزحزح شي. */
+    .inp-group{margin-bottom:24px}
+    .inp-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px}
+    .inp-group input{width:100%;height:48px;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;padding:0 2px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;transition:border-color var(--t-fast) var(--ease)}
+    .inp-group input:focus{border-bottom:2px solid var(--teal)}
+    /* التتبّع (letter-spacing) لاتيني بحت — بيكسر وصل الحروف لو انكتب اسم
+       المستخدم بالعربي، فانحصر على dir=ltr زي ما هي القاعدة بindex.html */
+    html[dir="ltr"] .inp-group input{letter-spacing:.14em}
+    /* بلا opacity: التخفيف كان بينزّل النص التلميحي لـ ٢.٩:١. opacity:1
+       صريحة لأن فايرفوكس بيحطّ تخفيف افتراضي لو تركناها */
+    .inp-group input::placeholder{color:var(--muted);opacity:1}
+    /* الزر الأساسي = ملء أبيض ونص كحلي، حرفياً زي المرجع. اخترنا الأبيض
+       مش السماوي: ١٨.٩:١ مقابل ١٤.٩:١، والأهم إنه بيفضّي السماوي ليضل
+       لغة "البيانات والحالة النشطة" لحاله بدل ما يصير لون زر عادي. */
+    .login-btn{width:100%;height:52px;background:var(--white);border:none;border-radius:var(--radius-pill);color:var(--bg);font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+    /* التوهّج السماوي هو الشي الوحيد المسموح يشبه الظل بهالنظام */
+    .login-btn:hover{transform:translateY(-2px);box-shadow:var(--glow-soft)}
+    .login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:14px;display:none}
+
+    /* ── حلقة التركيز (كيبورد) ───────────────────────────────
+       اللوحة كانت بلا أي قاعدة تركيز نهائياً — تنقّل بالكيبورد
+       أعمى بالكامل. كان في استثناء بيحوّل الحلقة لعاجي فوق الشريط
+       الجانبي "لأن التركوازي ما بينقرا عليه" — سقط الاستثناء: الشريط
+       صار #00101B، والسماوي عليه ١٦:١. حلقة وحدة بكل مكان. */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible{
+      outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--radius-sm)
+    }
 
     /* ADMIN LAYOUT */
     .admin-wrap{display:none;min-height:100vh}
     .admin-wrap.active{display:flex}
-    .sidebar{width:260px;background:var(--sidebar);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;overflow-y:auto}
-    html[dir="ltr"] .sidebar{right:auto;left:0;border-left:none;border-right:1px solid var(--border)}
-    .sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-    .sidebar-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#050B18;font-weight:800}
-    .sidebar-logo-text{font-size:18px;font-weight:800}
-    .sidebar-logo-text span{color:var(--primary)}
-    .sidebar-badge{font-size:11px;background:rgba(56,189,248,.15);color:var(--primary);padding:2px 8px;border-radius:50px;margin-right:auto;font-weight:600}
-    html[dir="ltr"] .sidebar-badge{margin-right:0;margin-left:auto}
-    .sidebar-nav{padding:16px 12px;flex:1}
-    .sidebar-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:12px 8px 8px}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;transition:all .3s;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:4px;border:none;background:none;width:100%;text-align:right;font-family:var(--font)}
-    html[dir="ltr"] .nav-item{text-align:left}
-    .nav-item:hover{background:rgba(56,189,248,.08);color:var(--text)}
-    .nav-item.active{background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(129,140,248,.1));color:var(--primary);border:1px solid rgba(56,189,248,.2)}
-    .nav-item i{width:20px;text-align:center;font-size:15px}
-    .sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
-    .logout-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;color:var(--danger);font-size:14px;font-weight:600;width:100%;border:none;background:none;font-family:var(--font);transition:all .3s}
-    .logout-btn:hover{background:rgba(239,68,68,.1)}
-    .main-content{flex:1;margin-right:260px;min-height:100vh;padding:0}
-    html[dir="ltr"] .main-content{margin-right:0;margin-left:260px}
-    .top-bar{background:rgba(6,13,31,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-    .top-bar h1{font-size:20px;font-weight:700}
-    .top-actions{display:flex;align-items:center;gap:12px}
-    .page-content{padding:32px}
+    /* الشريط الجانبي: أعمق نقطة كحلية بالنظام — هو المرساة، مش سطح زجاجي.
+       ملاحظة اتجاه: كان مكتوب right/left مع قاعدة قلب مستقلة لكل حالة.
+       صار بخصائص منطقية: بالعربي inline-start = يمين، وبالإنجليزي/العبري
+       = يسار — نفس القلب بالضبط بس بلا قاعدة تانية تنسى تتحدّث. */
+    .sidebar{width:260px;background:var(--band);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;inset-inline-start:0;z-index:100;overflow-y:auto}
+    .sidebar-logo{padding:26px 20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+    .sidebar-logo-icon{width:36px;height:36px;background:var(--teal);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
+    .sidebar-logo-text{font-family:var(--font-display);font-size:22px;font-weight:500}
+    .sidebar-logo-text span{color:var(--teal)}
+    /* "Admin" لاتيني قصير — هون التتبّع الواسع بمحلّه (المرجع بيعتمده
+       بكل التسميات ١٢px). ممنوع نفس المعاملة على أي نص عربي. */
+    .sidebar-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.2em;background:var(--surface-2);color:var(--brass);border:1px solid var(--line);padding:4px 10px;border-radius:var(--radius-pill);margin-inline-start:auto}
+    .sidebar-nav{padding:14px 12px 20px;flex:1}
+    /* تسمية المجموعة: المرجع بيكتبها UPPERCASE بتتبّع واسع — بس نصّنا
+       عربي، والتتبّع بيفكّ وصل الحروف ويقرا كعطل رسم مش كتصميم.
+       فجبنا نفس الإحساس التحريري بمسطرة جليدية قصيرة قبل النص. */
+    .sidebar-section{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;color:var(--muted);padding:18px 8px 10px}
+    .sidebar-section::before{content:'';width:14px;height:1px;background:var(--brass-dim);flex-shrink:0}
+    /* text-align:start بدل right + قاعدة قلب — نفس النتيجة بنصف الكود */
+    .nav-item{position:relative;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-pill);cursor:pointer;font-size:14px;font-weight:500;color:var(--muted);margin-bottom:3px;border:1px solid transparent;background:none;width:100%;text-align:start;font-family:var(--font);transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
+    .nav-item:hover{background:var(--surface-2);color:var(--text)}
+    /* النشط = حبّة زجاجية مملوءة + تسمية سماوية + مؤشّر سماوي مضوّي
+       على حافة البداية. هاي صورة الشريط بالمرجع حرفياً. */
+    .nav-item.active{background:var(--surface-2);color:var(--teal);border-color:var(--line);box-shadow:var(--glow-soft)}
+    .nav-item.active::before{content:'';position:absolute;inset-inline-start:6px;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:var(--radius-pill);background:var(--teal);box-shadow:var(--glow)}
+    .nav-item i{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+    .sidebar-footer{padding:14px 12px 20px;border-top:1px solid var(--line)}
+    .logout-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-pill);cursor:pointer;color:var(--danger);font-size:14px;font-weight:600;width:100%;border:1px solid transparent;background:none;font-family:var(--font);text-align:start;transition:background var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
+    /* كان rgba(239,68,68,.1) — أحمر من لوحة ألوان انقرضت، مش أحمرنا */
+    .logout-btn:hover{background:var(--danger-soft);border-color:var(--danger-dim)}
+    .main-content{flex:1;min-width:0;margin-inline-start:260px;min-height:100vh;padding:0}
+    /* الرأس: زجاج سائل ملتصق بـblur المستوى ٢ (٤٠px) زي طبقات المرجع
+       الطافية. كان هون background:rgba(6,13,31,.95) مثبّت — بقايا لوحة
+       ألوان أقدم من اللي قبلها، ومخالف لقاعدة "كل لون من الترميز". */
+    .top-bar{background:var(--surface-3);backdrop-filter:blur(var(--blur-hi));-webkit-backdrop-filter:blur(var(--blur-hi));border-bottom:1px solid var(--line);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:50}
+    .top-bar h1{font-family:var(--font-display);font-size:28px;font-weight:500;line-height:1.2}
+    .top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .page-content{padding:32px;position:relative}
 
     /* CARDS */
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
-    .card-title{font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-    .card-title i{color:var(--primary)}
-    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-    .stat-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
-    .stat-card .num{font-size:28px;font-weight:800;color:var(--primary)}
-    .stat-card .lbl{font-size:13px;color:var(--muted);margin-top:4px}
+    /* كرت زجاجي: ملء أبيض ٣٪ + blur ٢٤px + حدّ "تسرّب ضوء" ١px.
+       ولا ظل — العمق من الانكسار والحدّ مش من ظل تحت الصندوق. */
+    .card{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:26px 24px;margin-bottom:20px}
+    .card-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.35;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .card-title i{color:var(--teal);font-size:15px;flex-shrink:0}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+    .stat-card{position:relative;overflow:hidden;background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 20px}
+    /* بقعة ضوء بزاوية البطاقة — حيلة المرجع بكروت البيانات، بتعطي
+       إحساس إنه الضوء جاي من ورا الزجاج مش مرشوش عليه. */
+    .stat-card::after{content:'';position:absolute;inset-inline-end:-42px;top:-42px;width:150px;height:150px;border-radius:50%;background:radial-gradient(closest-side,var(--teal-soft),transparent);pointer-events:none}
+    .stat-card-icon{width:40px;height:40px;border-radius:var(--radius-pill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px;position:relative;z-index:1}
+    /* الرقم: سيريف العرض + وهج سماوي — هاي الحركة التوقيعية بالمرجع،
+       ومحلّها الطبيعي اللوحة. --font-latin مش --font-display لأن الأرقام
+       لاتينية وInstrument Serif أنضف فيها من Markazi (اللي هو للعربي). */
+    .stat-card .num{position:relative;z-index:1;font-family:var(--font-latin);font-size:44px;font-weight:400;line-height:1;color:var(--teal);text-shadow:var(--glow-text)}
+    /* البطاقة الرابعة "رقمها" أيقونة خضرا مش رقم — بنشيل الوهج السماوي
+       عنها لأنه بيتعارض مع لون دلالي تاني. */
+    .stat-card .num i{text-shadow:none}
+    .stat-card .lbl{position:relative;z-index:1;font-size:13px;color:var(--muted);margin-top:10px}
 
     /* FORM ELEMENTS */
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .fg{margin-bottom:16px}
-    .fg label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
-    .fg input,.fg textarea,.fg select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:all .3s}
-    .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
-    .fg textarea{resize:vertical;min-height:80px}
-    .fg select option{background:var(--card2)}
-    .tab-btns{display:flex;gap:8px;margin-bottom:20px}
-    .tab-btn{padding:8px 20px;border-radius:50px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .3s}
-    .tab-btn.active{background:var(--primary);color:#050B18;border-color:var(--primary)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .fg{margin-bottom:20px}
+    /* التسمية: المرجع بيخليها UPPERCASE بتتبّع واسع — ما ينفع، نصّنا
+       عربي والتتبّع بيكسر وصل الحروف. بنكتفي بالحجم الصغير واللون
+       الخافت، وهدول لحالهم بيعطوا نفس الترتيب البصري. */
+    .fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;line-height:1.6}
+    /* حقول minimalist: حدّ سفلي بس، ٤٨px، وبالتركيز ٢px سماوي.
+       الحلقة الـbox-shadow القديمة انشالت — المرجع بيمنع الظل كأداة،
+       وحلقة :focus-visible العامة فوق بتغطّي الكيبورد.
+       ملاحظة: الاختيار مش .fg بس. صفوف السوشال (c-fb وإخوانه) حقولها
+       مش ملفوفة بـ.fg، فكانت بتنزل على ستايل المتصفح الافتراضي —
+       صندوق أبيض فوق كرت كحلي. هلأ كلهم على نفس القاعدة. */
+    .page-content input[type="text"],.page-content input[type="password"],
+    .page-content input[type="email"],.page-content input[type="number"],
+    .page-content input:not([type]),.page-content textarea,.page-content select,
+    .modal input[type="text"],.modal input[type="password"],
+    .modal input[type="email"],.modal input[type="number"],
+    .modal input:not([type]),.modal textarea,.modal select{
+      width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-strong);
+      border-radius:0;padding:0 2px;color:var(--text);font-family:var(--font);font-size:15px;
+      outline:none;transition:border-color var(--t-fast) var(--ease)
+    }
+    .page-content input[type="text"],.page-content input[type="password"],
+    .page-content input[type="email"],.page-content input[type="number"],
+    .page-content input:not([type]),.page-content select,
+    .modal input[type="text"],.modal input[type="password"],
+    .modal input[type="email"],.modal input[type="number"],
+    .modal input:not([type]),.modal select{height:48px}
+    .page-content input:not([type="checkbox"]):focus,.page-content textarea:focus,.page-content select:focus,
+    .modal input:not([type="checkbox"]):focus,.modal textarea:focus,.modal select:focus{border-bottom:2px solid var(--teal)}
+    /* بلا أي تخفيف: .85 كانت بتعطي ٤.٤٥:١ — تحت العتبة بشعرة. اللون
+       الخام var(--muted) على زجاج الحقل بيعطي ~٥.٦:١. opacity:1 صريحة
+       لأن فايرفوكس بيطبّق تخفيف افتراضي على ::placeholder. */
+    .page-content ::placeholder,.modal ::placeholder{color:var(--muted);opacity:1}
+    .fg textarea{resize:vertical;min-height:96px;padding:12px 2px;line-height:1.8}
+    /* <option> ما بتقبل الشفافية — لازم سطح معتم، وإلا القائمة بتنقرا
+       غلط (أو بتطلع سودا على سودا) على بعض المنصات. */
+    .fg select option,.modal select option{background:var(--surface-solid);color:var(--text)}
+
+    /* ── المفاتيح (toggles) ──────────────────────────────────────
+       المرجع: مسار حبّة بإبهام أبيض بينزلق بـ400ms cubic-bezier.
+       نفّذناها CSS بحت على نفس الـ<input type="checkbox"> الموجود —
+       ولا id ولا name ولا .checked ولا onchange انلمس؛ الـJS بيقرا
+       نفس الشي بالضبط. بس انشالت الـinline style لأن width/height
+       المضمّنة بتغلب أي قاعدة.
+       الإبهام مرسوم كـbackground-image مش كـ::after عن قصد: فايرفوكس
+       لحد اليوم ما بيرسم pseudo-elements على input (عنصر مستبدل)،
+       فالمفتاح كان بيطلع فاضي عندهم. التدرّج بيشتغل بكل مكان. */
+    input.switch{
+      appearance:none;-webkit-appearance:none;flex-shrink:0;width:46px;height:26px;margin:0;
+      border-radius:var(--radius-pill);border:1px solid var(--line);cursor:pointer;
+      background-color:var(--track);
+      background-image:radial-gradient(circle at 50% 50%, var(--muted) 9.5px, transparent 10px);
+      background-repeat:no-repeat;background-size:20px 20px;background-position:left 2px center;
+      transition:background-color 400ms var(--ease),background-image 400ms var(--ease),
+                 background-position 400ms var(--ease),border-color 400ms var(--ease),
+                 box-shadow 400ms var(--ease)
+    }
+    input.switch:checked{
+      background-color:var(--teal);border-color:var(--teal);box-shadow:var(--glow-soft);
+      background-image:radial-gradient(circle at 50% 50%, var(--bg) 9.5px, transparent 10px);
+      background-position:right 2px center
+    }
+    /* بالعربي البداية يمين: المفتاح بيبلّش يمين وبينزلق لليسار — معكوس */
+    html[dir="rtl"] input.switch{background-position:right 2px center}
+    html[dir="rtl"] input.switch:checked{background-position:left 2px center}
+
+    .tab-btns{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+    .tab-btn{padding:9px 22px;border-radius:var(--radius-pill);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);transition:all var(--t-fast) var(--ease)}
+    .tab-btn:hover{color:var(--text);border-color:var(--line-strong)}
+    /* التبويب النشط بياخد نفس لغة الشريط الجانبي النشط (زجاج + سماوي)
+       بدل الملء السماوي الصلب — عشان "نشط" يقرا نفس القراءة بكل اللوحة */
+    .tab-btn.active{background:var(--surface-2);color:var(--teal);border-color:var(--teal-dim);box-shadow:var(--glow-soft)}
 
     /* BUTTONS */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .3s;text-decoration:none}
-    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#050B18}
-    .btn-primary:hover{opacity:.9}
-    .btn-success{background:var(--success);color:#050B18}
-    .btn-danger{background:var(--danger);color:white}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-    .btn-sm{padding:7px 14px;font-size:13px}
-    .btn-icon{width:34px;height:34px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:var(--radius-pill);font-family:var(--font);font-size:14px;font-weight:600;line-height:1.2;cursor:pointer;border:1px solid transparent;text-decoration:none;transition:transform var(--t-fast) var(--ease),background var(--t-fast) var(--ease),color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+    .btn:active{transform:scale(.97)}
+    /* أساسي = أبيض صلب ونص كحلي، نفس المرجع. الأبيض مش السماوي:
+       ١٨.٩:١ مقابل ١٤.٩:١، وبيخلّي السماوي محجوز للحالة والبيانات. */
+    .btn-primary{background:var(--white);color:var(--bg)}
+    .btn-primary:hover{box-shadow:var(--glow-soft)}
+    /* الحفظ كان ملء أخضر صلب — وهو مستعمل بأبرز تلات أزرار باللوحة
+       (حفظ التغييرات، حفظ كل التغييرات، فتح الموقع)، فالأخضر كان بيطلع
+       اللون المهيمن على الشاشة ويصير لكنة تالتة بتزاحم السماوي. والاتجاه
+       لونين بس. كمان "حفظ" مش حالة نجاح — هو الفعل الأساسي، فبياخد
+       معاملة الأساسي: أبيض صلب ونص كحلي (١٨.٩:١).
+       الأخضر بقي محصور بدلالة الحالة: الشارة، شريط "الموقع يعمل"،
+       السعر بالقائمة، والتوست — نص وحدود، مش ملء أزرار. */
+    .btn-success{background:var(--white);color:var(--bg)}
+    .btn-success:hover{box-shadow:var(--glow-soft)}
+    /* الحذف كان ملء أحمر صلب — بيسحب العين لأخطر زر بالشاشة قبل ما
+       يقرا المستخدم أي شي. صار شريحة زجاجية حمرا (٥.١:١ للنص)،
+       وبيتصلّب بس عند المرور لمّا تكون النية واضحة. */
+    .btn-danger{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-dim)}
+    .btn-danger:hover{background:var(--danger);color:var(--bg)}
+    /* بلا backdrop-filter عن قصد: هالزر بيتكرّر بكل صف قائمة، وblur
+       على عشرات العناصر بيوقع الأداء. الملء الخفيف والحدّ بكفّوا. */
+    .btn-outline{background:var(--surface-2);border-color:var(--line-strong);color:var(--text)}
+    .btn-outline:hover{background:var(--teal-soft);border-color:var(--teal-dim);color:var(--teal)}
+    .btn-sm{padding:8px 16px;font-size:13px}
+    .btn-icon{width:36px;height:36px;padding:0;border-radius:var(--radius-pill)}
 
     /* TABLES / LISTS */
     .item-list{display:flex;flex-direction:column;gap:12px}
-    .list-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px}
-    .list-item-icon{width:42px;height:42px;background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(129,140,248,.1));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);flex-shrink:0}
-    .list-item-content{flex:1}
-    .list-item-title{font-size:15px;font-weight:700;margin-bottom:2px}
-    .list-item-desc{font-size:13px;color:var(--muted)}
+    /* صفوف القائمة بلا backdrop-filter عن قصد: ممكن تكون عشرات الصفوف،
+       وblur على كل صف بيذبح الأداء (والـbrief بينبّه لهاد بالحرف).
+       الحدّ ١px + الملء الخفيف بيعطوا نفس القراءة بصفر كلفة. */
+    .list-item{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;transition:border-color var(--t-fast) var(--ease),background var(--t-fast) var(--ease)}
+    .list-item:hover{border-color:var(--line-strong);background:var(--surface-3)}
+    .list-item-icon{width:44px;height:44px;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--teal);flex-shrink:0;overflow:hidden}
+    .list-item-content{flex:1;min-width:0}
+    .list-item-title{font-size:15px;font-weight:600;margin-bottom:3px;line-height:1.6}
+    .list-item-desc{font-size:13px;color:var(--muted);line-height:1.7}
+    /* renderProdList بيولّد .list-item-sub وما كان إلها ولا قاعدة —
+       كانت بتنزل بحجم النص الأساسي وبتتساوى مع العنوان. */
+    .list-item-sub{font-size:13px;color:var(--muted);line-height:1.7}
     .list-item-actions{display:flex;gap:8px;flex-shrink:0}
 
     /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+    /* الطبقة صارت "عدسة": تعتيم من الترميز + blur — كانت rgba(0,0,0,.7)
+       مثبّتة وblur(4px) بالكاد بيبيّن. */
+    .modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .modal-overlay.open{display:flex}
-    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:580px;max-height:85vh;overflow-y:auto;position:relative}
-    .modal-title{font-size:18px;font-weight:700;margin-bottom:24px;display:flex;align-items:center;gap:10px}
-    .modal-title i{color:var(--primary)}
-    .modal-close{position:absolute;top:20px;left:20px;background:var(--card2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px}
-    html[dir="ltr"] .modal-close{left:auto;right:20px}
-    .modal-close:hover{color:var(--danger);border-color:var(--danger)}
-    .modal-footer{display:flex;gap:12px;margin-top:24px;justify-content:flex-start}
+    /* المودال نفسه كرت زجاجي مش سطح معتم. ما حطّينا عليه backdrop-filter
+       تانية فوق تبع الطبقة: تعشيش الـblur بيتلعثم على Safari، والملء
+       الشفّاف فوق طبقة مغبّشة أصلاً بيعطي نفس المنظر بنص الكلفة. */
+    .modal{background:var(--surface-3);border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:34px 30px;width:100%;max-width:580px;max-height:85vh;overflow-y:auto;position:relative}
+    .modal-title{font-family:var(--font-display);font-size:23px;font-weight:500;line-height:1.35;margin-bottom:26px;display:flex;align-items:center;gap:10px}
+    .modal-title i{color:var(--teal);font-size:16px;flex-shrink:0}
+    /* كان left:20px مع قاعدة قلب بتحطّه right — يعني "طرف النهاية" بالحالتين.
+       inset-inline-end بيقولها مرة وحدة بلا قاعدة تانية. */
+    .modal-close{position:absolute;top:20px;inset-inline-end:20px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-pill);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px;transition:all var(--t-fast) var(--ease)}
+    .modal-close:hover{color:var(--danger);border-color:var(--danger-dim);background:var(--danger-soft)}
+    .modal-footer{display:flex;gap:12px;margin-top:28px;justify-content:flex-start;flex-wrap:wrap}
 
     /* TOAST */
-    .toast{position:fixed;bottom:24px;left:24px;right:auto;background:var(--success);color:#050B18;padding:12px 20px;border-radius:10px;font-weight:700;font-size:14px;z-index:999;transform:translateY(100px);opacity:0;transition:all .4s;display:flex;align-items:center;gap:8px}
-    html[dir="ltr"] .toast{left:24px;right:auto}
+    /* الـJS بيسنّد t.style.background مباشرة (نجاح/خطر) — فالخلفية
+       بتضل للـinline ومنتحكم بالباقي بس. النص كحلي مش أبيض عن قصد:
+       الكحلي ٥.١:١ على الأحمر و١٠:١ على الأخضر، والأبيض على الأحمر
+       بينزل ٣.٦:١ وبيسقط بالـAA. القاعدة انقاست، مش انفترضت.
+       ملاحظة اتجاه: التوست يسار فيزيائي بالحالتين (كانت قاعدة القلب
+       بتعيد نفس القيم حرفياً) — فانشالت المكرّرة. */
+    .toast{position:fixed;bottom:26px;left:26px;right:auto;background:var(--success);color:var(--bg);padding:13px 22px;border-radius:var(--radius-pill);font-weight:600;font-size:14px;z-index:999;transform:translateY(120px);opacity:0;transition:transform var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease);display:flex;align-items:center;gap:8px}
     .toast.show{transform:translateY(0);opacity:1}
 
     /* BADGE */
-    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:50px;font-size:12px;font-weight:600}
-    .badge-primary{background:rgba(56,189,248,.15);color:var(--primary)}
-    .badge-success{background:rgba(52,211,153,.15);color:var(--success)}
+    .badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;border:1px solid transparent}
+    .badge-primary{background:var(--teal-soft);color:var(--teal);border-color:var(--teal-dim)}
+    .badge-success{background:var(--success-soft);color:var(--success);border-color:var(--success-dim)}
 
     /* SECTION PAGES */
     .section-page{display:none}
     .section-page.active{display:block}
 
     /* PREVIEW LINK */
-    .preview-bar{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .preview-bar{background:var(--success-soft);border:1px solid var(--success-dim);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
     .preview-bar span{font-size:13px;color:var(--success);font-weight:600}
 
     /* SAVE NOTICE */
-    .save-notice{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);border-radius:var(--radius);padding:12px 20px;font-size:13px;color:var(--primary);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    /* كانت خلفية وحدّ بنفس الـ--line — يعني شريط بلا حدّ عملياً.
+       صارت شريحة سماوية: نفس لغة "معلومة نظام" بباقي اللوحة. */
+    .save-notice{background:var(--teal-soft);border:1px solid var(--teal-dim);border-radius:var(--radius);padding:13px 20px;font-size:13px;line-height:1.8;color:var(--teal);margin-bottom:20px;display:flex;align-items:center;gap:8px}
 
     @media(max-width:1024px){
       .sidebar{width:220px}
-      .main-content{margin-right:220px}
+      .main-content{margin-inline-start:220px}
       .stat-cards{grid-template-columns:repeat(3,1fr)}
-      .top-bar{padding:14px 20px}
+      .top-bar{padding:16px 20px}
+      .page-content{padding:24px 20px}
+      .stat-card .num{font-size:38px}
     }
     @media(max-width:768px){
-      .sidebar{width:100%;height:auto;position:relative;right:0;flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:4px}
-      .sidebar-logo{width:100%;padding:8px 0 12px;border-bottom:1px solid var(--border);margin-bottom:4px}
-      .nav-item{padding:8px 12px;font-size:13px;border-radius:8px}
-      .main-content{margin-right:0}
+      /* الشريط بينهار لشريط أفقي بيلتف — نفس السلوك الموجود، بس صار
+         يقرا كصف "شرائح" فعلاً بدل ما يضل عمود ضايع بعرض الشاشة.
+         inset-inline-start:auto لازمة لأن الموقع صار relative. */
+      .sidebar{width:100%;height:auto;position:relative;inset-inline-start:auto;flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:6px;border-inline-end:none;border-bottom:1px solid var(--line)}
+      .sidebar-logo{width:100%;padding:6px 0 12px;border-bottom:1px solid var(--line);margin-bottom:2px}
+      .sidebar-logo .site-logo-img{height:52px}
+      .sidebar-nav{padding:0;display:flex;flex-wrap:wrap;gap:6px}
+      .sidebar-section{width:100%;padding:8px 2px 2px}
+      .nav-item{width:auto;padding:8px 14px;font-size:13px;margin-bottom:0}
+      /* المؤشّر السماوي بيتزاحم مع النص بالحبّة الضيقة — بيكفي الملء واللون */
+      .nav-item.active::before{display:none}
+      .sidebar-footer{width:100%;padding:10px 0 2px;border-top:1px solid var(--line)}
+      .logout-btn{width:auto}
+      .main-content{margin-inline-start:0}
       .admin-wrap.active{flex-direction:column}
       .stat-cards{grid-template-columns:repeat(2,1fr)}
-      .form-row{grid-template-columns:1fr}
-      .top-bar{padding:12px 16px}
-      .top-bar-title{font-size:18px}
-      .modal{max-width:95vw;padding:24px 20px;margin:16px}
-      .login-card{padding:32px 24px;max-width:95vw}
-      .card{padding:20px 16px}
+      .form-row{grid-template-columns:1fr;gap:0}
+      .top-bar{padding:14px 16px}
+      .top-bar h1{font-size:24px}
+      .modal{max-width:95vw;padding:26px 20px;margin:16px}
+      .login-card{padding:38px 24px 32px;max-width:95vw}
+      .login-logo .site-logo-img{height:112px}
+      .login-title{font-size:29px}
+      .card{padding:22px 18px}
+      .page-content{padding:20px 16px}
     }
     @media(max-width:480px){
       .stat-cards{grid-template-columns:1fr 1fr}
       .sidebar{padding:10px 12px}
-      .nav-item{padding:7px 10px;font-size:12px}
-      .section-page{padding:16px}
-      .modal{padding:20px 16px}
-      .btn{padding:8px 14px;font-size:13px}
-      .login-card{padding:28px 20px}
-      .top-bar{padding:10px 12px}
-      .list-item{flex-wrap:wrap;gap:8px}
+      .nav-item{padding:7px 12px;font-size:12px}
+      /* كان .section-page{padding:16px} فوق padding:32px تبع .page-content
+         — ٤٨px حشوة جانبية على شاشة ٣٧٥px، يعني ٢٧٩px للمحتوى.
+         صارت الحشوة بمكان واحد وبقيمة تحترم العرض. */
+      .page-content{padding:16px 12px}
+      .modal{padding:22px 16px}
+      .btn{padding:9px 16px;font-size:13px}
+      .login-card{padding:32px 20px 28px}
+      .top-bar{padding:12px 14px;flex-wrap:wrap}
+      .top-bar h1{font-size:22px}
+      .list-item{flex-wrap:wrap;gap:10px}
       .list-item-actions{width:100%;justify-content:flex-end}
+      .stat-card{padding:18px 16px}
+      .stat-card .num{font-size:32px}
+    }
+
+    /* الحركة كلها انتقالات ٣٠٠–٤٠٠ms — مين ما طلب تقليل الحركة بيوقف
+       كل شي فوراً بدل ما نستثني كل قاعدة على حدة. */
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{
+        animation-duration:.01ms!important;animation-iteration-count:1!important;
+        transition-duration:.01ms!important;scroll-behavior:auto!important
+      }
     }
   </style>
 </head>
@@ -185,7 +404,7 @@
 <div class="login-wrap" id="login-page">
   <div class="login-card">
     <div class="login-logo">
-      <img src="img/orginal.png" alt="إتقان تك" class="site-logo-img" width="169" height="126" loading="eager" decoding="async">
+      <img src="img/logo.png" alt="إتقان تك" class="site-logo-img" width="114" height="126" loading="eager" decoding="async">
     </div>
     <div class="login-title">لوحة التحكم</div>
     <div class="login-sub">أدخل كلمة المرور للوصول إلى لوحة التحكم</div>
@@ -207,7 +426,7 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <img src="img/orginal.png" alt="إتقان تك" class="site-logo-img" width="169" height="68" loading="lazy" decoding="async">
+      <img src="img/logo.png" alt="إتقان تك" class="site-logo-img" width="61" height="68" loading="lazy" decoding="async">
       <span class="sidebar-badge">Admin</span>
     </div>
     <nav class="sidebar-nav">
@@ -252,10 +471,15 @@
           <a href="index.html" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-eye"></i>فتح الموقع</a>
         </div>
         <div class="stat-cards">
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(56,189,248,.15);color:var(--primary)"><i class="fas fa-cogs"></i></div><div class="num" id="ov-svcs">0</div><div class="lbl">الخدمات</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(52,211,153,.15);color:var(--success)"><i class="fas fa-th"></i></div><div class="num" id="ov-ports">0</div><div class="lbl">مشاريع الأعمال</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(251,191,36,.15);color:var(--warning)"><i class="fas fa-tags"></i></div><div class="num" id="ov-prods">0</div><div class="lbl">أنظمة للبيع</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(251,191,36,.15);color:var(--warning)"><i class="fas fa-shield-alt"></i></div><div class="num" style="font-size:20px;color:var(--success)"><i class="fas fa-check"></i></div><div class="lbl">الموقع محمي</div></div>
+          <!-- ألوان الأيقونات كانت rgba(52,211,153) وrgba(251,191,36) مثبّتة —
+               الأصفر بقايا لوحة ألوان انقرضت أصلاً. كلها صارت من الترميز.
+               وانضبطت اللكنات كمان: كانت أربع بطاقات بأربع ألوان (أخضر
+               مرّتين وأصفر) بلا أي معنى. صار: سماوي وجليدي للبيانات،
+               والأخضر محجوز للبطاقة الوحيدة اللي بتحمل حالة فعلية (محمي). -->
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--teal-soft);color:var(--teal)"><i class="fas fa-cogs"></i></div><div class="num" id="ov-svcs">0</div><div class="lbl">الخدمات</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--teal-soft);color:var(--teal)"><i class="fas fa-th"></i></div><div class="num" id="ov-ports">0</div><div class="lbl">مشاريع الأعمال</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--brass-soft);color:var(--brass)"><i class="fas fa-tags"></i></div><div class="num" id="ov-prods">0</div><div class="lbl">أنظمة للبيع</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--success-soft);color:var(--success)"><i class="fas fa-shield-alt"></i></div><div class="num" style="font-size:26px;color:var(--success)"><i class="fas fa-check"></i></div><div class="lbl">الموقع محمي</div></div>
         </div>
         <div class="card">
           <div class="card-title"><i class="fas fa-bolt"></i>إجراءات سريعة</div>
@@ -286,40 +510,44 @@
         <div class="card">
           <div class="card-title"><i class="fas fa-building"></i>معلومات الشركة</div>
           <div class="form-row">
-            <div class="fg"><label>اسم الشركة (عربي)</label><input id="c-nameAr" placeholder="هايتك"></div>
-            <div class="fg"><label>Company Name (English)</label><input id="c-nameEn" placeholder="HiTech"></div>
+            <div class="fg"><label>اسم الشركة (عربي)</label><input id="c-nameAr" placeholder="إتقان تك"></div>
+            <div class="fg"><label>Company Name (English)</label><input id="c-nameEn" placeholder="Itqan Tech"></div>
           </div>
           <div class="form-row">
             <div class="fg"><label>رقم الهاتف</label><input id="c-phone" placeholder="+970 59 000 0000"></div>
             <div class="fg"><label>رقم واتساب</label><input id="c-wa" placeholder="+970590000000"></div>
           </div>
-          <div class="fg"><label>البريد الإلكتروني</label><input id="c-email" placeholder="info@hitech.ps"></div>
+          <div class="fg"><label>البريد الإلكتروني</label><input id="c-email" placeholder="info@itqantech.ps"></div>
           <div class="form-row">
             <div class="fg"><label>العنوان (عربي)</label><input id="c-addrAr" placeholder="جنين، فلسطين"></div>
             <div class="fg"><label>Address (English)</label><input id="c-addrEn" placeholder="Jenin, Palestine"></div>
           </div>
           <div class="card-title" style="margin-top:8px"><i class="fab fa-facebook"></i>روابط التواصل الاجتماعي</div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:14px"><i class="fas fa-info-circle"></i> يمكنك إخفاء أي منصة من الموقع بإلغاء تفعيل مفتاحها</p>
+          <!-- مربّعات الاختيار صارت مفاتيح (class="switch") زي المرجع.
+               الـid والـ.checked زي ما هم حرفياً — الـJS ما بيحس بالفرق؛
+               انشالت بس الـinline style لأن width/height المضمّنة كانت
+               بتغلب أي قاعدة CSS وبتمنع شكل الحبّة. -->
           <div style="display:grid;gap:12px">
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-facebook" style="color:#1877F2;font-size:20px;text-align:center"></i>
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
+              <i class="fab fa-facebook" style="color:var(--fb);font-size:20px;text-align:center"></i>
               <input id="c-fb" placeholder="https://facebook.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-facebook" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-facebook" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-instagram" style="color:#E1306C;font-size:20px;text-align:center"></i>
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
+              <i class="fab fa-instagram" style="color:var(--ig);font-size:20px;text-align:center"></i>
               <input id="c-ig" placeholder="https://instagram.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-instagram" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-instagram" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
               <i class="fab fa-tiktok" style="color:var(--text);font-size:20px;text-align:center"></i>
               <input id="c-tt" placeholder="https://tiktok.com/@..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-tiktok" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-tiktok" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-              <i class="fab fa-linkedin" style="color:#0A66C2;font-size:20px;text-align:center"></i>
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
+              <i class="fab fa-linkedin" style="color:var(--li);font-size:20px;text-align:center"></i>
               <input id="c-li" placeholder="https://linkedin.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-linkedin" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-linkedin" class="switch">ظاهر</label>
             </div>
           </div>
         </div>
@@ -332,18 +560,18 @@
         <div id="hero-ar">
           <div class="card">
             <div class="card-title"><i class="fas fa-badge"></i>شارة البادج</div>
-            <div class="fg"><label>نص البادج</label><input id="h-badge-ar" placeholder="شريكك التقني الموثوق"></div>
+            <div class="fg"><label>نص البادج</label><input id="h-badge-ar" placeholder="فلسطين · بتحكي مع المطوّر مباشرة"></div>
           </div>
           <div class="card">
             <div class="card-title"><i class="fas fa-heading"></i>العنوان الرئيسي</div>
-            <div class="fg"><label>السطر الأول</label><input id="h-line1-ar" placeholder="نبني مستقبلك"></div>
+            <div class="fg"><label>السطر الأول</label><input id="h-line1-ar" placeholder="موقع لمحلك — بسعر معلن،"></div>
             <div class="fg"><label>السطر الثاني (ملوّن)</label><input id="h-line2-ar" placeholder="الرقمي"></div>
             <div class="fg"><label>النص الفرعي</label><textarea id="h-sub-ar" placeholder="وصف قصير..."></textarea></div>
           </div>
           <div class="card">
             <div class="card-title"><i class="fas fa-mouse-pointer"></i>أزرار الدعوة</div>
             <div class="form-row">
-              <div class="fg"><label>الزر الأول</label><input id="h-cta1-ar" placeholder="ابدأ مشروعك الآن"></div>
+              <div class="fg"><label>الزر الأول</label><input id="h-cta1-ar" placeholder="شوف الأسعار"></div>
               <div class="fg"><label>الزر الثاني</label><input id="h-cta2-ar" placeholder="استعرض أعمالنا"></div>
             </div>
           </div>
@@ -423,9 +651,9 @@
         <div class="save-notice"><i class="fas fa-info-circle"></i>إدارة الأنظمة والمواقع المعروضة للبيع</div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="fas fa-eye"></i>إظهار القسم في الموقع</div>
-          <div style="display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
-            <input type="checkbox" id="products-visible-chk" style="width:20px;height:20px;cursor:pointer;accent-color:var(--primary)" onchange="toggleProductsSection()">
-            <label for="products-visible-chk" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">تفعيل وإظهار قسم "أنظمة للبيع" في الموقع الرئيسي</label>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px">
+            <input type="checkbox" id="products-visible-chk" class="switch" onchange="toggleProductsSection()">
+            <label for="products-visible-chk" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">تفعيل وإظهار قسم "أنظمة للبيع" في الموقع الرئيسي</label>
           </div>
           <p style="font-size:12px;color:var(--muted);margin-top:10px"><i class="fas fa-info-circle"></i> عند تعطيله يختفي القسم بالكامل من الموقع حتى لو كانت هناك عناصر مضافة</p>
         </div>
@@ -562,7 +790,7 @@
     <div class="fg"><label>الحرف الأول للصورة (مثل: أ، م، س)</label><input id="testi-avatar" placeholder="أ" maxlength="2"></div>
     <div class="fg"><label>الاسم</label><input id="testi-name" placeholder="أحمد الخالد"></div>
     <div class="fg"><label>الوظيفة / الدور</label><input id="testi-role" placeholder="صاحب متجر إلكتروني"></div>
-    <div class="fg"><label>نص الشهادة</label><textarea id="testi-text" placeholder="تجربتي مع هايتك كانت..."></textarea></div>
+    <div class="fg"><label>نص الشهادة</label><textarea id="testi-text" placeholder="اكتب هنا كلام العميل الحقيقي — بإذنه، وباسمه الحقيقي فقط"></textarea></div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveTesti()"><i class="fas fa-save"></i>حفظ</button>
       <button class="btn btn-outline" onclick="closeModal('testi-modal')">إلغاء</button>
@@ -614,9 +842,9 @@
     <div class="fg"><label>الوصف</label><textarea id="port-desc" placeholder="وصف المشروع..."></textarea></div>
     <div class="fg"><label>التقنيات (مفصولة بفاصلة)</label><input id="port-tags" placeholder="React, Node.js, MongoDB"></div>
     <div class="fg"><label>رابط الموقع (اختياري)</label><input id="port-url" placeholder="https://example.com" dir="ltr"></div>
-    <div class="fg" style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
-      <input type="checkbox" id="port-show-url" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
-      <label for="port-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">إظهار زر "شاهد الموقع" للزوار</label>
+    <div class="fg" style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px">
+      <input type="checkbox" id="port-show-url" class="switch">
+      <label for="port-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">إظهار زر "شاهد الموقع" للزوار</label>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveProject()"><i class="fas fa-save"></i>حفظ</button>
@@ -649,9 +877,9 @@
       <div><label>العملة</label><input id="prod-currency" placeholder="₪" style="text-align:center"></div>
     </div>
     <div class="fg"><label>رابط عرض / ديمو (اختياري)</label><input id="prod-url" placeholder="https://example.com" dir="ltr"></div>
-    <div class="fg" style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
-      <input type="checkbox" id="prod-show-url" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
-      <label for="prod-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">إظهار زر "شاهد العرض" للزوار</label>
+    <div class="fg" style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px">
+      <input type="checkbox" id="prod-show-url" class="switch">
+      <label for="prod-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">إظهار زر "شاهد العرض" للزوار</label>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveProduct()"><i class="fas fa-save"></i>حفظ</button>
@@ -665,27 +893,424 @@
 <script>
   // ======= DEFAULT DATA (same as main site) =======
   const DEFAULT = {
-    company:{nameAr:"هايتك",nameEn:"HiTech",phone:"+970 59 000 0000",email:"info@hitech.ps",whatsapp:"+970590000000",address:"جنين، فلسطين",addressEn:"Jenin, Palestine",facebook:"https://facebook.com",instagram:"https://instagram.com",tiktok:"https://tiktok.com",linkedin:"https://linkedin.com",socialVisible:{facebook:true,instagram:true,tiktok:true,linkedin:true}},
-    content:{
-      ar:{"nav.services":"خدماتنا","nav.portfolio":"أعمالنا","nav.about":"عنّا","nav.contact":"تواصل معنا","nav.cta":"ابدأ مشروعك","nav.home":"الرئيسية","hero.badge":"شريكك التقني الموثوق","hero.line1":"نبني مستقبلك","hero.line2":"الرقمي","hero.subtitle":"نصمم ونطور مواقع ويب متكاملة، تطبيقات موبايل، وحلول ذكاء اصطناعي تُحوّل أفكارك إلى واقع رقمي مذهل","hero.cta1":"ابدأ مشروعك الآن","hero.cta2":"استعرض أعمالنا","hero.scroll":"اكتشف أكثر","stat.projects":"مشروع منجز","stat.satisfaction":"رضا العملاء","svc.badge":"خدماتنا","svc.titlehl":"متكاملة","svc.subtitle":"نقدم طيفاً واسعاً من الخدمات التقنية لمساعدة عملك على النمو والتوسع في العالم الرقمي","svc.more":"اعرف أكثر","about.badge":"من نحن","about.titlehl":"بناء الحلول التقنية","about.desc":"هايتك شركة تقنية متخصصة في تطوير الحلول الرقمية. نجمع بين الإبداع التقني والفهم العميق لاحتياجات السوق.","about.cta":"تواصل مع فريقنا","port.badge":"أعمالنا","port.titlehl":"نفخر بها","port.cta":"ابدأ مشروعك","con.badge":"تواصل معنا","con.titlehl":"مشروع في ذهنك؟","con.subtitle":"نحن هنا لمساعدتك في تحقيق رؤيتك الرقمية. تواصل معنا وابدأ رحلتك التقنية","con.phoneL":"الهاتف","con.emailL":"البريد الإلكتروني","con.addrL":"الموقع","con.waL":"واتساب","con.address":"جنين، فلسطين","form.name":"الاسم الكامل","form.email":"البريد الإلكتروني","form.svc":"الخدمة المطلوبة","form.pick":"اختر الخدمة...","form.msg":"رسالتك","form.send":"إرسال الرسالة","foot.desc":"شركة هايتك لحلول التقنية — نبني مستقبلك الرقمي بأحدث التقنيات.","foot.services":"خدماتنا","foot.quick":"روابط سريعة","foot.contact":"تواصل","foot.copy":"© 2025 هايتك. جميع الحقوق محفوظة","foot.admin":"⚙ لوحة التحكم"},
-      en:{"nav.services":"Services","nav.portfolio":"Portfolio","nav.about":"About","nav.contact":"Contact","nav.cta":"Start Project","nav.home":"Home","hero.badge":"Your Trusted Tech Partner","hero.line1":"We Build Your","hero.line2":"Digital Future","hero.subtitle":"We design and develop complete websites, mobile apps, and AI solutions that transform your ideas into amazing digital reality","hero.cta1":"Start Your Project","hero.cta2":"View Our Work","hero.scroll":"Discover More","stat.projects":"Projects Done","stat.satisfaction":"Satisfaction","svc.badge":"Our Services","svc.titlehl":"Complete","svc.subtitle":"We offer a wide range of tech services to help your business grow in the digital world","svc.more":"Learn More","about.badge":"About Us","about.titlehl":"Building Tech Solutions","about.desc":"HiTech is a tech company specializing in digital solutions. We combine technical creativity with deep market understanding.","about.cta":"Contact Our Team","port.badge":"Portfolio","port.titlehl":"We're Proud Of","port.cta":"Start Your Project","con.badge":"Contact Us","con.titlehl":"Project in Mind?","con.subtitle":"We're here to help achieve your digital vision. Contact us and start your tech journey","con.phoneL":"Phone","con.emailL":"Email","con.addrL":"Location","con.waL":"WhatsApp","con.address":"Jenin, Palestine","form.name":"Full Name","form.email":"Email Address","form.svc":"Required Service","form.pick":"Select service...","form.msg":"Your Message","form.send":"Send Message","foot.desc":"HiTech Technology Solutions — Building your digital future with the latest technologies.","foot.services":"Services","foot.quick":"Quick Links","foot.contact":"Contact","foot.copy":"© 2025 HiTech. All Rights Reserved","foot.admin":"⚙ Admin Panel"}
+    "company": {
+      "nameAr": "إتقان تك",
+      "nameEn": "Itqan Tech",
+      "phone": "",
+      "whatsapp": "",
+      "address": "فلسطين",
+      "addressEn": "Palestine",
+      "facebook": "",
+      "instagram": "",
+      "tiktok": "",
+      "linkedin": "",
+      "email": "",
+      "socialVisible": {
+        "facebook": true,
+        "instagram": true,
+        "tiktok": true,
+        "linkedin": true
+      }
     },
-    services:{
-      ar:[{icon:"fa-globe",title:"مواقع الويب",desc:"نبني مواقع احترافية سريعة ومتجاوبة"},{icon:"fa-mobile-alt",title:"تطبيقات الموبايل",desc:"تطبيقات iOS وAndroid عالية الأداء"},{icon:"fa-paint-brush",title:"تصميم UI/UX",desc:"تصميم تجارب مستخدم استثنائية"},{icon:"fa-shopping-cart",title:"المتاجر الإلكترونية",desc:"متاجر إلكترونية متكاملة بأنظمة دفع آمنة"},{icon:"fa-robot",title:"نماذج الذكاء الاصطناعي",desc:"دمج AI في أعمالك لأتمتة العمليات"},{icon:"fa-headset",title:"الدعم والصيانة",desc:"دعم فني متواصل وصيانة دورية"}],
-      en:[{icon:"fa-globe",title:"Web Development",desc:"Professional, fast and responsive websites"},{icon:"fa-mobile-alt",title:"Mobile Apps",desc:"High-performance iOS and Android apps"},{icon:"fa-paint-brush",title:"UI/UX Design",desc:"Exceptional user experiences and interfaces"},{icon:"fa-shopping-cart",title:"E-Commerce",desc:"Full-featured stores with secure payments"},{icon:"fa-robot",title:"AI Models",desc:"Integrate AI to automate your operations"},{icon:"fa-headset",title:"Support & Maintenance",desc:"24/7 technical support and maintenance"}]
+    "products": {
+      "visible": true,
+      "ar": [
+        {
+          "emoji": "🌐",
+          "image": "",
+          "cat": "نظام جاهز للتسليم",
+          "title": "موقع بلوحة تحكم عربية",
+          "desc": "موقع كامل لمحلك مع لوحة تحكم بالعربي — بتغيّر الأسعار والصور والمنتجات لحالك، بدون ما ترجعلي بكل تعديل.",
+          "tags": [
+            "لوحة تحكم عربية",
+            "متجاوب مع الموبايل",
+            "تسليم فوري"
+          ],
+          "price": "1500",
+          "currency": "₪",
+          "url": "",
+          "showUrl": false,
+          "visible": true
+        },
+        {
+          "emoji": "🛒",
+          "image": "",
+          "cat": "نظام جاهز للتسليم",
+          "title": "متجر إلكتروني",
+          "desc": "متجر كامل بإدارة منتجات، والطلبات بتوصلك على الواتساب مباشرة — مع الدفع عند الاستلام أو المحافظ المحلية.",
+          "tags": [
+            "طلبات على واتساب",
+            "دفع عند الاستلام",
+            "إدارة منتجات"
+          ],
+          "price": "3500",
+          "currency": "₪",
+          "url": "",
+          "showUrl": false,
+          "visible": true
+        }
+      ],
+      "en": [
+        {
+          "emoji": "🌐",
+          "image": "",
+          "cat": "Ready to Deliver",
+          "title": "Website with Arabic Admin Panel",
+          "desc": "A complete site for your shop with an Arabic admin panel — change prices, photos and products yourself, without coming back to me for every edit.",
+          "tags": [
+            "Arabic Admin Panel",
+            "Mobile Responsive",
+            "Immediate Delivery"
+          ],
+          "price": "1500",
+          "currency": "₪",
+          "url": "",
+          "showUrl": false,
+          "visible": true
+        },
+        {
+          "emoji": "🛒",
+          "image": "",
+          "cat": "Ready to Deliver",
+          "title": "Online Store",
+          "desc": "A complete store with product management. Orders arrive straight to your WhatsApp — with cash on delivery or local wallets.",
+          "tags": [
+            "WhatsApp Orders",
+            "Cash on Delivery",
+            "Product Management"
+          ],
+          "price": "3500",
+          "currency": "₪",
+          "url": "",
+          "showUrl": false,
+          "visible": true
+        }
+      ]
     },
-    stats:{ar:[{n:50,s:"+",l:"مشروع منجز"},{n:30,s:"+",l:"عميل راضٍ"},{n:3,s:"+",l:"سنوات خبرة"},{n:98,s:"%",l:"نسبة الرضا"}],en:[{n:50,s:"+",l:"Projects Done"},{n:30,s:"+",l:"Happy Clients"},{n:3,s:"+",l:"Years Experience"},{n:98,s:"%",l:"Satisfaction"}]},
-    aboutPoints:{ar:["فريق مؤهل وذو خبرة عالية","حلول مخصصة لكل عميل","دعم فني متواصل 24/7","أسعار تنافسية وجودة عالية"],en:["Highly qualified and experienced team","Custom solutions for every client","24/7 continuous technical support","Competitive pricing with high quality"]},
-    portfolio:{ar:[{emoji:"🛒",cat:"متجر إلكتروني",title:"متجر الأزياء الفلسطيني",desc:"متجر إلكتروني متكامل مع نظام دفع آمن",tags:["Next.js","Stripe","PostgreSQL"]},{emoji:"🏥",cat:"موقع ويب",title:"بوابة العيادات الطبية",desc:"منصة لإدارة مواعيد العيادات",tags:["React","Node.js","MongoDB"]},{emoji:"📱",cat:"تطبيق موبايل",title:"تطبيق توصيل الطلبات",desc:"تطبيق توصيل مع تتبع مباشر",tags:["Flutter","Firebase"]},{emoji:"🤖",cat:"نموذج AI",title:"روبوت المحادثة الذكي",desc:"روبوت ذكي للدعم الفني",tags:["Python","GPT-4"]},{emoji:"🏨",cat:"موقع ويب",title:"موقع الفندق الراقي",desc:"موقع فندق مع نظام حجز",tags:["Vue.js","Laravel"]},{emoji:"📊",cat:"تطبيق ويب",title:"لوحة تحكم الأعمال",desc:"نظام إدارة متكامل",tags:["React","TypeScript"]}],en:[{emoji:"🛒",cat:"E-Commerce",title:"Palestinian Fashion Store",desc:"Full-featured fashion store",tags:["Next.js","Stripe","PostgreSQL"]},{emoji:"🏥",cat:"Website",title:"Medical Clinics Portal",desc:"Platform for clinic management",tags:["React","Node.js","MongoDB"]},{emoji:"📱",cat:"Mobile App",title:"Delivery Tracking App",desc:"Delivery app with live tracking",tags:["Flutter","Firebase"]},{emoji:"🤖",cat:"AI Model",title:"Smart Chatbot",desc:"AI-powered support chatbot",tags:["Python","GPT-4"]},{emoji:"🏨",cat:"Website",title:"Luxury Hotel Website",desc:"Hotel site with booking system",tags:["Vue.js","Laravel"]},{emoji:"📊",cat:"Web App",title:"Business Dashboard",desc:"Comprehensive management system",tags:["React","TypeScript"]}]},
-    process:{
-      ar:[{icon:"💬",title:"الاستشارة",desc:"نجلس معك لفهم فكرتك واحتياجاتك بالكامل"},{icon:"📋",title:"التخطيط",desc:"نضع خطة واضحة وجدولاً زمنياً دقيقاً"},{icon:"🎨",title:"التصميم",desc:"نصمم واجهات جذابة ونعرضها عليك للموافقة"},{icon:"⚙️",title:"التطوير",desc:"نبني المشروع بأعلى معايير الجودة والأداء"},{icon:"🚀",title:"التسليم",desc:"نطلق مشروعك ونوفر دعماً مستمراً بعد التسليم"}],
-      en:[{icon:"💬",title:"Consultation",desc:"We sit with you to fully understand your idea"},{icon:"📋",title:"Planning",desc:"We create a clear plan and precise timeline"},{icon:"🎨",title:"Design",desc:"We design interfaces and present them for approval"},{icon:"⚙️",title:"Development",desc:"We build the project with the highest quality standards"},{icon:"🚀",title:"Delivery",desc:"We launch your project and provide ongoing support"}]
+    "content": {
+      "ar": {
+        "nav.services": "الخدمات",
+        "nav.portfolio": "أعمالي",
+        "nav.about": "ليش أنا",
+        "nav.contact": "تواصل",
+        "nav.cta": "راسلني",
+        "nav.home": "الرئيسية",
+        "hero.badge": "فلسطين · بتحكي مع المطوّر مباشرة",
+        "hero.line1": "موقع لمحلك — بسعر معلن،",
+        "hero.line2": "وبتديره إنت",
+        "hero.subtitle": "بتحكي معي أنا، المطوّر نفسه — مش موظف مبيعات، ولا حدا بيسلّمك لمتدرّب. السعر مكتوب قبل ما تسأل، وبتستلم لوحة تحكم عربية بتغيّر فيها الأسعار والصور والمنتجات لحالك.",
+        "hero.cta1": "شوف الأسعار",
+        "hero.cta2": "راسلني واتساب",
+        "hero.scroll": "اكتشف أكثر",
+        "hero.panelTitle": "هيك بتشكل لوحة تحكمك",
+        "hero.panelSub": "بتفتحها من الموبايل وبتعدّل — بدون مبرمج",
+        "hero.panelPrices": "الأسعار",
+        "hero.panelPhotos": "الصور",
+        "hero.panelProducts": "المنتجات",
+        "hero.panelHours": "أوقات الدوام",
+        "hero.panelSave": "حفظ",
+        "stat.projects": "مشروع منجز",
+        "stat.satisfaction": "رضا العملاء",
+        "nav.process": "كيف بشتغل",
+        "svc.badge": "الخدمات",
+        "svc.titleprefix": "شو ",
+        "svc.titlehl": "بقدر أعملك",
+        "svc.subtitle": "بشتغل مع أصحاب المحلات والأعمال في فلسطين. كل خدمة بتيجي مع لوحة تحكم بتديرها إنت.",
+        "svc.more": "اسأل عنها",
+        "about.badge": "ليش أنا",
+        "about.titleprefix": "ليش تشتغل ",
+        "about.titlehl": "معي؟",
+        "about.desc": "إتقان تك من فلسطين. بشتغل مع أصحاب المحلات والأعمال اللي بدهم حضور رقمي حقيقي — بدون وسطاء، بدون مفاجآت بالسعر، وبدون ما تضل رهينة عند حدا بكل تعديل صغير.",
+        "about.cta": "راسلني واتساب",
+        "port.badge": "أعمالي",
+        "port.titleprefix": "مشاريع ",
+        "port.titlehl": "سلّمتها",
+        "port.cta": "راسلني واتساب",
+        "con.badge": "تواصل",
+        "con.titleprefix": "عندك محل و",
+        "con.titlehl": "بدك موقع؟",
+        "con.subtitle": "احكيلي عن محلك وشو بدك، وبرد عليك بنفسي.",
+        "proc.badge": "كيف بشتغل",
+        "proc.titleprefix": "من ",
+        "proc.titlehl": "أول رسالة للتسليم",
+        "proc.subtitle": "خطوات واضحة، وبتعرف وين صار مشروعك بكل مرحلة.",
+        "testi.badge": "آراء العملاء",
+        "testi.titleprefix": "عملائي ",
+        "testi.titlehl": "بيحكوا",
+        "testi.subtitle": "",
+        "guar.title": "ما بتدفع الدفعة الأخيرة إلا بعد ما تشوف موقعك شغّال",
+        "guar.desc": "بتشوف الموقع كامل وشغّال قدامك قبل ما تسدّد الباقي. إذا مش عاجبك، ما بتدفع.",
+        "con.phoneL": "الهاتف",
+        "con.emailL": "البريد الإلكتروني",
+        "con.addrL": "الموقع",
+        "con.waL": "واتساب",
+        "con.address": "فلسطين",
+        "form.name": "اسمك",
+        "form.email": "البريد الإلكتروني",
+        "form.svc": "شو بدك؟",
+        "form.pick": "اختر...",
+        "form.msg": "احكيلي عن محلك",
+        "form.send": "إرسال",
+        "foot.desc": "إتقان تك — مواقع وأنظمة لأصحاب المحلات والأعمال في فلسطين. بسعر معلن، وبلوحة تحكم بتديرها إنت.",
+        "foot.services": "الخدمات",
+        "foot.quick": "روابط سريعة",
+        "foot.contact": "تواصل",
+        "foot.copy": "© 2026 إتقان تك. جميع الحقوق محفوظة",
+        "foot.admin": "⚙ لوحة التحكم",
+        "prod.badge": "الأسعار",
+        "prod.titleprefix": "أنظمة جاهزة ",
+        "prod.titlehl": "بسعر معلن",
+        "prod.subtitle": "السعر مكتوب — بدون ما تسأل وبدون مفاوضات. جاهزة للتسليم.",
+        "prod.viewBtn": "شاهد العرض",
+        "prod.contactBtn": "راسلني عن هذا",
+        "prod.priceLabel": "السعر",
+        "nav.products": "الأسعار",
+        "fact1.t": "بتحكي مع المطوّر — مش موظف مبيعات",
+        "fact1.d": "ما في وسيط بينقل كلامك غلط، وما في حدا بيسلّمك لمتدرّب.",
+        "fact2.t": "السعر مكتوب على الموقع",
+        "fact2.d": "قبل ما تسأل، وبدون مفاوضات. نازل تحت بالضبط.",
+        "fact3.t": "لوحة تحكم عربية بتديرها إنت",
+        "fact3.d": "بتغيّر الأسعار والصور والمنتجات لحالك — مش رهينة عند حدا.",
+        "fact4.t": "من فلسطين — بتوصلني وبتحاسبني",
+        "fact4.d": "سوق صغير وسمعتي رهينة فيه — وهاد أقوى من أي عقد."
+      },
+      "en": {
+        "nav.services": "Services",
+        "nav.portfolio": "My Work",
+        "nav.about": "Why Me",
+        "nav.contact": "Contact",
+        "nav.cta": "Message Me",
+        "nav.home": "Home",
+        "hero.badge": "Palestine · Talk directly to the developer",
+        "hero.line1": "A site for your shop —",
+        "hero.line2": "priced upfront, managed by you",
+        "hero.subtitle": "You talk to me, the developer — not a salesperson, and nobody hands you off to a junior. The price is published before you ask, and you get an Arabic admin panel to change prices, photos and products yourself.",
+        "hero.cta1": "See Pricing",
+        "hero.cta2": "WhatsApp Me",
+        "hero.scroll": "Discover More",
+        "hero.panelTitle": "This is your admin panel",
+        "hero.panelSub": "Open it from your phone and edit — no developer needed",
+        "hero.panelPrices": "Prices",
+        "hero.panelPhotos": "Photos",
+        "hero.panelProducts": "Products",
+        "hero.panelHours": "Opening Hours",
+        "hero.panelSave": "Save",
+        "stat.projects": "Projects Done",
+        "stat.satisfaction": "Satisfaction",
+        "nav.process": "How I Work",
+        "svc.badge": "Services",
+        "svc.titleprefix": "What I ",
+        "svc.titlehl": "Can Build You",
+        "svc.subtitle": "I work with shop and business owners in Palestine. Every service comes with an admin panel you control.",
+        "svc.more": "Ask about it",
+        "about.badge": "Why Me",
+        "about.titleprefix": "Why work ",
+        "about.titlehl": "with me?",
+        "about.desc": "Itqan Tech is based in Palestine. I work with shop and business owners who want a real digital presence — no middlemen, no pricing surprises, and never held hostage for every small edit.",
+        "about.cta": "WhatsApp Me",
+        "port.badge": "My Work",
+        "port.titleprefix": "Projects ",
+        "port.titlehl": "I've Delivered",
+        "port.cta": "WhatsApp Me",
+        "con.badge": "Contact",
+        "con.titleprefix": "Got a shop and ",
+        "con.titlehl": "need a site?",
+        "con.subtitle": "Tell me about your shop and what you need — I'll reply personally.",
+        "proc.badge": "How I Work",
+        "proc.titleprefix": "From ",
+        "proc.titlehl": "first message to delivery",
+        "proc.subtitle": "Clear steps, and you always know where your project stands.",
+        "testi.badge": "Client Reviews",
+        "testi.titleprefix": "My Clients ",
+        "testi.titlehl": "Speak",
+        "testi.subtitle": "",
+        "guar.title": "You don't pay the final instalment until you see your site working",
+        "guar.desc": "You see the complete, working site in front of you before you settle the rest. If you don't like it, you don't pay.",
+        "con.phoneL": "Phone",
+        "con.emailL": "Email",
+        "con.addrL": "Location",
+        "con.waL": "WhatsApp",
+        "con.address": "Palestine",
+        "form.name": "Your Name",
+        "form.email": "Email Address",
+        "form.svc": "What do you need?",
+        "form.pick": "Select...",
+        "form.msg": "Tell me about your shop",
+        "form.send": "Send",
+        "foot.desc": "Itqan Tech — websites and systems for shop and business owners in Palestine. Published pricing, and an admin panel you control.",
+        "foot.services": "Services",
+        "foot.quick": "Quick Links",
+        "foot.contact": "Contact",
+        "foot.copy": "© 2026 Itqan Tech. All Rights Reserved",
+        "foot.admin": "⚙ Admin Panel",
+        "prod.badge": "Pricing",
+        "prod.titleprefix": "Ready Systems ",
+        "prod.titlehl": "at a published price",
+        "prod.subtitle": "The price is written — no asking, no haggling. Ready to deliver.",
+        "prod.viewBtn": "View Demo",
+        "prod.contactBtn": "Ask me about this",
+        "prod.priceLabel": "Price",
+        "nav.products": "Pricing",
+        "fact1.t": "You talk to the developer — not a salesperson",
+        "fact1.d": "No middleman to relay your message wrong, and nobody hands you off to a junior.",
+        "fact2.t": "The price is published on the site",
+        "fact2.d": "Before you ask, no negotiation. Listed exactly below.",
+        "fact3.t": "An Arabic admin panel you control",
+        "fact3.d": "Change prices, photos and products yourself — never held hostage by anyone.",
+        "fact4.t": "Based in Palestine — you can reach me and hold me accountable",
+        "fact4.d": "It's a small market and my reputation is on the line in it — stronger than any contract."
+      }
     },
-    testimonials:{
-      ar:[{text:"هايتك غيّرت وجه عملي التجاري كلياً. الموقع احترافي جداً وعملاؤنا يثنون عليه دائماً.",name:"أحمد الخالد",role:"صاحب متجر إلكتروني",avatar:"أ",stars:5},{text:"سلّموا المشروع قبل الموعد المحدد وبجودة فاقت توقعاتي. سأتعامل معهم حتماً مجدداً.",name:"سارة محمود",role:"مديرة مشاريع",avatar:"س",stars:5},{text:"تطبيق الموبايل حصل على تقييم ممتاز في المتاجر. يفهمون احتياجات العميل بشكل رائع.",name:"محمد عبد الله",role:"مؤسس شركة ناشئة",avatar:"م",stars:5},{text:"الدعم الفني ممتاز وسريع الاستجابة. أي مشكلة يحلونها فوراً.",name:"ليلى حسن",role:"طبيبة",avatar:"ل",stars:5},{text:"بنوا لنا متجراً متكاملاً بنظام دفع آمن. المبيعات ارتفعت بشكل ملحوظ بعد الإطلاق.",name:"خالد العمري",role:"صاحب متجر ملابس",avatar:"خ",stars:5},{text:"فريق محترف يعمل بشغف حقيقي. كنت على دراية كاملة بتقدم المشروع طوال الوقت.",name:"نور الدين",role:"مدير تسويق",avatar:"ن",stars:5}],
-      en:[{text:"HiTech completely transformed my business. The website is incredibly professional.",name:"Ahmed Al-Khalid",role:"E-Commerce Owner",avatar:"A",stars:5},{text:"Delivered ahead of schedule with quality that exceeded my expectations.",name:"Sara Mahmoud",role:"Project Manager",avatar:"S",stars:5},{text:"The mobile app received excellent ratings. They understand client needs perfectly.",name:"Mohammed Abdullah",role:"Startup Founder",avatar:"M",stars:5},{text:"Excellent and fast technical support. Any issue gets solved immediately.",name:"Layla Hassan",role:"Doctor",avatar:"L",stars:5},{text:"Sales increased significantly after launch. Thank you HiTech!",name:"Khalid Al-Omari",role:"Fashion Store Owner",avatar:"K",stars:5},{text:"A passionate team that kept me fully informed throughout the project.",name:"Nour Eddine",role:"Marketing Manager",avatar:"N",stars:5}]
+    "services": {
+      "ar": [
+        {
+          "icon": "fa-store",
+          "title": "موقع تعريفي لمحلك",
+          "desc": "زبونك بيلاقيك أول ما يدوّر — صورك، منتجاتك، أوقات دوامك، وموقعك على الخريطة."
+        },
+        {
+          "icon": "fa-shopping-cart",
+          "title": "متجر إلكتروني",
+          "desc": "بيع أونلاين والطلبات بتوصلك على الواتساب مباشرة — مع الدفع عند الاستلام أو المحافظ المحلية."
+        },
+        {
+          "icon": "fa-sliders-h",
+          "title": "لوحة تحكم عربية",
+          "desc": "بتيجي مع كل مشروع. بتغيّر الأسعار والصور والمنتجات من موبايلك — بدون ما ترجعلي."
+        },
+        {
+          "icon": "fa-calendar-check",
+          "title": "نظام حجوزات وإدارة",
+          "desc": "للعيادات والصالونات والمشاغل — مواعيد وزبائن منظّمين بمكان واحد."
+        },
+        {
+          "icon": "fa-wrench",
+          "title": "تطوير موقع موجود",
+          "desc": "عندك موقع قديم أو بطيء أو ما بتقدر تعدّله؟ بصلحه أو بنقله للوحة تحكم."
+        },
+        {
+          "icon": "fa-headset",
+          "title": "دعم بعد التسليم",
+          "desc": "بضل موجود بعد التسليم. بتراسلني على الواتساب مباشرة — بدون تذاكر ولا وسطاء."
+        }
+      ],
+      "en": [
+        {
+          "icon": "fa-store",
+          "title": "Shop Website",
+          "desc": "Customers find you the moment they search — your photos, products, opening hours, and location on the map."
+        },
+        {
+          "icon": "fa-shopping-cart",
+          "title": "Online Store",
+          "desc": "Sell online with orders landing straight in your WhatsApp — cash on delivery or local wallets."
+        },
+        {
+          "icon": "fa-sliders-h",
+          "title": "Arabic Admin Panel",
+          "desc": "Included with every project. Change prices, photos and products from your phone — without coming back to me."
+        },
+        {
+          "icon": "fa-calendar-check",
+          "title": "Booking & Management",
+          "desc": "For clinics, salons and workshops — appointments and clients organised in one place."
+        },
+        {
+          "icon": "fa-wrench",
+          "title": "Fixing an Existing Site",
+          "desc": "Got an old, slow site you can't edit? I'll fix it or move it onto an admin panel."
+        },
+        {
+          "icon": "fa-headset",
+          "title": "Support After Delivery",
+          "desc": "I'm still around after handover. You message me on WhatsApp directly — no tickets, no middlemen."
+        }
+      ]
     },
-    products:{visible:true,ar:[],en:[]}
+    "stats": {
+      "ar": [],
+      "en": []
+    },
+    "aboutPoints": {
+      "ar": [
+        "بتحكي معي أنا، المطوّر نفسه — مش موظف مبيعات",
+        "السعر معلن قبل ما تسأل — بدون مفاجآت",
+        "لوحة تحكم عربية بتدير فيها موقعك لحالك",
+        "ما بتدفع الدفعة الأخيرة إلا بعد ما تشوف موقعك شغّال",
+        "من فلسطين — بتوصلني وبتحاسبني"
+      ],
+      "en": [
+        "You talk to me, the developer — not a salesperson",
+        "The price is published before you ask — no surprises",
+        "An Arabic admin panel to run your site yourself",
+        "You don't pay the final instalment until you see your site working",
+        "Based in Palestine — you can reach me and hold me accountable"
+      ]
+    },
+    "portfolio": {
+      "ar": [],
+      "en": []
+    },
+    "process": {
+      "ar": [
+        {
+          "icon": "💬",
+          "title": "بتراسلني",
+          "desc": "بتحكيلي عن محلك وشو بدك — على الواتساب مباشرة، معي أنا."
+        },
+        {
+          "icon": "💰",
+          "title": "بعطيك السعر",
+          "desc": "سعر واضح ومدة واضحة من أول محادثة — بدون مفاوضات ولا مفاجآت."
+        },
+        {
+          "icon": "🎨",
+          "title": "بشوفك الشكل",
+          "desc": "بصمم وبعرضه عليك قبل ما أبني — وبتعدّل عليه براحتك."
+        },
+        {
+          "icon": "⚙️",
+          "title": "ببني",
+          "desc": "بشتغل وبضل أخبرك وين صار — بتعرف وضع مشروعك بأي وقت."
+        },
+        {
+          "icon": "🚀",
+          "title": "بسلّمك",
+          "desc": "بتشوف موقعك شغّال قبل الدفعة الأخيرة، وبعلّمك على لوحة التحكم."
+        }
+      ],
+      "en": [
+        {
+          "icon": "💬",
+          "title": "You message me",
+          "desc": "Tell me about your shop and what you need — on WhatsApp, directly to me."
+        },
+        {
+          "icon": "💰",
+          "title": "I give you the price",
+          "desc": "A clear price and timeline from the first conversation — no haggling, no surprises."
+        },
+        {
+          "icon": "🎨",
+          "title": "I show you the design",
+          "desc": "I design it and show you before building — and you adjust it freely."
+        },
+        {
+          "icon": "⚙️",
+          "title": "I build",
+          "desc": "I work and keep you posted — you know your project's status at any time."
+        },
+        {
+          "icon": "🚀",
+          "title": "I hand it over",
+          "desc": "You see your site working before the final instalment, and I train you on the admin panel."
+        }
+      ]
+    },
+    "testimonials": {
+      "ar": [],
+      "en": []
+    }
   };
 
   let D = DEFAULT;
@@ -732,7 +1357,7 @@
     const old = document.getElementById('p-old').value;
     const nw = document.getElementById('p-new').value;
     const cf = document.getElementById('p-conf').value;
-    if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','#EF4444'); return; }
+    if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','var(--danger)'); return; }
     try {
       const res = await fetch('/api/auth/change-password', {
         method: 'PUT',
@@ -744,10 +1369,10 @@
         showToast('تم تغيير كلمة المرور بنجاح ✓');
         document.getElementById('p-old').value=''; document.getElementById('p-new').value=''; document.getElementById('p-conf').value='';
       } else {
-        showToast(data.error || 'فشل تغيير كلمة المرور','#EF4444');
+        showToast(data.error || 'فشل تغيير كلمة المرور','var(--danger)');
       }
     } catch(e) {
-      showToast('تعذر الاتصال بالخادم','#EF4444');
+      showToast('تعذر الاتصال بالخادم','var(--danger)');
     }
   }
 
@@ -824,7 +1449,7 @@
     const idx=+document.getElementById('step-edit-idx').value;
     const lang=document.getElementById('step-edit-lang').value;
     const step={icon:v('step-icon')||'⚙️',title:v('step-title'),desc:v('step-desc')};
-    if(!step.title){showToast('أدخل عنوان الخطوة','#EF4444');return;}
+    if(!step.title){showToast('أدخل عنوان الخطوة','var(--danger)');return;}
     if(!D.process[lang]) D.process[lang]=[];
     if(idx===-1) D.process[lang].push(step); else D.process[lang][idx]=step;
     renderStepList(lang); closeModal('step-modal'); saveAll();
@@ -841,7 +1466,7 @@
     const reviews = D.testimonials[lang] || [];
     document.getElementById('testi-list-'+lang).innerHTML = reviews.map((r,i) => `
       <div class="list-item">
-        <div class="list-item-icon" style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:#050B18;font-weight:800">${esc(r.avatar)}</div>
+        <div class="list-item-icon" style="background:var(--teal);color:var(--bg);font-weight:800">${esc(r.avatar)}</div>
         <div class="list-item-content">
           <div class="list-item-title">${esc(r.name)} — <span style="color:var(--muted);font-weight:400">${esc(r.role)}</span></div>
           <div class="list-item-desc" style="font-style:italic">"${esc(r.text.substring(0,80))}${r.text.length>80?'...':''}"</div>
@@ -870,7 +1495,7 @@
     const idx=+document.getElementById('testi-edit-idx').value;
     const lang=document.getElementById('testi-edit-lang').value;
     const r={avatar:v('testi-avatar')||'؟',name:v('testi-name'),role:v('testi-role'),text:v('testi-text'),stars:5};
-    if(!r.name||!r.text){showToast('أدخل الاسم والنص','#EF4444');return;}
+    if(!r.name||!r.text){showToast('أدخل الاسم والنص','var(--danger)');return;}
     if(!D.testimonials) D.testimonials={ar:[],en:[]};
     if(!D.testimonials[lang]) D.testimonials[lang]=[];
     if(idx===-1) D.testimonials[lang].push(r); else D.testimonials[lang][idx]=r;
@@ -895,10 +1520,10 @@
         showToast('تم حفظ جميع التغييرات بنجاح ✓');
       } else {
         const data = await res.json();
-        showToast(data.error || 'فشل الحفظ','#EF4444');
+        showToast(data.error || 'فشل الحفظ','var(--danger)');
       }
     } catch(e) {
-      showToast('تعذر الاتصال بالخادم','#EF4444');
+      showToast('تعذر الاتصال بالخادم','var(--danger)');
     }
     updateOverview();
   }
@@ -987,7 +1612,7 @@
     const lang = document.getElementById('svc-edit-lang').value;
     const existing = (idx !== -1 && D.services[lang]) ? D.services[lang][idx] : {};
     const svc = {icon:v('svc-icon')||'fa-cog', image:document.getElementById('svc-image-url').value.trim()||existing.image||'', title:v('svc-title'), desc:v('svc-desc'), visible: existing.visible !== false};
-    if(!svc.title) { showToast('أدخل عنوان الخدمة','#EF4444'); return; }
+    if(!svc.title) { showToast('أدخل عنوان الخدمة','var(--danger)'); return; }
     if(!D.services[lang]) D.services[lang]=[];
     if(idx===-1) D.services[lang].push(svc); else D.services[lang][idx]=svc;
     renderSvcList(lang); closeModal('svc-modal'); saveAll();
@@ -1065,7 +1690,7 @@
       showUrl: document.getElementById('port-show-url').checked,
       visible: existing.visible !== false
     };
-    if(!proj.title) { showToast('أدخل اسم المشروع','#EF4444'); return; }
+    if(!proj.title) { showToast('أدخل اسم المشروع','var(--danger)'); return; }
     if(!D.portfolio[lang]) D.portfolio[lang]=[];
     if(idx===-1) D.portfolio[lang].push(proj); else D.portfolio[lang][idx]=proj;
     renderPortList(lang); closeModal('port-modal'); saveAll();
@@ -1092,7 +1717,7 @@
           <div class="list-item-sub">${esc(p.cat)}${p.price?' · <span style="color:var(--success);font-weight:700">'+esc(p.price)+' '+esc(p.currency||'')+'</span>':''}</div>
         </div>
         <div class="list-item-actions">
-          <button class="btn btn-sm" style="background:${p.visible===false?'rgba(56,189,248,.1)':'rgba(56,189,248,.1)'};color:${p.visible===false?'var(--muted)':'var(--primary)'};border:1px solid var(--border)" title="${p.visible===false?'إظهار':'إخفاء'}" onclick="toggleProd(${i},'${lang}')"><i class="fas fa-eye${p.visible===false?'-slash':''}"></i></button>
+          <button class="btn btn-sm" style="background:${p.visible===false?'var(--line)':'var(--line)'};color:${p.visible===false?'var(--muted)':'var(--primary)'};border:1px solid var(--border)" title="${p.visible===false?'إظهار':'إخفاء'}" onclick="toggleProd(${i},'${lang}')"><i class="fas fa-eye${p.visible===false?'-slash':''}"></i></button>
           <button class="btn btn-sm btn-outline" onclick="editProduct(${i},'${lang}')"><i class="fas fa-pen"></i></button>
           <button class="btn btn-sm btn-danger" onclick="deleteProd(${i},'${lang}')"><i class="fas fa-trash"></i></button>
         </div>
@@ -1161,7 +1786,7 @@
         ? D.products[lang][idx].visible !== false
         : true
     };
-    if (!prod.title) { showToast('أدخل اسم المنتج أو النظام','#EF4444'); return; }
+    if (!prod.title) { showToast('أدخل اسم المنتج أو النظام','var(--danger)'); return; }
     if (!D.products) D.products = { visible: true, ar: [], en: [] };
     if (!D.products[lang]) D.products[lang] = [];
     if (idx === -1) D.products[lang].push(prod); else D.products[lang][idx] = prod;
@@ -1182,7 +1807,7 @@
     document.getElementById('pts-list-'+lang).innerHTML = pts.map((p,i) => `
       <div class="list-item" style="padding:10px 16px;margin-bottom:8px">
         <i class="fas fa-grip-lines" style="color:var(--muted)"></i>
-        <input value="${esc(p)}" class="fg" style="margin:0;flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:var(--font);font-size:14px;outline:none" onchange="updatePoint(${i},'${lang}',this.value)">
+        <input value="${esc(p)}" class="fg" style="margin:0;flex:1" onchange="updatePoint(${i},'${lang}',this.value)">
         <button class="btn btn-danger btn-sm btn-icon" onclick="deletePoint(${i},'${lang}')"><i class="fas fa-times"></i></button>
       </div>`).join('');
   }
@@ -1261,7 +1886,7 @@
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
   // ======= TOAST =======
-  function showToast(msg, color='#34D399') {
+  function showToast(msg, color='var(--success)') {
     const t = document.getElementById('toast');
     t.textContent = ' '+msg;
     t.insertAdjacentHTML('afterbegin','<i class="fas fa-check-circle"></i>');

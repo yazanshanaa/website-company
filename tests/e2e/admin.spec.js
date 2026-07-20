@@ -56,7 +56,9 @@ test.describe.serial('Admin Panel', () => {
     ];
 
     for (const [name, sectionId] of sections) {
-      await page.locator(`[onclick*="showSection"][onclick*="'${name}'"]`).click();
+      // .first(): بعض الأقسام إلها مدخلين — واحد بالشريط الجانبي وواحد كاختصار
+      // بصفحة "نظرة عامة" — وبدون .first() بينكسر وضع Playwright الصارم.
+      await page.locator(`[onclick*="showSection"][onclick*="'${name}'"]`).first().click();
       await expect(page.locator(sectionId)).toBeVisible({ timeout: 4_000 });
     }
   });

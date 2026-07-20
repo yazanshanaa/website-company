@@ -4,6 +4,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "data:check": "node scripts/sync-data.js",
+    "data:sync": "node scripts/sync-data.js --apply",
+    "data:default": "node scripts/check-default.js",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
