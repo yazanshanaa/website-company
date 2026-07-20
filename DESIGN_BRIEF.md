@@ -1,152 +1,258 @@
 # Design Brief — Itqan Tech (إتقان تك)
 
-**Status:** approved by owner · Direction C «فخامة هادئة» (Quiet Luxury) · supersedes the earlier «الورشة» (Industrial/Utilitarian) brief below the line
-**Date:** 2026-07-17
+**الحالة:** معتمد من صاحب الشركة · الاتجاه «سينمائي عميق» (Cinematic Minimalism / Deep-sea Glass) · يلغي ويحلّ محل اتجاه «فخامة هادئة» (Quiet Luxury) الموثّق سابقاً في هذا الملف
+**التاريخ:** 2026-07-20
+**المرجع الملزم:** `uxnew/velorah_cinematic/DESIGN.md` + `uxnew/main_site_cinematic_landing/code.html` + لقطات `uxnew/*/screen.png`
+**الترميز الملزم:** `public/css/tokens.css` (مكتوب مسبقاً — هو الحكم عند أي تعارض مع هذا النص)
 
 ---
 
-## Reconciliation note (read first)
+## ملاحظة التوفيق (اقرأها أولاً)
 
-An earlier version of this file (also dated 2026-07-17) specified an **Industrial/Utilitarian** direction ("الورشة") and was partially implemented directly in `public/index.html`, `public/itqan-cp9x.html`, and `public/css/tokens.css`, with matching `tests/e2e/*.spec.js` updates. That work happened in a separate concurrent session on this same project.
+النسخة السابقة من هذا الملف (2026-07-17) كانت توثّق اتجاه **«فخامة هادئة»**: خلفية عاجية دافئة `#F6F1E7`، سيريف تحريري، لكنة تركوازية واحدة عميقة، ولمسة نحاسية نادرة، وحواف `2px` تقريباً معدومة. وهي بدورها كانت قد ألغت اتجاهاً أسبق («الورشة» Industrial). ونُفّذت فعلاً: `tokens.css` أعيدت كتابته، والملفان `index.html` و`itqan-cp9x.html` مُشّطا بالكامل، وجرت جولة QA موثّقة أسفل هذا الملف. **هذا التاريخ حقيقي ولا يُمحى** — والملف يحتفظ بعادته: يشرح ما كان، وليش تغيّر.
 
-The owner reviewed three genuinely different directions (Swiss/precision, Editorial/personal, Luxury minimal) against real reference sites — [land-book.com](https://land-book.com/), [siteinspire.com](https://www.siteinspire.com/), [shop.aesop.com](https://shop.aesop.com/), [celine.com](https://www.celine.com/) — and explicitly chose **Luxury Minimal**, then confirmed again unprompted: *"اريد منتجة احترافية بشكل حديث و فخم"* (I want a professional result, modern and luxurious). That is a direct contradiction of the Industrial brief's own anti-goals ("no gloss," "a tool, not a brochure," utilitarian by design) — so Industrial cannot be the right read of what the owner wants now, regardless of its earlier "approved" note.
+**ليش تغيّر الآن — بصراحة:** ما تغيّر شي بالاستراتيجية ولا بالتشخيص ولا بالجمهور. صاحب الشركة **رفع مرجعاً بصرياً جاهزاً** (Velorah Cinematic) وطلب الموقع يصير على صورته. هذا قرار مالك، لا نتيجة اكتشاف أن العاجي كان غلطاً. العاجي كان قراراً مدروساً وقتها، وكان يخدم الاستراتيجية بشكل صحيح.
 
-The owner explicitly authorized full discretion over the conflicting work ("افعل بها ما شئت"). Nothing from the Industrial pass was committed to git, so nothing is destroyed in the historical sense — this brief formally supersedes it. `tokens.css` is rewritten in place (same file path, so the existing `<link>` tags in both HTML files keep working). Any Industrial-only structural markup (hazard-stripe divs, outlined mono index numerals, spec-table rows) is replaced with the Luxury system's equivalents below.
+لكن في **حجة موضوعية واحدة** تسند التغيير، وكانت مسجّلة كـ«بند مفتوح» في النسخة العاجية نفسها:
 
----
+> «الشعار (`public/img/logo.png`) درع ثلاثي الأبعاد كروم/تركوازي لامع — بيقرا "تقنية حديثة" أكتر من "فخامة ورقية هادية". انحفظ صغير (٤٠px بالنافبار)، ما بيتكبّر أبداً، عشان لمعته تضل تفصيلة.»
 
-## Direction
+يعني الاتجاه العاجي كان **يخفي** الأصل البصري الوحيد المملوك للعلامة. على الفراغ الكحلي، الدرع المعدني الأزرق-التركوازي بيجلس طبيعياً — نفس عائلة اللون، نفس المزاج المعدني. الاتجاه الجديد بيسمح باستعماله **بثقة** بدل ما يكبته. هذا كسب حقيقي، مش تبرير لاحق.
 
-**Archetype: Luxury / Serif Minimal**, restrained toward function (this is a conversion site with pricing and a WhatsApp CTA, not a pure fashion-brand statement piece — luxury *feeling*, small-business *utility*).
-
-**One-line intent:** The site doesn't shout, it simply states things plainly and lets whitespace, restraint and a single quiet accent color do the convincing — quiet confidence, not marketing noise.
-
-**Reference points** (chosen by the owner after reviewing real sites):
-- **Aesop** (shop.aesop.com) — warm neutral/paper backgrounds, generous margins, one idea per screen, restrained motion. Primary reference.
-- **Céline** (celine.com) — large confident type, near-empty canvas, editorial restraint.
-
-**Why this fits the brand:** The positioning (`STRATEGY.md`) is built on trust and restraint — published prices instead of sales pressure, a payment guarantee instead of hype, a real person instead of a faceless team. A loud gradient-SaaS look — or an intentionally raw industrial one — both contradict that message. A calm, paper-toned, editorial site *performs* the same honesty the copy states.
-
-**Open item:** the shield logo (`public/img/logo.png`) is a glossy chrome/teal 3D render — reads "modern tech" more than "quiet paper luxury." Kept small (nav ~40px, favicon only), never enlarged, so its shine stays a texture detail, not the dominant note.
+**ما لا يتغيّر بهذا القرار:** الاستراتيجية (`STRATEGY.md`) كما هي حرفياً. الجمهور أصحاب محلات، لا مطوّرين. الوعود الأربعة (بتحكي مع المطوّر · السعر معلن · بتدير لوحتك · ما بتدفع الأخيرة قبل ما تشوفه شغّال) هي المقياس. **أي قرار جمالي بيضعف واحداً منها فهو غلط مهما كان حلواً.** المرجع Velorah موجّه لـ«استوديوهات إبداعية نخبوية» — نحن نأخذ **لغته البصرية**، ولا نأخذ نبرته المتعالية ولا مصطلحاته (`Neural Nexus`, `Protocol`, `Encrypted`). صاحب محل في جنين ما بيشتري «بروتوكولاً».
 
 ---
 
-## Typography
+## الاتجاه
 
-**Arabic (primary):**
-- Display: **Markazi Text** — elegant Arabic serif, calligraphic warmth, legible at large sizes. h1/h2 and pull statements.
-- Body: **IBM Plex Sans Arabic** — clean, legible at small sizes, full weight range for labels/buttons/body.
+**الطراز: تبسيط سينمائي / زجاجية أعماق البحر (Deep-sea Glassmorphism)** — مشدود نحو الوظيفة. هذا موقع تحويل فيه أسعار وزر واتساب، مش قطعة عرض لاستوديو.
 
-**Latin (English toggle + numerals/prices in both languages):**
-- Display: **Cormorant Garamond** — thin luxury serif, headlines only, English mode.
-- Body/UI: **Jost** — geometric, quiet, pairs cleanly with Arabic without competing.
+**نيّة بسطر واحد:** الموقع يشتغل مثل عدسة عالية الجودة — خلفية سوداء-كحلية عميقة، طبقات زجاجية بتشفّ على بعض، وخيط ضوء سماوي واحد بيمشي على البيانات المهمة (السعر، الرقم، المؤشر النشط). الهدوء صار **عمقاً** بدل ما كان **بياضاً**.
 
-**Hard rules carried over from the Industrial pass (still correct, archetype-independent):**
-1. `₪` must render in a face that actually carries the glyph — verify before shipping, same failure mode the Industrial brief documented (Readex Pro had no ₪; IBM Plex Mono's Latin subset didn't deliver it either). IBM Plex Sans Arabic carries it.
-2. No `letter-spacing` on Arabic body/paragraph text — connected script, tracking reads as a rendering fault. Micro-label eyebrows (Latin-style small caps) are the one place letter-spacing is used, and only on short Arabic labels where it's a deliberate editorial device (2–3 words max), not running text.
+**المبدأ الحاكم الذي تُشتق منه كل التفاصيل:**
 
-### Scale
+> **العمق بالانكسار والضوء، مش بالظلال.**
 
-| Role | Size | Weight | Notes |
-|---|---|---|---|
-| H1 | `clamp(34px, 5vw, 58px)` | 500–600 | never heavier — luxury restraint, not bold-SaaS punch |
-| H2 | `clamp(26px, 3.5vw, 40px)` | 500 | |
-| H3 | `20–22px` | 600 | |
-| Body | `16–17px` | 400 | line-height 1.9 — generous, paper-like |
-| Small / label | `12–13px` | 600 | wide letter-spacing (0.12–0.18em), small-caps-style eyebrows |
-| Price | `clamp(26px, 3.4vw, 42px)` | 500 | Cormorant Garamond numerals, tabular where possible |
+في الاتجاه العاجي كانت الهرمية تُبنى بالمساحة البيضاء والخطوط الشعرية. الآن تُبنى بثلاثة عناصر فقط: **تعبئة بيضاء منخفضة الشفافية + `backdrop-filter` + حدّ ١px "تسريب ضوء"**. أي محاولة لإضافة ظل بتكسر النظام كله، لأن الظل بيفترض مصدر ضوء خارجي ومساحة صلبة — والزجاج ما إله لا هذا ولا هذاك.
+
+**ليش هذا يخدم الاستراتيجية (وليس فقط يبدو حلواً):** التموضع مبني على **الشفافية الحرفية** — السعر مكتوب قبل ما تسأل، واللوحة بتجرّبها قبل ما تدفع. سطح شفّاف حرفياً بتشوف من خلاله الطبقة اللي تحته هو تجسيد بصري لنفس الوعد، بنفس الطريقة اللي كان فيها الورق العاجي تجسيداً للهدوء. الاستعارة ما انكسرت — تغيّرت المادة.
+
+**نقاط المرجع:**
+- `velorah_cinematic/DESIGN.md` — نظام التصميم (المصدر الأول للقواعد).
+- `main_site_cinematic_landing/screen.png` — الهيرو: سيريف ضخم أبيض في وسط فراغ، فقرة رمادية صغيرة، زرّ حبّة أبيض ملآن. ثم شبكة Bento من كروت زجاجية.
+- `dashboard_analytics_overview/screen.png` + `dashboard_system_configurations/screen.png` — **مرجع لوحة التحكم** `itqan-cp9x.html`: سايدبار غامق، بطاقات إحصاء زجاجية، رقم بيانات ضخم بالسيريف، حقول بحدّ سفلي فقط، مفاتيح حبّة.
 
 ---
 
-## Color
+## اللون
 
-Derived from the shield logo's teal, a warm paper base (Aesop reference), and a small brass/gold accent (ties to the "guarantee/seal" positioning). **No cyan/purple gradient, no graphite/hazard-stripe industrial system survives.**
+كل القيم من `public/css/tokens.css`. الجدول هنا **توثيق**، والملف هو الحقيقة.
 
-| Token | Value | Role |
+| Token | القيمة | الدور |
 |---|---|---|
-| `--bg` | `#F6F1E7` | warm ivory/bone — main background |
-| `--surface` | `#FBF8F1` | cards/panels, barely lighter than bg |
-| `--text` | `#1E1C18` | primary text — warm near-black, never pure #000 |
-| `--muted` | `#6B6357` | secondary text, labels |
-| `--teal` (accent) | `#1F4E4F` | deep muted teal (from the shield) — links, one CTA, icons |
-| `--teal-soft` | `#DCE6E2` | teal tint for hover backgrounds |
-| `--brass` | `#A9824C` | small accent — guarantee seal, dividers, price emphasis. Sparing use, never a fill |
-| `--band` | `#14201F` | the one dark "statement band" (guarantee section, footer) |
-| `--band-text` | `#F1EDE2` | text on the dark band |
-| `--wa` | `#25D366` | WhatsApp only (platform color, not a brand color) |
-| `--line` | `#E4DDCC` | hairline borders/dividers on the light surface |
-| `--radius` | `2px` | near-zero — luxury restraint, not the old pill-everything look |
+| `--bg` | `#001523` | الفراغ الكحلي — خلفية كل الصفحات |
+| `--bg-deep` | `#00101B` | أعمق نقطة — الفوتر والشريط |
+| `--bg-raise` | `#001E2F` | أعلى نقطة — رأس اللوحة الملتصق |
+| `--surface` | `rgba(255,255,255,.03)` | زجاج المستوى ١ — الكروت |
+| `--surface-2` | `rgba(255,255,255,.06)` | المستوى ٢ — المرور/النشط |
+| `--surface-3` | `rgba(255,255,255,.10)` | المستوى ٣ — الطافي/الرأس |
+| `--surface-solid` / `-2` | `#002234` / `#012D43` | أسطح معتمة حيث الزجاج ينهار (`<option>`, ملء المودال) |
+| `--line` / `--line-strong` | `.08` / `.18` أبيض | حدّ "تسريب الضوء" ١px — **بديل الظل بالكامل** |
+| `--text` | `#F2F5F8` | النص الأساسي |
+| `--muted` | `#8096A8` | ثانوي وتسميات — ٦.٤:١ على الفراغ |
+| `--muted-strong` | `#A9C0D2` | ثانوي فوق زجاج فاتح |
+| `--teal` | `#00E3FD` | **اللكنة الأولى** — البيانات، الروابط، التركيز، النشط. الوحيد المسموح يوهّج |
+| `--teal-soft` / `--teal-dim` | rgba | خلفية المرور / الحدود والمساطر |
+| `--brass` | `#BDF4FF` | **اللكنة الثانية** — أزرق جليدي شاحب: الزخرفة، المساطر، الأرقام الكبيرة |
+| `--white` | `#FFFFFF` | ملء الأزرار الأساسية (والنص عليها كحلي) |
+| `--band` / `--band-text` | `#00101B` / `#F2F5F8` | الشريط الدرامي (الضمان + الفوتر) |
+| `--wa` `--fb` `--ig` `--li` | كما هي | ألوان **منصات**، مش ألوان علامة |
+| `--danger` / `--success` | `#FF3366` / `#3DDC97` | دلالي — أحمر المرجع نفسه |
 
-Light-mode only by design — the calm paper tone *is* the brand decision, not a missing dark-mode toggle.
+### ثلاث ملاحظات على القرارات، لا على القيم
 
-**Contrast to verify at build time (WCAG AA):** `--text`/`--bg`, `--muted`/`--bg`, `--band-text`/`--band`, `--teal` as button text on `--bg`.
+**١. الاسم `--brass` بقي، والقيمة انقلبت.** كان `#A9824C` نحاسياً دافئاً؛ صار `#BDF4FF` أزرق جليدياً. الاسم ما تغيّر لأن **الملفين بيقرأوا من نفس `tokens.css`**، وإعادة التسمية بدها مطاردة كل مُحدِّد في ملفين بألف سطر مقابل صفر مكسب بصري. الاسم صار تاريخياً؛ الدور هو نفسه (اللكنة الثانية النادرة). **لا تعيد تسميته ولا تحذفه.**
 
----
+**٢. الشريط الغامق صار أعمق بدل أفتح.** في العاجي كان `--band: #14201F` استراحة **غامقة** وسط الورق. الآن الخلفية نفسها غامقة، فالشريط اشتغل بالاتجاه المعاكس: `#00101B` — أعمق من الفراغ. الوظيفة واحدة (وقفة درامية مقصودة)، الإشارة انعكست. **شريط واحد فقط** — قسم الضمان. الفوتر يشاركه اللون لأنه نهاية الصفحة، لا لأنه شريط ثانٍ.
 
-## Layout
+**٣. اللكنتان اثنتان، وبس.** سماوي للبيانات والتفاعل، جليدي للزخرفة. **لا لون ثالث.** النحاسي مات، والتركوازي العميق `#1F4E4F` مات، ولا يعودان. الألوان الدلالية والمنصّاتية ليست لكنات علامة ولا تُستعمل كزينة.
 
-- Containers: `max-width: 1180px`, generous side padding.
-- Section rhythm: **140–160px vertical padding** between sections — the extra air is the luxury signal (was 88px in the Industrial pass, 100px in the original template — both too tight for this direction).
-- Grid: hero is **asymmetric, not centered**. In RTL, the headline block anchors **right** (natural reading start) with a small-caps eyebrow + thin rule above it; the admin-panel mockup sits left, smaller and quieter than the type beside it — type leads, the product shot supports.
-- Cards: **hairline 1px `--line` borders**, no glow, no shadow. Any glass-blur or glowing-border card from the original template, and any spec-table/hazard-stripe structure from the Industrial pass, is retired.
-- Dark band: exactly one full-bleed `--band` section (the guarantee) breaks the ivory rhythm — a deliberate pause, not a second theme.
-
----
-
-## Signature elements
-
-1. **Eyebrow + hairline rule system** — every section opens with a small-caps label (e.g. "٠١ — الخدمات") and a thin horizontal rule. Replaces both the original pill-badges and the Industrial pass's amber section-badges.
-2. **Admin-panel mockup as a "framed plate"** — the existing hero mockup (prices/photos/products/save button — kept, not deleted) gets a thin brass frame line, ivory surface, museum-label caption underneath, instead of a dark glass card or an industrial spec-panel.
-3. **Oversized serif index numerals** for the "كيف بشتغل" process steps (٠١ ٠٢ ٠٣ ٠٤ ٠٥ in Markazi Text, large, light-weight, muted-brass outline) — replaces both the emoji-in-circle pattern and the Industrial pass's mono outlined-teal numerals.
-4. **Dedicated dark guarantee band** — full-bleed `--band` section, `--band-text`, thin brass rule, the shield logo watermarked faint and large in the background. Promotes the payment guarantee (the #1 trust-closer per `STRATEGY.md`) into a deliberate visual moment instead of a small hero footnote.
+**غامق فقط، بقرار.** ما في `prefers-color-scheme` ولا مفتاح ثيم. الفراغ الكحلي **هو** القرار، تماماً كما كان الورق العاجي قراراً لا نقص وضع غامق. (المخاطرة المترتبة على هذا موثّقة في قسم المخاطر أدناه — ما بنتجاهلها.)
 
 ---
 
-## Motion
+## الطباعة
 
-- Scroll reveals: 500–700ms ease-out fades with a small (16–20px) upward drift.
-- Hover: understated only — thin underline draw on links, 1.01 scale or opacity shift on cards. **No gradient-sweep hovers, no bounce, no glow, no hazard-stripe animation.**
-- Nothing pulses or auto-plays. Motion is a confirmation, never decoration.
-- `@media (prefers-reduced-motion: reduce)` opt-out, carried over from the Industrial pass — correct regardless of direction.
+**عربي (الأساس):**
+- عرض: **Markazi Text** — سيريف عربي بدفء خطّي، مقروء عند المقاسات الكبيرة. h1/h2 والجمل البارزة والأرقام الضخمة.
+- نص: **IBM Plex Sans Arabic** — الجسم، التسميات، الأزرار، القوائم.
+
+**لاتيني (وضع English/עברית + الأرقام):**
+- عرض: **Instrument Serif** — خط المرجع نفسه. **يُضاف** إلى طلب Google Fonts الموجود، بنفس نمط `preload as=style ... onload` وتوأمه `<noscript>`.
+- نص/أرقام: **Inter** أو **Jost** الموجود. **ممنوع PP Neue Montreal** — مش على Google Fonts، والمرجع نفسه بيسمّي Inter كبديله الوظيفي. أي أصل خارجي جديد بينكسر على CSP في `server.js`.
+
+**ترتيب السلسلة مقصود ومقيس:** `--font-display` بتبدأ بـ`Markazi Text` **قبل** `Instrument Serif`. السبب: الصفحة RTL والمتصفح بياخد أول خط بيغطّي الحرف؛ لو انحط السيريف اللاتيني أولاً، بيضل العربي يقع على fallback النظام. هذا سطر مكتوب في `tokens.css` — احترمه.
+
+### المقاس
+
+| الدور | Token | القيمة | ملاحظة |
+|---|---|---|---|
+| H1 | `--h1` | `clamp(40px, 7.2vw, 92px)` | أكبر بوضوح من العاجي (كان `58px` سقفاً) — الفراغ العميق بيتحمّل وزناً طباعياً أعلى بكثير من الورق |
+| H2 | `--h2` | `clamp(28px, 4vw, 48px)` | |
+| H3 | `--h3` | `24px` | |
+| النص | `--body` | `17px` | `--lh-arabic: 1.9` |
+| صغير | `--small` | `14px` | |
+| تسمية | `--label` | `12px` | حروف كبيرة + `letter-spacing:.2em` — **للاتيني فقط** |
+| السعر | `--price` | `clamp(30px, 3.8vw, 46px)` | سيريف عرض، الشيكل عبر `.cur-glyph` |
+| رقم المرحلة | `--idx` | `72px` (`46px` موبايل) | مفرّغ بـ`-webkit-text-stroke` |
+
+### قاعدتان طباعيتان صمدتا من العاجي بلا تعديل
+
+**١. `₪` لازم ينزل على `--font-text` عبر `.cur-glyph`.** سيريف العرض والهندسي اللاتيني **ما بيحملوا جليف الشيكل** — بيطلع مربع فاضي (tofu). هذه غلطة اتكررت مرتين في تاريخ هذا المشروع (Readex Pro أولاً، ثم subset اللاتيني في IBM Plex Mono). **مقيسة، مش مفترضة.** الفئة موجودة — لا تحذفها ولا تلفّ السعر بدونها.
+
+**٢. ولا `letter-spacing` على العربي الجاري.** العربية خط متّصل؛ التتبّع بيفكّ الوصلات وبيقرا كخلل عرض، لا كأناقة. المرجع بيطلب `letter-spacing:.2em` على تسميات الـ12px — هذا **صحيح للاتيني وغلط للعربي**. التسمية العربية بتاخد وزناً وحجماً وحرف `—` فاصلاً بدل التتبّع. الاستثناء الوحيد المسموح: تسمية عربية قصيرة جداً (كلمتان-ثلاث) كأداة تحريرية مقصودة، لا نص جارٍ.
 
 ---
 
-## Per-section map
+## العمق والزجاج
 
-| Section | Treatment |
+| المستوى | ماذا | القيم |
+|---|---|---|
+| ٠ — القاعدة | الفراغ الكحلي `--bg` + طبقة الغلاف الجوّي | بلا زجاج |
+| ١ — السطح | الكروت، الحقول، الشرائح | `--surface` + `--blur` (24px) + `1px solid --line` |
+| ٢ — الطافي | النافبار الملتصق، رأس اللوحة، المودال، القائمة | `--surface-3` + `--blur-hi` (40px) + `--line` |
+| اللمعان | مؤشرات نشطة، أرقام بيانات، تركيز | `--glow` / `--glow-soft` / `--bloom` — **سماوي فقط** |
+
+**الحدّ إجباري مع كل blur.** عنصر بياخد `backdrop-filter` بلا حدّ ١px بيذوب في الفراغ ويختفي شكله. هذا مش تفصيل جمالي — هو الشي الوحيد اللي بيعرّف حافة العنصر بعد ما ألغينا الظل.
+
+**`--bloom` توهّج كفلتر لا كظل.** الأرقام المفرّغة (`-webkit-text-stroke`) ما بتاخد `text-shadow` نظيفاً — الظل بينرسم من شكل الحرف الكامل لا من الحدّ، فيطلع كتلة مضبّبة. `drop-shadow()` بيلاحق الحدّ نفسه. مقيس.
+
+**احتياطي الأجهزة القديمة موجود ومقصود:** `@supports not (backdrop-filter…)` في `tokens.css` بيقلب الأسطح الثلاثة لقيم معتمة قريبة بصرياً. بدونه الكروت بتصير شبه شفافة على متصفح ما بيدعم الخاصية، والنص بيقرا فوق فوضى.
+
+---
+
+## التخطيط والإيقاع
+
+- الحاوية `--max: 1240px` (كانت `1180px`) — الفراغ العميق بيحتمل عرضاً أوسع بلا ما يصير مبعثراً.
+- الإيقاع الرأسي `--section-y: 140px` (`84px` تحت 768px) — **بقي كما هو من العاجي.** الهواء لسا الإشارة، الخلفية بس تغيّرت.
+- الهيرو غير متمركز: بالـRTL كتلة العنوان بتتثبّت على **بداية القراءة** (يمين)، ولقطة لوحة التحكم على الجهة المقابلة. الطباعة بتقود، اللقطة بتسند.
+- **شبكة Bento للأقسام الشبكية** (الأسعار، الخدمات، إحصاءات اللوحة): كروت زجاجية بأحجام غير متساوية بدل صف متطابق. من المرجع مباشرة.
+- الحواف: الحاويات `--radius` (16px) / `--radius-lg` (24px)، وكل نقطة لمس `--radius-pill`. **الحبّة بتفرّق «هذا بينكبس» عن «هذا بيحتوي»** — أزرار، شرائح، مفاتيح، مبدّل اللغة. (كان `--radius: 2px` في العاجي — انقلاب كامل، ومقصود: العاجي كان بيقول «ورق مقصوص»، والجديد بيقول «زجاج مصبوب».)
+- الحقول: ارتفاع ~48px، **حدّ سفلي فقط**، بينقلب لـ`2px` سماوي عند التركيز. بلا صندوق كامل وبلا ملء.
+
+---
+
+## العناصر المميّزة
+
+هذه هي الأربعة اللي بتخلّي الموقع **هذا الموقع**، مش قالب glassmorphism غامق عام. كل واحد فيها مربوط بأصل استراتيجي، لا بذوق.
+
+**١. الدرع كمصدر ضوء.** الشعار كان مكبوتاً في العاجي (٤٠px، «ما بيتكبّر أبداً»). على الكحلي بيجلس في بيئته: يبقى بحجم معقول في النافبار، لكنه **يُكبّر ويُبهت خلفية شريط الضمان** كعلامة مائية عملاقة، وبؤرة الغلاف الجوّي العلوية (`--atmo-teal`) بتنقرا كأنها ضوء صادر منه. هذا الشي الوحيد المملوك بصرياً للعلامة — والمرجع ما بيملكه.
+
+**٢. لوحة التحكم كشاشة حيّة، لا لقطة شاشة.** لقطة اللوحة في الهيرو (الأسعار/الصور/المنتجات/زر الحفظ — **موجودة، لا تُحذف**) كانت «لوحة مؤطّرة» بخط نحاسي في العاجي. الآن بتتلبّس بطاقة زجاجية من المستوى ٢، بحدّ ضوء وتوهّج سماوي خفيف على حافتها، وتحتها التسمية «هيك بتشكل لوحة تحكمك». هذا **أقوى دليل موجود** (STRATEGY §3) — ومرجع الداشبورد بيعطينا لغة بصرية جاهزة لعرضه بثقة.
+
+**٣. السعر كرقم بيانات.** المرجع بيعطي الأرقام التحليلية سيريف عرض ضخماً بلون لكنة وتوهّج (`1.2M`, `0.03`). نأخذ هذا **بالحرف ونصرفه على السعر**: `--price` بسيريف العرض، اللكنة الجليدية، والشيكل بـ`.cur-glyph`. **السعر المعلن هو السلاح الاستراتيجي الأول** — يستحق معاملة الرقم الأهم على الشاشة، لا سطراً في كرت.
+
+**٤. الأرقام المفرّغة للمراحل.** `٠١ ٠٢ ٠٣…` بمقاس `--idx` مفرّغة بـ`-webkit-text-stroke` جليدي على الفراغ، وبتشتعل بـ`--bloom` عند المرور. هذا تطوّر مباشر لعنصر العاجي الثالث (أرقام سيريف ضخمة نحاسية) — نفس الفكرة، **معاد تجسيدها بالضوء بدل الحبر**. الاستمرارية مقصودة: الموقع تغيّرت مادته لا شخصيته.
+
+**والخامس، سلبي:** المسطرة الجليدية الشعرية فوق كل عنوان قسم (`--brass-dim`, 1px) — الوحيدة اللي نجت من نظام «eyebrow + rule» العاجي بلا تعديل. بتضل هي إشارة «قسم جديد بيبدأ» في كل الموقع.
+
+---
+
+## الحركة
+
+- المنحنى `--ease: cubic-bezier(.23,1,.32,1)` — دخول سريع وهبوط طويل. واثق وبطيء، **أبداً مش قافز**.
+- المدد: `--t-fast: 300ms` للتفاعل، `--t-mid: 600ms` لكشف التمرير، `--t-slow: 900ms` للطبقات الجوّية.
+- كشف التمرير: تلاشٍ + انزياح ١٦–٢٠px لأعلى. **`opacity` و`transform` فقط** — أي حركة على `filter` أو `backdrop-filter` أو `width` بتخرج من الـcompositor وبتضرب الأداء.
+- ممنوع: نبض تلقائي، bounce، كنس تدرّجي، أي شي بيلفت النظر لحاله. الحركة تأكيد، لا زينة. (المرجع فيه `animate-pulse` على الـh1 و`animate-bounce` على سهم التمرير — **لا نأخذهما**؛ هما مناسبان لصفحة استوديو، لا لموقع يبيع الثقة لصاحب محل.)
+- `@media (prefers-reduced-motion: reduce)` بتوقف كل شي أضفناه. صمدت من كل الاتجاهات السابقة لأنها صحيحة بغض النظر عن الطراز.
+
+---
+
+## خريطة الأقسام
+
+| القسم | المعالجة |
 |---|---|
-| Nav | Small shield mark (~40px) + "إتقان تك" in Markazi Text, thin bottom hairline — no blurred glass pill, no graphite bar |
-| Hero | Asymmetric two-zone; eyebrow + rule above H1; admin-panel "framed plate" mockup; guarantee line as a quiet footnote with a brass rule above it |
-| Services | Numbered editorial rows (٠١–٠٦) with hairline dividers — not icon-in-box cards, not spec-table mono rows |
-| About ("ليش أنا") | Asymmetric text block; one line from `about.desc` pulled out large in Cormorant/Markazi as an editorial pull-quote |
-| Process ("كيف بشتغل") | Oversized index numerals (signature element 3), horizontal hairline timeline |
-| Pricing ("الأسعار") | Product cards as refined plates — hairline border, price in large serif numerals, no gradient glow, no amber mono price block |
-| **Guarantee** | Full-bleed dark band (signature element 4) — replaces the Industrial pass's amber-bordered band |
-| Portfolio / Testimonials | Stay hidden when empty (existing `toggleSection()` logic) — no fabricated placeholders |
-| Footer | Dark, matches the guarantee band — wordmark, thin brass rule, social links as understated text links |
+| النافبار | زجاج مستوى ٢ (`--surface-3` + `--blur-hi`) بحدّ سفلي ١px · الدرع + «إتقان تك» بـMarkazi · مبدّل اللغة حبّة |
+| الهيرو | فراغ + بؤرة جوّية علوية · H1 سيريف ضخم بـ`--h1` · فقرة `--muted` · زر أساسي **أبيض ملآن ونصّه كحلي** + زر واتساب زجاجي محدّد · لقطة اللوحة كبطاقة زجاجية |
+| الخدمات | شبكة Bento زجاجية — لا أيقونات في مربعات، لا صفوف جدول مواصفات |
+| ليش أنا | كتلة غير متمركزة + سطر واحد مسحوب كبير بسيريف العرض |
+| كيف بشتغل | الأرقام المفرّغة (العنصر ٤) على خط زمني بمسطرة شعرية |
+| الأسعار | كروت زجاجية، السعر كرقم بيانات (العنصر ٣) |
+| **الضمان** | الشريط الوحيد `--band` — أعمق من الفراغ · الدرع علامة مائية عملاقة (العنصر ١) · مسطرة جليدية |
+| البورتفوليو/التوصيات | **تضل مخفية لما تفرغ** (`toggleSection()` كما هو) — لا بدائل مفبركة |
+| الفوتر | `--band` · روابط نصية هادئة · أيقونات المنصات بألوانها من الترميز |
+| لوحة التحكم | سايدبار `--band` · بطاقات إحصاء زجاجية · حقول بحدّ سفلي · مفاتيح حبّة · مودال بـ`--overlay` + blur |
 
 ---
 
-## Implementation log — QA pass (2026-07-19)
+## المحظورات
 
-Decisions taken while closing the QA gate, recorded here per the brief-is-the-contract rule.
+مذكورة بهذه الحدّة لأن كل واحدة منها بتكسر النظام لا بتخالف ذوقاً.
 
-**Added to the token layer**
-- `--fb` / `--ig` / `--li` (Facebook, Instagram, LinkedIn) join `--wa` as *platform* colors — not brand colors. They were previously inline hex on the admin panel's social icons.
-- `--danger` / `--success` were already defined but unused; the JS was still passing raw hex from the pre-restyle design.
-
-**Toast: fill → border.** `.toast` was restyled to ivory surface + colored border, but `showToast()` still overrode `background` inline. That put near-black text on a dark fill at **3.04:1**. The state is now carried by `borderColor`, keeping the ivory surface — **16.04:1**. The admin panel's toast is a different pattern (ivory text on a colored fill) and measured 4.53:1 / 4.97:1, so it was left alone.
-
-**Focus rings.** `:focus-visible` covered only `.btn` on the site, and was *completely absent* from the admin panel — keyboard navigation there had no visible focus at all. A global rule now covers `a/button/input/select/textarea/[tabindex]` in both files, switching to `--band-text` over the dark band, footer and sidebar.
-
-**Touch targets.** Enlarged to ≥44×44 under `@media (pointer:coarse)` only, so the desktop's deliberately compact proportions are untouched. Previously undersized: language toggle (32×30), hamburger (40×38), mobile close (42×42), footer links (21px tall).
-
-**Contrast, measured not eyeballed.** All token pairs pass at their applicable threshold. `--brass` on `--bg` is **3.12:1** — below the 4.5:1 body-text bar, but brass is used *only* for icons, hairline rules, star glyphs and the large price (`--price` ≥26px), all of which sit under the 3:1 large-text/graphic threshold. This was already reasoned about in a CSS comment at the `.product-price` rule and remains correct. On the dark band brass measures 4.76:1.
-
-**Open deviation — numerals.** The brief specifies Arabic-Indic index numerals (٠١ ٠٢ ٠٣). The build renders Latin (01 02 03) across services, process and pricing. This is left as-is deliberately: prices, opening hours and the `₪` amounts all use Latin numerals, and Palestinian/Levantine usage commonly favours them — mixing scripts would read as inconsistent rather than editorial. **Flagged for the owner's call**, not silently settled.
+1. **ولا `box-shadow` كأداة عمق.** ولا واحد. العمق من الانكسار والحدّ ١px. الاستثناء الوحيد: التوهّج السماوي الناعم (`--glow*`, `--bloom`) وهو ليس ظلاً — هو ضوء.
+2. **ولا لون ثالث.** سماوي + جليدي. اللي بده لون رابع بده نظام تاني.
+3. **ولا تدرّج (gradient) كزخرفة علامة.** البؤر الشعاعية الجوّية فوق الخلفية مسموحة ومطلوبة (`--atmo-*`)، لأنها **إضاءة** لا هوية.
+4. **ولا `letter-spacing` على العربي الجاري.** فوق.
+5. **ولا `hex`/`rgba` مثبّت خارج `tokens.css`.** بدك قيمة مش موجودة؟ **ضيفها للترميز** مع تعليق عربي بيشرح السبب. لا تُدخلها في المكوّن.
+6. **ولا إيموجي كأيقونة.** Font Awesome موجود ومسموح في CSP. الإيموجي بيقرا هاوياً وبينكسر عبر المنصات.
+7. **ولا أصل خارجي جديد.** `fonts.googleapis.com` / `fonts.gstatic.com` / `cdnjs` وبس. أي نطاق آخر بيرفضه CSP في `server.js` صامتاً — وبتضيّع ساعة قبل ما تفهم ليش.
+8. **ولا استعراض تقني.** لا أسماء لغات، لا كرت كود، لا مصطلحات المرجع (`Neural`, `Protocol`, `Encrypted`). الجمهور أصحاب محلات — كرت الكود انحذف مرة لهذا السبب بالضبط (STRATEGY §5) ولا يرجع بلبوس زجاجي.
+9. **ولا تغيير في النص أو الميزات أو السلوك.** هذا **استبدال نظام بصري فقط**.
 
 ---
 
-## What does NOT change
+## القيود التي صمدت — وليش
 
-All copy, positioning, WhatsApp-link logic (`waLink`, `wireWaLinks`), empty-section hiding (`pickList`, `toggleSection`), honest form behavior, and the MongoDB sync flow already built stay exactly as implemented. This brief is a **visual system replacement only** — no regression on the trust/conversion fixes already shipped, from either pass.
+هذه ما تفاوضنا عليها ولا مرة، عبر ثلاثة اتجاهات مختلفة. صمودها هو الدليل إنها ليست ذوقاً.
+
+| القيد | ليش صمد |
+|---|---|
+| `₪` على `--font-text` عبر `.cur-glyph` | مشكلة تغطية جليف، لا مشكلة طراز. انكسرت مرتين تاريخياً. مقيسة. |
+| ≥44×44px لنقاط اللمس تحت `@media (pointer:coarse)` | الجمهور **أندرويد أولاً**. القياس على المؤشر الخشن فقط، فتناسب سطح المكتب المضغوطة بتضل مضبوطة. |
+| WCAG AA بوابة صلبة | نص ≥4.5:1، كبير ≥3:1، مؤشرات ≥3:1. **وخلفية الكرت الزجاجي هي الفراغ + ٣٪ أبيض — قِس على هذا، لا على الفراغ لحاله.** |
+| حلقة تركيز مرئية عالمياً | `:focus-visible` على `a/button/input/select/textarea/[tabindex]` في **الملفين**. اللوحة كانت بلا تركيز مرئي إطلاقاً قبل جولة QA — لا نعود. الحلقة بتقلب لـ`--band-text` فوق الشريط والفوتر والسايدبار. |
+| `prefers-reduced-motion: reduce` | صحيح بغض النظر عن الطراز. |
+| RTL أولاً بخصائص منطقية | `inset-inline-start`, `margin-inline`, `padding-inline`, `border-inline-start` — لأن نفس الـCSS بتخدم عربي/عبري RTL وإنجليزي LTR عبر قلب `dir`. أي `left/right` صريحة بتنكسر بصمت في لغة وحدة. |
+| موبايل أولاً، ولا كسر عند 375px | نفس السبب: الجمهور بيتصفّح بالهاتف. |
+| الجمهور أصحاب محلات لا مطوّرين | `STRATEGY.md §2`. المرجع Velorah موجّه لجمهور معاكس تماماً — نأخذ شكله لا نبرته. |
+| الأقسام الفارغة تبقى مخفية | لا أدلة مفبركة. `pickList` / `toggleSection` كما هي. |
+
+---
+
+## المخاطر التي يُدخلها هذا الاتجاه ولم تكن في العاجي
+
+الاتجاه العاجي كان **مجاناً** أدائياً وبصرياً: خلفية صلبة، نص غامق على فاتح، بلا فلاتر. هذا الاتجاه بيدفع ثمناً في ثلاثة أماكن. مكتوبة هنا عشان تنقاس، مش عشان تُنسى.
+
+**١. كلفة `backdrop-filter` مقابل Lighthouse 90+.**
+`backdrop-filter` بيجبر المتصفح يعيد رسم ما تحت العنصر ويعمله blur في كل إطار — وهي من أغلى خصائص CSS، وبتضرب أقوى على أجهزة أندرويد المتوسطة، وهي **بالضبط** أجهزة الجمهور.
+**التخفيف:** (أ) عدد محدود من العناصر الزجاجية — النافبار، بطاقات الأقسام، المودال، رأس اللوحة. **ممنوع على صفوف القوائم والجداول** (كل صف زجاجي = كارثة أداء). (ب) `tokens.css` بينزّل `--blur` من 24→18 و`--blur-hi` من 40→24 تحت 768px. (ج) بلا فيديو خلفية — المرجع فيه `<video>` في الهيرو، **ما بناخده**؛ الغلاف الجوّي بؤر CSS شعاعية صرفة، بلا صور وبلا جافاسكربت. (د) الحركة على `opacity`/`transform` فقط. **يُقاس بعد التنفيذ، لا يُفترض.**
+
+**٢. الزجاج بيضعف تباين النص.**
+سطح `rgba(255,255,255,.03)` بيرفع لمعان الخلفية شوي وبيقلّل نسبة التباين للنص فوقه — و`--muted` (٦.٤:١ على الفراغ الصافي) هو الأقرب للحافة. والأسوأ: الزجاج **شفّاف**، فالتباين بيتغيّر حسب اللي بيمرق تحته عند التمرير.
+**التخفيف:** `--muted-strong` موجود في الترميز خصيصاً لهذه الحالة — كل نص ثانوي **فوق زجاج** بياخده، و`--muted` بيضل للنص على الفراغ المباشر. والقياس يكون على أسوأ حالة (الزجاج فوق أفتح شي ممكن يمرق تحته)، لا على الفراغ.
+
+**٣. غامق فقط = قاسٍ تحت شمس فلسطين.**
+الشاشات الغامقة بتفقد وضوحها في الضوء المباشر أسرع بكثير من الفاتحة، والانعكاس بيغطّي التفاصيل الخافتة. جمهورنا بيفتح الموقع **برّا، بالسوق، بالهاتف، والشمس فوق** — وهذه ليست حالة حافّة عندنا، هي الحالة الشائعة. الاتجاه العاجي كان بالصدفة ممتازاً هنا؛ فقدنا هذه الميزة بوعي.
+**التخفيف:** (أ) `--text: #F2F5F8` قريب من الأبيض، وأحجام النص أكبر مما كانت. (ب) **الأشياء الحرجة ما بتعتمد على الخفوت أبداً**: السعر، زر الواتساب، وسطر الضمان كلها إما ملء أبيض صلب أو لكنة عالية التباين — لا نص `--muted` ولا حدّ ١px لحاله. (ج) `--line-strong` (١٨٪) للحدود اللي **لازم** تبيّن تحت الشمس، و`--line` (٨٪) للي وظيفتها زخرفية. (د) **بند مفتوح لصاحب الشركة:** لو رجع من السوق وقال «ما بشوف إشي بالشمس» — الحل مفتاح تباين عالٍ يرفع `--surface` و`--line` ويُلغي `blur`، **لا** رجوع للعاجي. أرخص تدخل وأقلّه كسراً للنظام.
+
+---
+
+## سجل التنفيذ — جولة QA (2026-07-19، من الاتجاه العاجي)
+
+محفوظ لأن قراراته **هيكلية لا لونية**، وبتنطبق على النظام الجديد كما هي:
+
+- **`--fb` / `--ig` / `--li`** انضمّت لـ`--wa` كألوان **منصات** بعد ما كانت hex مثبّتاً في markup اللوحة. القاعدة صمدت والتوكنات كما هي.
+- **التوست: ملء ← حدّ.** `showToast()` كان بيدهس الخلفية inline فيوقع التباين لـ3.04:1. الحالة صارت محمولة على `borderColor`. **يعاد قياسها على الفراغ الجديد** — القرار الهيكلي صحيح، الأرقام تحتاج تحديثاً.
+- **حلقات التركيز.** غُطّي `a/button/input/select/textarea/[tabindex]` في الملفين. **لا تراجع.**
+- **نقاط اللمس ≥44px** تحت `pointer:coarse` فقط. كانت أصغر في: مبدّل اللغة، الهامبرغر، زر الإغلاق، روابط الفوتر.
+- **مؤشّر النزول `.scroll-ind` رجع يبيّن** بعد ما كان `display:none` في العاجي. السبب مسجّل بالكود: الهيرو العاجي كان قصير والصفحة بتبيّن إنها بتنزل؛ الهيرو السينمائي بيملا الشاشة والفراغ الكحلي بينهي المشهد بلا حافة، فالمؤشّر صار إفادة لا زينة. **ما في نص جديد ولا مفتاح ترجمة جديد** — `data-key="hero.scroll"` والمحتوى «اكتشف أكثر» موجودين في الماركب من قبل، والترجمتان (ar/en) موجودتان أصلاً. القرار **قرار عرض لا قرار محتوى**، ومسجّل هنا صراحةً عشان ما يُقرا كخرق لقاعدة «ولا تغيير في النص».
+
+- **الأرقام لاتينية لا عربية-هندية** (01 02 03 لا ٠١ ٠٢ ٠٣). القرار: الأسعار وساعات العمل ومبالغ `₪` كلها لاتينية، والاستعمال الشامي بيميل لها؛ الخلط بيقرا تضارباً لا أناقة. **لسا مرفوعاً لصاحب الشركة**، لا مغلقاً بصمت.
+
+---
+
+## ما لا يتغيّر
+
+كل النصوص، التموضع، منطق روابط الواتساب (`waLink`, `wireWaLinks`)، إخفاء الأقسام الفارغة (`pickList`, `toggleSection`)، سلوك الفورم الصادق، ومزامنة MongoDB — **كما هي حرفياً**. ولا `id`، ولا `data-key`، ولا `onclick`، ولا اسم حقل، ولا استدعاء API يتغيّر.
+
+هذا الملف **استبدال نظام بصري، وبس**. أي انحدار في مسار الثقة أو التحويل الذي شُحن سابقاً هو فشل في هذه الجولة، مهما كانت النتيجة جميلة.

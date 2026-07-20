@@ -9,9 +9,15 @@
   <title>إتقان تك | لوحة التحكم</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- لوحة التحكم أداة إدارية بحتة — ما بتستعمل خط العرض (Markazi/Cormorant)، فبتحمّل النص بس -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"></noscript>
+  <!-- كان مكتوب هون: "اللوحة أداة إدارية بحتة فما بتحمّل خط العرض".
+       هالمنطق سقط. المرجع البصري (Velorah) لوحاته الثلاث مبنية على سيريف
+       العرض نفسه — الأرقام والعناوين هي اللحظة السينمائية باللوحة، وهي
+       بالضبط وعد الشركة للعميل ("بتاخد لوحة عربية بتسوقها بنفسك").
+       الطلب ضل خفيف: وزن واحد من كل خط عرض بدل العائلة كاملة.
+       Instrument Serif للأرقام واللاتيني، Markazi Text للعناوين العربية.
+       CSP بيسمح بـfonts.googleapis/gstatic أصلاً — ولا أصل جديد انضاف. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Instrument+Serif&family=Markazi+Text:wght@500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Instrument+Serif&family=Markazi+Text:wght@500&display=swap"></noscript>
   <!-- الترميز المشترك مع الموقع — CSP بيسمح بـstyle-src 'self' (متحقّق منه) -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'">
@@ -22,32 +28,76 @@
        بينما الموقع 16px — فكل تعديل لازم ينكتب مرتين. --font-* بتيجي من الترميز. */
     :root{ --font:var(--font-text); }
     *{margin:0;padding:0;box-sizing:border-box}
-    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+    /* ── الغلاف الجوّي ────────────────────────────────────────────
+       المرجع بيبني العمق بالضوء مش بالظل. بقعتين شعاعيتين عريضتين
+       ورا كل شي بتخلّي الفراغ الكحلي يتنفّس بدل ما يطلع لون مسطّح.
+       انعملت pseudo-element على body عن قصد: صفر عناصر جديدة بالـDOM،
+       والـJS بيمشي على querySelectorAll ما بيهمّه هيك طبقة. */
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(58vw 58vw at 88% -12%, var(--atmo-teal), transparent 72%),
+        radial-gradient(48vw 48vw at -8% 108%, var(--atmo-ice), transparent 72%);
+    }
+    /* كل المحتوى بيقعد فوق الغلاف. المودال والتوست إلهم z-index أعلى أصلاً. */
+    .login-wrap,.admin-wrap{position:relative;z-index:1}
+
+    /* ── شريط التمرير ────────────────────────────────────────────
+       خيط رفيع زي المرجع — شريط النظام العريض بيكسر الإحساس الزجاجي. */
+    *{scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+    *::-webkit-scrollbar{width:6px;height:6px}
+    *::-webkit-scrollbar-track{background:transparent}
+    *::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:var(--radius-pill)}
 
     /* LOGIN */
-    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative}
+    /* أول شي بيشوفه العميل — فلازم يحس إنه غالي. كرت زجاجي وحيد
+       بنص فراغ، وتوهّج خلفه بدل ما يكون مربّع طافي بلا سبب. */
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:transparent;position:relative;z-index:1;padding:24px}
     /* شبكة الخلفية انشالت — كليشيه "dark techno" بلا نية، وDESIGN_BRIEF بيمنعها */
-    .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;position:relative;z-index:1}
-    .login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:32px}
-    .login-logo-icon{width:48px;height:48px;background:var(--teal);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--bg);font-weight:800}
-    .login-logo-text{font-size:26px;font-weight:800}
-    .login-logo-text span{color:var(--primary)}
-    .site-logo-img{height:68px;width:auto;border-radius:10px;display:block;object-fit:contain}
-    .login-logo .site-logo-img{height:126px;border-radius:14px}
-    .login-title{text-align:center;font-size:22px;font-weight:700;margin-bottom:8px}
-    .login-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
-    .inp-group{margin-bottom:20px}
-    .inp-group label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px}
-    .inp-group input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:all .3s}
-    .inp-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--line)}
-    .login-btn{width:100%;padding:14px;background:var(--teal);border:none;border-radius:var(--radius);color:var(--bg);font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer;transition:all .3s}
-    .login-btn:hover{opacity:.9;transform:translateY(-1px)}
-    .login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;display:none}
+    .login-wrap::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(40vmax 40vmax at 50% 40%, var(--atmo-teal), transparent 70%)}
+    .login-card{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:54px 40px 42px;width:100%;max-width:440px;position:relative;z-index:1}
+    .login-logo{display:flex;align-items:center;justify-content:center;margin-bottom:30px;position:relative}
+    /* الشعار درع معدني أزرق-تركوازي: على الفراغ الكحلي هو بمكانه أخيراً.
+       هالة سماوية خلفه بتربطه بالخلفية بدل ما يطفو كملصق. */
+    /* توسيط صريح: .login-logo عنصر flex، والـpseudo لو ما ثبّتناه بياخد
+       "موقعه الساكن" من ترتيب الفليكس وبيطلع مزحلق حسب المتصفح. */
+    .login-logo::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px;border-radius:50%;background:radial-gradient(closest-side,var(--teal-soft),transparent);pointer-events:none}
+    .login-logo .site-logo-img{position:relative;z-index:1}
+    .login-logo-icon{width:48px;height:48px;background:var(--teal);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--bg);font-weight:800}
+    .login-logo-text{font-family:var(--font-display);font-size:30px;font-weight:500}
+    .login-logo-text span{color:var(--teal)}
+    .site-logo-img{height:68px;width:auto;display:block;object-fit:contain}
+    .login-logo .site-logo-img{height:140px}
+    .login-title{text-align:center;font-family:var(--font-display);font-size:34px;font-weight:500;line-height:1.25;margin-bottom:6px}
+    .login-sub{text-align:center;color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:34px}
+    /* الحقل: حدّ سفلي بس، ٤٨px، وبالتركيز بيصير ٢px سماوي — بلا حلقة
+       box-shadow لأن المرجع بيمنع الظل كأداة. الارتفاع ثابت وborder-box
+       فزيادة الحدّ ١px ما بتزحزح شي. */
+    .inp-group{margin-bottom:24px}
+    .inp-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px}
+    .inp-group input{width:100%;height:48px;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;padding:0 2px;color:var(--text);font-family:var(--font);font-size:16px;outline:none;transition:border-color var(--t-fast) var(--ease)}
+    .inp-group input:focus{border-bottom:2px solid var(--teal)}
+    /* التتبّع (letter-spacing) لاتيني بحت — بيكسر وصل الحروف لو انكتب اسم
+       المستخدم بالعربي، فانحصر على dir=ltr زي ما هي القاعدة بindex.html */
+    html[dir="ltr"] .inp-group input{letter-spacing:.14em}
+    /* بلا opacity: التخفيف كان بينزّل النص التلميحي لـ ٢.٩:١. opacity:1
+       صريحة لأن فايرفوكس بيحطّ تخفيف افتراضي لو تركناها */
+    .inp-group input::placeholder{color:var(--muted);opacity:1}
+    /* الزر الأساسي = ملء أبيض ونص كحلي، حرفياً زي المرجع. اخترنا الأبيض
+       مش السماوي: ١٨.٩:١ مقابل ١٤.٩:١، والأهم إنه بيفضّي السماوي ليضل
+       لغة "البيانات والحالة النشطة" لحاله بدل ما يصير لون زر عادي. */
+    .login-btn{width:100%;height:52px;background:var(--white);border:none;border-radius:var(--radius-pill);color:var(--bg);font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+    /* التوهّج السماوي هو الشي الوحيد المسموح يشبه الظل بهالنظام */
+    .login-btn:hover{transform:translateY(-2px);box-shadow:var(--glow-soft)}
+    .login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:14px;display:none}
 
     /* ── حلقة التركيز (كيبورد) ───────────────────────────────
        اللوحة كانت بلا أي قاعدة تركيز نهائياً — تنقّل بالكيبورد
-       أعمى بالكامل. نفس قاعدة الموقع، وبالعاجي فوق الشريط الجانبي
-       الغامق لأن التركوازي ما بينقرا عليه. */
+       أعمى بالكامل. كان في استثناء بيحوّل الحلقة لعاجي فوق الشريط
+       الجانبي "لأن التركوازي ما بينقرا عليه" — سقط الاستثناء: الشريط
+       صار #00101B، والسماوي عليه ١٦:١. حلقة وحدة بكل مكان. */
     a:focus-visible,
     button:focus-visible,
     input:focus-visible,
@@ -56,142 +106,295 @@
     [tabindex]:focus-visible{
       outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--radius-sm)
     }
-    .sidebar a:focus-visible,
-    .sidebar button:focus-visible{outline-color:var(--band-text)}
 
     /* ADMIN LAYOUT */
     .admin-wrap{display:none;min-height:100vh}
     .admin-wrap.active{display:flex}
-    .sidebar{width:260px;background:var(--sidebar);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;overflow-y:auto}
-    html[dir="ltr"] .sidebar{right:auto;left:0;border-left:none;border-right:1px solid var(--border)}
-    .sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-    .sidebar-logo-icon{width:36px;height:36px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
-    .sidebar-logo-text{font-size:18px;font-weight:800}
-    .sidebar-logo-text span{color:var(--primary)}
-    .sidebar-badge{font-size:11px;background:var(--line);color:var(--primary);padding:2px 8px;border-radius:50px;margin-right:auto;font-weight:600}
-    html[dir="ltr"] .sidebar-badge{margin-right:0;margin-left:auto}
-    .sidebar-nav{padding:16px 12px;flex:1}
-    .sidebar-section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:12px 8px 8px}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;transition:all .3s;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:4px;border:none;background:none;width:100%;text-align:right;font-family:var(--font)}
-    html[dir="ltr"] .nav-item{text-align:left}
-    .nav-item:hover{background:var(--line);color:var(--text)}
-    .nav-item.active{background:var(--surface-2);color:var(--primary);border:1px solid var(--line)}
-    .nav-item i{width:20px;text-align:center;font-size:15px}
-    .sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
-    .logout-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;color:var(--danger);font-size:14px;font-weight:600;width:100%;border:none;background:none;font-family:var(--font);transition:all .3s}
-    .logout-btn:hover{background:rgba(239,68,68,.1)}
-    .main-content{flex:1;margin-right:260px;min-height:100vh;padding:0}
-    html[dir="ltr"] .main-content{margin-right:0;margin-left:260px}
-    .top-bar{background:rgba(6,13,31,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-    .top-bar h1{font-size:20px;font-weight:700}
-    .top-actions{display:flex;align-items:center;gap:12px}
-    .page-content{padding:32px}
+    /* الشريط الجانبي: أعمق نقطة كحلية بالنظام — هو المرساة، مش سطح زجاجي.
+       ملاحظة اتجاه: كان مكتوب right/left مع قاعدة قلب مستقلة لكل حالة.
+       صار بخصائص منطقية: بالعربي inline-start = يمين، وبالإنجليزي/العبري
+       = يسار — نفس القلب بالضبط بس بلا قاعدة تانية تنسى تتحدّث. */
+    .sidebar{width:260px;background:var(--band);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;inset-inline-start:0;z-index:100;overflow-y:auto}
+    .sidebar-logo{padding:26px 20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+    .sidebar-logo-icon{width:36px;height:36px;background:var(--teal);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg);font-weight:800}
+    .sidebar-logo-text{font-family:var(--font-display);font-size:22px;font-weight:500}
+    .sidebar-logo-text span{color:var(--teal)}
+    /* "Admin" لاتيني قصير — هون التتبّع الواسع بمحلّه (المرجع بيعتمده
+       بكل التسميات ١٢px). ممنوع نفس المعاملة على أي نص عربي. */
+    .sidebar-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.2em;background:var(--surface-2);color:var(--brass);border:1px solid var(--line);padding:4px 10px;border-radius:var(--radius-pill);margin-inline-start:auto}
+    .sidebar-nav{padding:14px 12px 20px;flex:1}
+    /* تسمية المجموعة: المرجع بيكتبها UPPERCASE بتتبّع واسع — بس نصّنا
+       عربي، والتتبّع بيفكّ وصل الحروف ويقرا كعطل رسم مش كتصميم.
+       فجبنا نفس الإحساس التحريري بمسطرة جليدية قصيرة قبل النص. */
+    .sidebar-section{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;color:var(--muted);padding:18px 8px 10px}
+    .sidebar-section::before{content:'';width:14px;height:1px;background:var(--brass-dim);flex-shrink:0}
+    /* text-align:start بدل right + قاعدة قلب — نفس النتيجة بنصف الكود */
+    .nav-item{position:relative;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-pill);cursor:pointer;font-size:14px;font-weight:500;color:var(--muted);margin-bottom:3px;border:1px solid transparent;background:none;width:100%;text-align:start;font-family:var(--font);transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
+    .nav-item:hover{background:var(--surface-2);color:var(--text)}
+    /* النشط = حبّة زجاجية مملوءة + تسمية سماوية + مؤشّر سماوي مضوّي
+       على حافة البداية. هاي صورة الشريط بالمرجع حرفياً. */
+    .nav-item.active{background:var(--surface-2);color:var(--teal);border-color:var(--line);box-shadow:var(--glow-soft)}
+    .nav-item.active::before{content:'';position:absolute;inset-inline-start:6px;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:var(--radius-pill);background:var(--teal);box-shadow:var(--glow)}
+    .nav-item i{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+    .sidebar-footer{padding:14px 12px 20px;border-top:1px solid var(--line)}
+    .logout-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-pill);cursor:pointer;color:var(--danger);font-size:14px;font-weight:600;width:100%;border:1px solid transparent;background:none;font-family:var(--font);text-align:start;transition:background var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
+    /* كان rgba(239,68,68,.1) — أحمر من لوحة ألوان انقرضت، مش أحمرنا */
+    .logout-btn:hover{background:var(--danger-soft);border-color:var(--danger-dim)}
+    .main-content{flex:1;min-width:0;margin-inline-start:260px;min-height:100vh;padding:0}
+    /* الرأس: زجاج سائل ملتصق بـblur المستوى ٢ (٤٠px) زي طبقات المرجع
+       الطافية. كان هون background:rgba(6,13,31,.95) مثبّت — بقايا لوحة
+       ألوان أقدم من اللي قبلها، ومخالف لقاعدة "كل لون من الترميز". */
+    .top-bar{background:var(--surface-3);backdrop-filter:blur(var(--blur-hi));-webkit-backdrop-filter:blur(var(--blur-hi));border-bottom:1px solid var(--line);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:50}
+    .top-bar h1{font-family:var(--font-display);font-size:28px;font-weight:500;line-height:1.2}
+    .top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .page-content{padding:32px;position:relative}
 
     /* CARDS */
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
-    .card-title{font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-    .card-title i{color:var(--primary)}
-    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-    .stat-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
-    .stat-card .num{font-size:28px;font-weight:800;color:var(--primary)}
-    .stat-card .lbl{font-size:13px;color:var(--muted);margin-top:4px}
+    /* كرت زجاجي: ملء أبيض ٣٪ + blur ٢٤px + حدّ "تسرّب ضوء" ١px.
+       ولا ظل — العمق من الانكسار والحدّ مش من ظل تحت الصندوق. */
+    .card{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:26px 24px;margin-bottom:20px}
+    .card-title{font-family:var(--font-display);font-size:21px;font-weight:500;line-height:1.35;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .card-title i{color:var(--teal);font-size:15px;flex-shrink:0}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+    .stat-card{position:relative;overflow:hidden;background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 20px}
+    /* بقعة ضوء بزاوية البطاقة — حيلة المرجع بكروت البيانات، بتعطي
+       إحساس إنه الضوء جاي من ورا الزجاج مش مرشوش عليه. */
+    .stat-card::after{content:'';position:absolute;inset-inline-end:-42px;top:-42px;width:150px;height:150px;border-radius:50%;background:radial-gradient(closest-side,var(--teal-soft),transparent);pointer-events:none}
+    .stat-card-icon{width:40px;height:40px;border-radius:var(--radius-pill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px;position:relative;z-index:1}
+    /* الرقم: سيريف العرض + وهج سماوي — هاي الحركة التوقيعية بالمرجع،
+       ومحلّها الطبيعي اللوحة. --font-latin مش --font-display لأن الأرقام
+       لاتينية وInstrument Serif أنضف فيها من Markazi (اللي هو للعربي). */
+    .stat-card .num{position:relative;z-index:1;font-family:var(--font-latin);font-size:44px;font-weight:400;line-height:1;color:var(--teal);text-shadow:var(--glow-text)}
+    /* البطاقة الرابعة "رقمها" أيقونة خضرا مش رقم — بنشيل الوهج السماوي
+       عنها لأنه بيتعارض مع لون دلالي تاني. */
+    .stat-card .num i{text-shadow:none}
+    .stat-card .lbl{position:relative;z-index:1;font-size:13px;color:var(--muted);margin-top:10px}
 
     /* FORM ELEMENTS */
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .fg{margin-bottom:16px}
-    .fg label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
-    .fg input,.fg textarea,.fg select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:all .3s}
-    .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--line)}
-    .fg textarea{resize:vertical;min-height:80px}
-    .fg select option{background:var(--card2)}
-    .tab-btns{display:flex;gap:8px;margin-bottom:20px}
-    .tab-btn{padding:8px 20px;border-radius:50px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .3s}
-    .tab-btn.active{background:var(--primary);color:var(--bg);border-color:var(--primary)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .fg{margin-bottom:20px}
+    /* التسمية: المرجع بيخليها UPPERCASE بتتبّع واسع — ما ينفع، نصّنا
+       عربي والتتبّع بيكسر وصل الحروف. بنكتفي بالحجم الصغير واللون
+       الخافت، وهدول لحالهم بيعطوا نفس الترتيب البصري. */
+    .fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;line-height:1.6}
+    /* حقول minimalist: حدّ سفلي بس، ٤٨px، وبالتركيز ٢px سماوي.
+       الحلقة الـbox-shadow القديمة انشالت — المرجع بيمنع الظل كأداة،
+       وحلقة :focus-visible العامة فوق بتغطّي الكيبورد.
+       ملاحظة: الاختيار مش .fg بس. صفوف السوشال (c-fb وإخوانه) حقولها
+       مش ملفوفة بـ.fg، فكانت بتنزل على ستايل المتصفح الافتراضي —
+       صندوق أبيض فوق كرت كحلي. هلأ كلهم على نفس القاعدة. */
+    .page-content input[type="text"],.page-content input[type="password"],
+    .page-content input[type="email"],.page-content input[type="number"],
+    .page-content input:not([type]),.page-content textarea,.page-content select,
+    .modal input[type="text"],.modal input[type="password"],
+    .modal input[type="email"],.modal input[type="number"],
+    .modal input:not([type]),.modal textarea,.modal select{
+      width:100%;background:transparent;border:0;border-bottom:1px solid var(--line-strong);
+      border-radius:0;padding:0 2px;color:var(--text);font-family:var(--font);font-size:15px;
+      outline:none;transition:border-color var(--t-fast) var(--ease)
+    }
+    .page-content input[type="text"],.page-content input[type="password"],
+    .page-content input[type="email"],.page-content input[type="number"],
+    .page-content input:not([type]),.page-content select,
+    .modal input[type="text"],.modal input[type="password"],
+    .modal input[type="email"],.modal input[type="number"],
+    .modal input:not([type]),.modal select{height:48px}
+    .page-content input:not([type="checkbox"]):focus,.page-content textarea:focus,.page-content select:focus,
+    .modal input:not([type="checkbox"]):focus,.modal textarea:focus,.modal select:focus{border-bottom:2px solid var(--teal)}
+    /* بلا أي تخفيف: .85 كانت بتعطي ٤.٤٥:١ — تحت العتبة بشعرة. اللون
+       الخام var(--muted) على زجاج الحقل بيعطي ~٥.٦:١. opacity:1 صريحة
+       لأن فايرفوكس بيطبّق تخفيف افتراضي على ::placeholder. */
+    .page-content ::placeholder,.modal ::placeholder{color:var(--muted);opacity:1}
+    .fg textarea{resize:vertical;min-height:96px;padding:12px 2px;line-height:1.8}
+    /* <option> ما بتقبل الشفافية — لازم سطح معتم، وإلا القائمة بتنقرا
+       غلط (أو بتطلع سودا على سودا) على بعض المنصات. */
+    .fg select option,.modal select option{background:var(--surface-solid);color:var(--text)}
+
+    /* ── المفاتيح (toggles) ──────────────────────────────────────
+       المرجع: مسار حبّة بإبهام أبيض بينزلق بـ400ms cubic-bezier.
+       نفّذناها CSS بحت على نفس الـ<input type="checkbox"> الموجود —
+       ولا id ولا name ولا .checked ولا onchange انلمس؛ الـJS بيقرا
+       نفس الشي بالضبط. بس انشالت الـinline style لأن width/height
+       المضمّنة بتغلب أي قاعدة.
+       الإبهام مرسوم كـbackground-image مش كـ::after عن قصد: فايرفوكس
+       لحد اليوم ما بيرسم pseudo-elements على input (عنصر مستبدل)،
+       فالمفتاح كان بيطلع فاضي عندهم. التدرّج بيشتغل بكل مكان. */
+    input.switch{
+      appearance:none;-webkit-appearance:none;flex-shrink:0;width:46px;height:26px;margin:0;
+      border-radius:var(--radius-pill);border:1px solid var(--line);cursor:pointer;
+      background-color:var(--track);
+      background-image:radial-gradient(circle at 50% 50%, var(--muted) 9.5px, transparent 10px);
+      background-repeat:no-repeat;background-size:20px 20px;background-position:left 2px center;
+      transition:background-color 400ms var(--ease),background-image 400ms var(--ease),
+                 background-position 400ms var(--ease),border-color 400ms var(--ease),
+                 box-shadow 400ms var(--ease)
+    }
+    input.switch:checked{
+      background-color:var(--teal);border-color:var(--teal);box-shadow:var(--glow-soft);
+      background-image:radial-gradient(circle at 50% 50%, var(--bg) 9.5px, transparent 10px);
+      background-position:right 2px center
+    }
+    /* بالعربي البداية يمين: المفتاح بيبلّش يمين وبينزلق لليسار — معكوس */
+    html[dir="rtl"] input.switch{background-position:right 2px center}
+    html[dir="rtl"] input.switch:checked{background-position:left 2px center}
+
+    .tab-btns{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+    .tab-btn{padding:9px 22px;border-radius:var(--radius-pill);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted);transition:all var(--t-fast) var(--ease)}
+    .tab-btn:hover{color:var(--text);border-color:var(--line-strong)}
+    /* التبويب النشط بياخد نفس لغة الشريط الجانبي النشط (زجاج + سماوي)
+       بدل الملء السماوي الصلب — عشان "نشط" يقرا نفس القراءة بكل اللوحة */
+    .tab-btn.active{background:var(--surface-2);color:var(--teal);border-color:var(--teal-dim);box-shadow:var(--glow-soft)}
 
     /* BUTTONS */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:50px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .3s;text-decoration:none}
-    .btn-primary{background:var(--teal);color:var(--bg)}
-    .btn-primary:hover{opacity:.9}
-    .btn-success{background:var(--success);color:var(--bg)}
-    .btn-danger{background:var(--danger);color:white}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-    .btn-sm{padding:7px 14px;font-size:13px}
-    .btn-icon{width:34px;height:34px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:var(--radius-pill);font-family:var(--font);font-size:14px;font-weight:600;line-height:1.2;cursor:pointer;border:1px solid transparent;text-decoration:none;transition:transform var(--t-fast) var(--ease),background var(--t-fast) var(--ease),color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+    .btn:active{transform:scale(.97)}
+    /* أساسي = أبيض صلب ونص كحلي، نفس المرجع. الأبيض مش السماوي:
+       ١٨.٩:١ مقابل ١٤.٩:١، وبيخلّي السماوي محجوز للحالة والبيانات. */
+    .btn-primary{background:var(--white);color:var(--bg)}
+    .btn-primary:hover{box-shadow:var(--glow-soft)}
+    /* الحفظ كان ملء أخضر صلب — وهو مستعمل بأبرز تلات أزرار باللوحة
+       (حفظ التغييرات، حفظ كل التغييرات، فتح الموقع)، فالأخضر كان بيطلع
+       اللون المهيمن على الشاشة ويصير لكنة تالتة بتزاحم السماوي. والاتجاه
+       لونين بس. كمان "حفظ" مش حالة نجاح — هو الفعل الأساسي، فبياخد
+       معاملة الأساسي: أبيض صلب ونص كحلي (١٨.٩:١).
+       الأخضر بقي محصور بدلالة الحالة: الشارة، شريط "الموقع يعمل"،
+       السعر بالقائمة، والتوست — نص وحدود، مش ملء أزرار. */
+    .btn-success{background:var(--white);color:var(--bg)}
+    .btn-success:hover{box-shadow:var(--glow-soft)}
+    /* الحذف كان ملء أحمر صلب — بيسحب العين لأخطر زر بالشاشة قبل ما
+       يقرا المستخدم أي شي. صار شريحة زجاجية حمرا (٥.١:١ للنص)،
+       وبيتصلّب بس عند المرور لمّا تكون النية واضحة. */
+    .btn-danger{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-dim)}
+    .btn-danger:hover{background:var(--danger);color:var(--bg)}
+    /* بلا backdrop-filter عن قصد: هالزر بيتكرّر بكل صف قائمة، وblur
+       على عشرات العناصر بيوقع الأداء. الملء الخفيف والحدّ بكفّوا. */
+    .btn-outline{background:var(--surface-2);border-color:var(--line-strong);color:var(--text)}
+    .btn-outline:hover{background:var(--teal-soft);border-color:var(--teal-dim);color:var(--teal)}
+    .btn-sm{padding:8px 16px;font-size:13px}
+    .btn-icon{width:36px;height:36px;padding:0;border-radius:var(--radius-pill)}
 
     /* TABLES / LISTS */
     .item-list{display:flex;flex-direction:column;gap:12px}
-    .list-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px}
-    .list-item-icon{width:42px;height:42px;background:var(--surface-2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--primary);flex-shrink:0}
-    .list-item-content{flex:1}
-    .list-item-title{font-size:15px;font-weight:700;margin-bottom:2px}
-    .list-item-desc{font-size:13px;color:var(--muted)}
+    /* صفوف القائمة بلا backdrop-filter عن قصد: ممكن تكون عشرات الصفوف،
+       وblur على كل صف بيذبح الأداء (والـbrief بينبّه لهاد بالحرف).
+       الحدّ ١px + الملء الخفيف بيعطوا نفس القراءة بصفر كلفة. */
+    .list-item{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;transition:border-color var(--t-fast) var(--ease),background var(--t-fast) var(--ease)}
+    .list-item:hover{border-color:var(--line-strong);background:var(--surface-3)}
+    .list-item-icon{width:44px;height:44px;background:var(--surface-3);border:1px solid var(--line);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--teal);flex-shrink:0;overflow:hidden}
+    .list-item-content{flex:1;min-width:0}
+    .list-item-title{font-size:15px;font-weight:600;margin-bottom:3px;line-height:1.6}
+    .list-item-desc{font-size:13px;color:var(--muted);line-height:1.7}
+    /* renderProdList بيولّد .list-item-sub وما كان إلها ولا قاعدة —
+       كانت بتنزل بحجم النص الأساسي وبتتساوى مع العنوان. */
+    .list-item-sub{font-size:13px;color:var(--muted);line-height:1.7}
     .list-item-actions{display:flex;gap:8px;flex-shrink:0}
 
     /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+    /* الطبقة صارت "عدسة": تعتيم من الترميز + blur — كانت rgba(0,0,0,.7)
+       مثبّتة وblur(4px) بالكاد بيبيّن. */
+    .modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .modal-overlay.open{display:flex}
-    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:580px;max-height:85vh;overflow-y:auto;position:relative}
-    .modal-title{font-size:18px;font-weight:700;margin-bottom:24px;display:flex;align-items:center;gap:10px}
-    .modal-title i{color:var(--primary)}
-    .modal-close{position:absolute;top:20px;left:20px;background:var(--card2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px}
-    html[dir="ltr"] .modal-close{left:auto;right:20px}
-    .modal-close:hover{color:var(--danger);border-color:var(--danger)}
-    .modal-footer{display:flex;gap:12px;margin-top:24px;justify-content:flex-start}
+    /* المودال نفسه كرت زجاجي مش سطح معتم. ما حطّينا عليه backdrop-filter
+       تانية فوق تبع الطبقة: تعشيش الـblur بيتلعثم على Safari، والملء
+       الشفّاف فوق طبقة مغبّشة أصلاً بيعطي نفس المنظر بنص الكلفة. */
+    .modal{background:var(--surface-3);border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:34px 30px;width:100%;max-width:580px;max-height:85vh;overflow-y:auto;position:relative}
+    .modal-title{font-family:var(--font-display);font-size:23px;font-weight:500;line-height:1.35;margin-bottom:26px;display:flex;align-items:center;gap:10px}
+    .modal-title i{color:var(--teal);font-size:16px;flex-shrink:0}
+    /* كان left:20px مع قاعدة قلب بتحطّه right — يعني "طرف النهاية" بالحالتين.
+       inset-inline-end بيقولها مرة وحدة بلا قاعدة تانية. */
+    .modal-close{position:absolute;top:20px;inset-inline-end:20px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-pill);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:15px;transition:all var(--t-fast) var(--ease)}
+    .modal-close:hover{color:var(--danger);border-color:var(--danger-dim);background:var(--danger-soft)}
+    .modal-footer{display:flex;gap:12px;margin-top:28px;justify-content:flex-start;flex-wrap:wrap}
 
     /* TOAST */
-    .toast{position:fixed;bottom:24px;left:24px;right:auto;background:var(--success);color:var(--bg);padding:12px 20px;border-radius:10px;font-weight:700;font-size:14px;z-index:999;transform:translateY(100px);opacity:0;transition:all .4s;display:flex;align-items:center;gap:8px}
-    html[dir="ltr"] .toast{left:24px;right:auto}
+    /* الـJS بيسنّد t.style.background مباشرة (نجاح/خطر) — فالخلفية
+       بتضل للـinline ومنتحكم بالباقي بس. النص كحلي مش أبيض عن قصد:
+       الكحلي ٥.١:١ على الأحمر و١٠:١ على الأخضر، والأبيض على الأحمر
+       بينزل ٣.٦:١ وبيسقط بالـAA. القاعدة انقاست، مش انفترضت.
+       ملاحظة اتجاه: التوست يسار فيزيائي بالحالتين (كانت قاعدة القلب
+       بتعيد نفس القيم حرفياً) — فانشالت المكرّرة. */
+    .toast{position:fixed;bottom:26px;left:26px;right:auto;background:var(--success);color:var(--bg);padding:13px 22px;border-radius:var(--radius-pill);font-weight:600;font-size:14px;z-index:999;transform:translateY(120px);opacity:0;transition:transform var(--t-fast) var(--ease),opacity var(--t-fast) var(--ease);display:flex;align-items:center;gap:8px}
     .toast.show{transform:translateY(0);opacity:1}
 
     /* BADGE */
-    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:50px;font-size:12px;font-weight:600}
-    .badge-primary{background:var(--line);color:var(--primary)}
-    .badge-success{background:rgba(52,211,153,.15);color:var(--success)}
+    .badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;border:1px solid transparent}
+    .badge-primary{background:var(--teal-soft);color:var(--teal);border-color:var(--teal-dim)}
+    .badge-success{background:var(--success-soft);color:var(--success);border-color:var(--success-dim)}
 
     /* SECTION PAGES */
     .section-page{display:none}
     .section-page.active{display:block}
 
     /* PREVIEW LINK */
-    .preview-bar{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .preview-bar{background:var(--success-soft);border:1px solid var(--success-dim);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
     .preview-bar span{font-size:13px;color:var(--success);font-weight:600}
 
     /* SAVE NOTICE */
-    .save-notice{background:var(--line);border:1px solid var(--line);border-radius:var(--radius);padding:12px 20px;font-size:13px;color:var(--primary);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    /* كانت خلفية وحدّ بنفس الـ--line — يعني شريط بلا حدّ عملياً.
+       صارت شريحة سماوية: نفس لغة "معلومة نظام" بباقي اللوحة. */
+    .save-notice{background:var(--teal-soft);border:1px solid var(--teal-dim);border-radius:var(--radius);padding:13px 20px;font-size:13px;line-height:1.8;color:var(--teal);margin-bottom:20px;display:flex;align-items:center;gap:8px}
 
     @media(max-width:1024px){
       .sidebar{width:220px}
-      .main-content{margin-right:220px}
+      .main-content{margin-inline-start:220px}
       .stat-cards{grid-template-columns:repeat(3,1fr)}
-      .top-bar{padding:14px 20px}
+      .top-bar{padding:16px 20px}
+      .page-content{padding:24px 20px}
+      .stat-card .num{font-size:38px}
     }
     @media(max-width:768px){
-      .sidebar{width:100%;height:auto;position:relative;right:0;flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:4px}
-      .sidebar-logo{width:100%;padding:8px 0 12px;border-bottom:1px solid var(--border);margin-bottom:4px}
-      .nav-item{padding:8px 12px;font-size:13px;border-radius:8px}
-      .main-content{margin-right:0}
+      /* الشريط بينهار لشريط أفقي بيلتف — نفس السلوك الموجود، بس صار
+         يقرا كصف "شرائح" فعلاً بدل ما يضل عمود ضايع بعرض الشاشة.
+         inset-inline-start:auto لازمة لأن الموقع صار relative. */
+      .sidebar{width:100%;height:auto;position:relative;inset-inline-start:auto;flex-direction:row;flex-wrap:wrap;padding:12px 16px;gap:6px;border-inline-end:none;border-bottom:1px solid var(--line)}
+      .sidebar-logo{width:100%;padding:6px 0 12px;border-bottom:1px solid var(--line);margin-bottom:2px}
+      .sidebar-logo .site-logo-img{height:52px}
+      .sidebar-nav{padding:0;display:flex;flex-wrap:wrap;gap:6px}
+      .sidebar-section{width:100%;padding:8px 2px 2px}
+      .nav-item{width:auto;padding:8px 14px;font-size:13px;margin-bottom:0}
+      /* المؤشّر السماوي بيتزاحم مع النص بالحبّة الضيقة — بيكفي الملء واللون */
+      .nav-item.active::before{display:none}
+      .sidebar-footer{width:100%;padding:10px 0 2px;border-top:1px solid var(--line)}
+      .logout-btn{width:auto}
+      .main-content{margin-inline-start:0}
       .admin-wrap.active{flex-direction:column}
       .stat-cards{grid-template-columns:repeat(2,1fr)}
-      .form-row{grid-template-columns:1fr}
-      .top-bar{padding:12px 16px}
-      .top-bar-title{font-size:18px}
-      .modal{max-width:95vw;padding:24px 20px;margin:16px}
-      .login-card{padding:32px 24px;max-width:95vw}
-      .card{padding:20px 16px}
+      .form-row{grid-template-columns:1fr;gap:0}
+      .top-bar{padding:14px 16px}
+      .top-bar h1{font-size:24px}
+      .modal{max-width:95vw;padding:26px 20px;margin:16px}
+      .login-card{padding:38px 24px 32px;max-width:95vw}
+      .login-logo .site-logo-img{height:112px}
+      .login-title{font-size:29px}
+      .card{padding:22px 18px}
+      .page-content{padding:20px 16px}
     }
     @media(max-width:480px){
       .stat-cards{grid-template-columns:1fr 1fr}
       .sidebar{padding:10px 12px}
-      .nav-item{padding:7px 10px;font-size:12px}
-      .section-page{padding:16px}
-      .modal{padding:20px 16px}
-      .btn{padding:8px 14px;font-size:13px}
-      .login-card{padding:28px 20px}
-      .top-bar{padding:10px 12px}
-      .list-item{flex-wrap:wrap;gap:8px}
+      .nav-item{padding:7px 12px;font-size:12px}
+      /* كان .section-page{padding:16px} فوق padding:32px تبع .page-content
+         — ٤٨px حشوة جانبية على شاشة ٣٧٥px، يعني ٢٧٩px للمحتوى.
+         صارت الحشوة بمكان واحد وبقيمة تحترم العرض. */
+      .page-content{padding:16px 12px}
+      .modal{padding:22px 16px}
+      .btn{padding:9px 16px;font-size:13px}
+      .login-card{padding:32px 20px 28px}
+      .top-bar{padding:12px 14px;flex-wrap:wrap}
+      .top-bar h1{font-size:22px}
+      .list-item{flex-wrap:wrap;gap:10px}
       .list-item-actions{width:100%;justify-content:flex-end}
+      .stat-card{padding:18px 16px}
+      .stat-card .num{font-size:32px}
+    }
+
+    /* الحركة كلها انتقالات ٣٠٠–٤٠٠ms — مين ما طلب تقليل الحركة بيوقف
+       كل شي فوراً بدل ما نستثني كل قاعدة على حدة. */
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{
+        animation-duration:.01ms!important;animation-iteration-count:1!important;
+        transition-duration:.01ms!important;scroll-behavior:auto!important
+      }
     }
   </style>
 </head>
@@ -268,10 +471,15 @@
           <a href="index.html" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-eye"></i>فتح الموقع</a>
         </div>
         <div class="stat-cards">
-          <div class="stat-card"><div class="stat-card-icon" style="background:var(--line);color:var(--primary)"><i class="fas fa-cogs"></i></div><div class="num" id="ov-svcs">0</div><div class="lbl">الخدمات</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(52,211,153,.15);color:var(--success)"><i class="fas fa-th"></i></div><div class="num" id="ov-ports">0</div><div class="lbl">مشاريع الأعمال</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(251,191,36,.15);color:var(--warning)"><i class="fas fa-tags"></i></div><div class="num" id="ov-prods">0</div><div class="lbl">أنظمة للبيع</div></div>
-          <div class="stat-card"><div class="stat-card-icon" style="background:rgba(251,191,36,.15);color:var(--warning)"><i class="fas fa-shield-alt"></i></div><div class="num" style="font-size:20px;color:var(--success)"><i class="fas fa-check"></i></div><div class="lbl">الموقع محمي</div></div>
+          <!-- ألوان الأيقونات كانت rgba(52,211,153) وrgba(251,191,36) مثبّتة —
+               الأصفر بقايا لوحة ألوان انقرضت أصلاً. كلها صارت من الترميز.
+               وانضبطت اللكنات كمان: كانت أربع بطاقات بأربع ألوان (أخضر
+               مرّتين وأصفر) بلا أي معنى. صار: سماوي وجليدي للبيانات،
+               والأخضر محجوز للبطاقة الوحيدة اللي بتحمل حالة فعلية (محمي). -->
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--teal-soft);color:var(--teal)"><i class="fas fa-cogs"></i></div><div class="num" id="ov-svcs">0</div><div class="lbl">الخدمات</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--teal-soft);color:var(--teal)"><i class="fas fa-th"></i></div><div class="num" id="ov-ports">0</div><div class="lbl">مشاريع الأعمال</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--brass-soft);color:var(--brass)"><i class="fas fa-tags"></i></div><div class="num" id="ov-prods">0</div><div class="lbl">أنظمة للبيع</div></div>
+          <div class="stat-card"><div class="stat-card-icon" style="background:var(--success-soft);color:var(--success)"><i class="fas fa-shield-alt"></i></div><div class="num" style="font-size:26px;color:var(--success)"><i class="fas fa-check"></i></div><div class="lbl">الموقع محمي</div></div>
         </div>
         <div class="card">
           <div class="card-title"><i class="fas fa-bolt"></i>إجراءات سريعة</div>
@@ -316,26 +524,30 @@
           </div>
           <div class="card-title" style="margin-top:8px"><i class="fab fa-facebook"></i>روابط التواصل الاجتماعي</div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:14px"><i class="fas fa-info-circle"></i> يمكنك إخفاء أي منصة من الموقع بإلغاء تفعيل مفتاحها</p>
+          <!-- مربّعات الاختيار صارت مفاتيح (class="switch") زي المرجع.
+               الـid والـ.checked زي ما هم حرفياً — الـJS ما بيحس بالفرق؛
+               انشالت بس الـinline style لأن width/height المضمّنة كانت
+               بتغلب أي قاعدة CSS وبتمنع شكل الحبّة. -->
           <div style="display:grid;gap:12px">
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
               <i class="fab fa-facebook" style="color:var(--fb);font-size:20px;text-align:center"></i>
               <input id="c-fb" placeholder="https://facebook.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-facebook" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-facebook" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
               <i class="fab fa-instagram" style="color:var(--ig);font-size:20px;text-align:center"></i>
               <input id="c-ig" placeholder="https://instagram.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-instagram" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-instagram" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
               <i class="fab fa-tiktok" style="color:var(--text);font-size:20px;text-align:center"></i>
               <input id="c-tt" placeholder="https://tiktok.com/@..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-tiktok" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-tiktok" class="switch">ظاهر</label>
             </div>
-            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+            <div style="display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px">
               <i class="fab fa-linkedin" style="color:var(--li);font-size:20px;text-align:center"></i>
               <input id="c-li" placeholder="https://linkedin.com/..." dir="ltr">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-linkedin" style="width:16px;height:16px;accent-color:var(--primary)">ظاهر</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;white-space:nowrap;font-size:13px;font-weight:600"><input type="checkbox" id="sv-linkedin" class="switch">ظاهر</label>
             </div>
           </div>
         </div>
@@ -439,9 +651,9 @@
         <div class="save-notice"><i class="fas fa-info-circle"></i>إدارة الأنظمة والمواقع المعروضة للبيع</div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="fas fa-eye"></i>إظهار القسم في الموقع</div>
-          <div style="display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
-            <input type="checkbox" id="products-visible-chk" style="width:20px;height:20px;cursor:pointer;accent-color:var(--primary)" onchange="toggleProductsSection()">
-            <label for="products-visible-chk" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">تفعيل وإظهار قسم "أنظمة للبيع" في الموقع الرئيسي</label>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px">
+            <input type="checkbox" id="products-visible-chk" class="switch" onchange="toggleProductsSection()">
+            <label for="products-visible-chk" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">تفعيل وإظهار قسم "أنظمة للبيع" في الموقع الرئيسي</label>
           </div>
           <p style="font-size:12px;color:var(--muted);margin-top:10px"><i class="fas fa-info-circle"></i> عند تعطيله يختفي القسم بالكامل من الموقع حتى لو كانت هناك عناصر مضافة</p>
         </div>
@@ -630,9 +842,9 @@
     <div class="fg"><label>الوصف</label><textarea id="port-desc" placeholder="وصف المشروع..."></textarea></div>
     <div class="fg"><label>التقنيات (مفصولة بفاصلة)</label><input id="port-tags" placeholder="React, Node.js, MongoDB"></div>
     <div class="fg"><label>رابط الموقع (اختياري)</label><input id="port-url" placeholder="https://example.com" dir="ltr"></div>
-    <div class="fg" style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
-      <input type="checkbox" id="port-show-url" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
-      <label for="port-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">إظهار زر "شاهد الموقع" للزوار</label>
+    <div class="fg" style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px">
+      <input type="checkbox" id="port-show-url" class="switch">
+      <label for="port-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">إظهار زر "شاهد الموقع" للزوار</label>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveProject()"><i class="fas fa-save"></i>حفظ</button>
@@ -665,9 +877,9 @@
       <div><label>العملة</label><input id="prod-currency" placeholder="₪" style="text-align:center"></div>
     </div>
     <div class="fg"><label>رابط عرض / ديمو (اختياري)</label><input id="prod-url" placeholder="https://example.com" dir="ltr"></div>
-    <div class="fg" style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
-      <input type="checkbox" id="prod-show-url" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary)">
-      <label for="prod-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0">إظهار زر "شاهد العرض" للزوار</label>
+    <div class="fg" style="display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px">
+      <input type="checkbox" id="prod-show-url" class="switch">
+      <label for="prod-show-url" style="cursor:pointer;font-size:14px;font-weight:600;margin:0;line-height:1.7">إظهار زر "شاهد العرض" للزوار</label>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveProduct()"><i class="fas fa-save"></i>حفظ</button>
@@ -1595,7 +1807,7 @@
     document.getElementById('pts-list-'+lang).innerHTML = pts.map((p,i) => `
       <div class="list-item" style="padding:10px 16px;margin-bottom:8px">
         <i class="fas fa-grip-lines" style="color:var(--muted)"></i>
-        <input value="${esc(p)}" class="fg" style="margin:0;flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:var(--font);font-size:14px;outline:none" onchange="updatePoint(${i},'${lang}',this.value)">
+        <input value="${esc(p)}" class="fg" style="margin:0;flex:1" onchange="updatePoint(${i},'${lang}',this.value)">
         <button class="btn btn-danger btn-sm btn-icon" onclick="deletePoint(${i},'${lang}')"><i class="fas fa-times"></i></button>
       </div>`).join('');
   }

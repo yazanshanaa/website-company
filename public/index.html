@@ -31,12 +31,17 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"إتقان تك","alternateName":"Itqan Tech","description":"مواقع وأنظمة لأصحاب المحلات والأعمال في فلسطين — بسعر معلن وبلوحة تحكم عربية","logo":"img/logo.png","areaServed":"PS","knowsLanguage":["ar","en"]}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- الخطوط حسب DESIGN_BRIEF.md — اتجاه C «فخامة هادئة».
-       Markazi Text: عرض عربي بدفء سيريف. Cormorant Garamond: عرض لاتيني فخم.
-       Jost: نص/أرقام لاتينية هندسية هادئة. IBM Plex Sans Arabic: نص عربي —
-       الوحيد اللي بيحمل رمز ₪ (تفصيل مقيس، لا تشيله). -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"></noscript>
+  <!-- الخطوط حسب الاتجاه السينمائي (uxnew/velorah_cinematic/DESIGN.md).
+       Instrument Serif: خط العرض اللاتيني بالمرجع نفسه — انضاف هون، وهو
+       اللي بيحمل الأرقام العملاقة والاقتباس. Markazi Text: عرض عربي
+       (بيضل أول بالسلسلة عشان العربي ما يقع على fallback لاتيني).
+       Cormorant Garamond: باقي كاحتياطي بسلسلة --font-display.
+       Jost: أرقام/حقول لاتينية هندسية. IBM Plex Sans Arabic: نص عربي —
+       الوحيد اللي بيحمل رمز ₪ (تفصيل مقيس، لا تشيله).
+       ما انضاف PP Neue Montreal: مش على Google Fonts، وبديل المرجع نفسه
+       Inter — وIBM Plex Sans Arabic بيغطّي اللاتيني بلا طلب زيادة. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Markazi+Text:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Markazi+Text:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"></noscript>
   <!-- الترميز مشترك بين الموقع ولوحة التحكم — مصدر وحيد للألوان والخطوط -->
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="preload" as="image" href="img/logo.png" fetchpriority="high">
@@ -45,42 +50,69 @@
   <style>
 /* ══════════════════════════════════════════════════════════════════
    إتقان تك — CSS الصفحة الرئيسية
-   المرجع الملزم: DESIGN_BRIEF.md — اتجاه C «فخامة هادئة» (Quiet Luxury)
+   المرجع الملزم: uxnew/velorah_cinematic/DESIGN.md — «سينمائي عميق»
+   (Cinematic Minimalism / Deep-sea Glassmorphism)
    الترميز كله من css/tokens.css — ممنوع أي hex هون.
 
-   القاعدة الحاكمة: "هدوء واثق، مش صراخ إعلاني."
-   ممنوع: تدرّجات، توهّج، زجاجية، ظلال ثقيلة، إيموجي كأيقونات، شريط تحذير.
-   لون واحد حقيقي (تركوازي) + لمسة نحاسية نادرة — النحاسي ممنوع كخلفية
-   وممنوع كنص صغير (فشل بتباين WCAG على العاجي)، بينحصر بالعناصر
-   الكبيرة/الزخرفية أو فوق الشريط الغامق حيث التباين مضمون.
+   القاعدة الحاكمة: العمق بالانكسار والضوء، مش بالظلال.
+   ممنوع: box-shadow كأداة عمق، تدرّجات كزخرفة علامة، لون تالت،
+          إيموجي كأيقونات، letter-spacing على العربي الجاري.
+   مسموح: توهّج سماوي (وهو الوحيد)، تدرّجات شعاعية جوّية فوق الخلفية،
+          حدود ١px "تسرّب ضوء"، backdrop-filter بعدد محدود من العناصر.
+
+   اللي انتقل من الاتجاه القديم (قرارات مش جمالية — فبتضل صحيحة):
+   · رمز ₪ على --font-text عبر .cur-glyph (خطوط العرض ما بتحمل الجليف).
+   · ولا letter-spacing على نص عربي جارٍ — الخط متصل، الـtracking بيفكّه.
+   · أهداف لمس ≥٤٤×٤٤ على pointer:coarse بس.
+   · حلقة تركيز عامة على كل عنصر تفاعلي، مش على .btn وحدها.
+   · ولا كروت أسماء تقنيات — جمهورنا أصحاب محلات (STRATEGY §5).
    ══════════════════════════════════════════════════════════════════ */
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* scroll-padding: الناف بار ملتصق — بدونها الروابط الداخلية بتوقف
+   تحت الشريط والعنوان بينقص من فوق.
+   color-scheme:dark: عناصر النظام (سهم الـselect، قائمة الـoption،
+   شريط التمرير، تعبئة المتصفح التلقائية) كانت بتنرسم بلوحة فاتحة
+   فوق واجهة كحلية — سهم أسود على حقل شفاف ما بينشاف إطلاقاً. */
+html{scroll-behavior:smooth;scroll-padding-top:92px;color-scheme:dark}
 body{
   background:var(--bg);color:var(--text);
   font-family:var(--font-text);line-height:var(--lh-arabic);
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
+/* ── الغلاف الجوّي ─────────────────────────────────────────────
+   طبقة إضاءة ثابتة خلف كل شي: بؤر شعاعية سماوية/جليدية بشفافية
+   واطية بتعطي الفراغ عمق بدل ما يكون لون مسطّح — هي بديل الـvideo
+   اللي بالمرجع، بلا أي كلفة تحميل. ثابتة (fixed) عن قصد: مصدر
+   الضوء ما بيتحرّك مع التمرير، فالصفحة بتحسّ كمشهد مش كورقة. */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(62% 44% at 50% -8%,  var(--atmo-teal), transparent 70%),
+    radial-gradient(46% 40% at 88% 24%,  var(--atmo-ice),  transparent 72%),
+    radial-gradient(58% 46% at 4%  72%,  var(--atmo-deep), transparent 74%);
+}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 ul{list-style:none}
+::selection{background:var(--teal);color:var(--bg)}
 
 .container{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+/* فاصل الأقسام = خيط "تسرّب ضوء" ١px، مش خط رمادي. */
 .section{padding:var(--section-y) 0;border-bottom:1px solid var(--line)}
 
 .skip-link{
-  position:absolute;top:-100px;inset-inline-start:16px;padding:10px 18px;
+  position:absolute;top:-100px;inset-inline-start:16px;padding:10px 20px;
   background:var(--teal);color:var(--bg);font-weight:700;
-  text-decoration:none;z-index:9999;transition:top var(--t-fast)
+  border-radius:var(--radius-pill);
+  text-decoration:none;z-index:9999;transition:top var(--t-fast) var(--ease)
 }
-.skip-link:focus{top:0}
+.skip-link:focus{top:12px}
 
 /* ── حلقة التركيز (كيبورد) ───────────────────────────────────
-   قاعدة عامة لكل عنصر تفاعلي — قبلها كانت محصورة بـ.btn وحدها،
-   فالروابط ومبدّل اللغة وروابط الفوتر كانوا بلا أي أثر تركيز.
-   :focus-visible مش :focus — فما بتظهر الحلقة عند الكبس بالفأرة. */
+   قاعدة عامة لكل عنصر تفاعلي. السماوي بيعطي ≥٣:١ على الفراغ
+   وعلى الزجاج وعلى الشريط الغامق — فما في حالة بتنكسر فيها. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -89,135 +121,206 @@ textarea:focus-visible,
 [tabindex]:focus-visible{
   outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--radius-sm)
 }
-/* فوق الشريط الغامق التركوازي ما بينقرا — بنقلب للعاجي */
-.guarantee-band a:focus-visible,
-.guarantee-band button:focus-visible,
-footer a:focus-visible,
-footer button:focus-visible{outline-color:var(--band-text)}
+/* جنب الأسطح البيضاء (الزر الأساسي، المقطع النشط) السماوي بيتضارب
+   بصرياً — بنقلب للجليدي (١٣.٤:١ على الفراغ، فوق العتبة براحة). */
+.btn-primary:focus-visible,
+.lang-btn.active:focus-visible{outline-color:var(--brass)}
+/* الحلقة لازم تتبع شكل العنصر: على العناصر الحبّة القاعدة العامة
+   كانت بترسم مستطيل بحواف ١٠px حوالين حبّة كاملة — بيقرا كخطأ. */
+.btn:focus-visible,
+.lang-btn:focus-visible,
+.hamburger:focus-visible,
+.mobile-close:focus-visible,
+.wa-float:focus-visible,
+.fsoc:focus-visible,
+.product-contact-btn:focus-visible,
+.skip-link:focus-visible{border-radius:var(--radius-pill)}
 
 /* ── الطباعة ──────────────────────────────────────────────────
-   ما في letter-spacing على العربي الجاري: الخط متصل، والـtracking
-   بيفكّه وبيقرا كعطل رندر. الاستثناء الوحيد: تسميات العناوين القصيرة
-   (eyebrow) — جهاز تحريري متعمّد، مش نص جارٍ. */
+   اقتران تحريري: سيريف للعرض، سانس للنص والتسميات.
+   ما في letter-spacing على العربي الجاري — الخط متصل والـtracking
+   بيفكّ الوصلات وبيقرا كعطل رندر، مش كتصميم. */
 h1,h2,h3,.section-title{font-family:var(--font-display);font-weight:600}
 
 .section-head{margin-bottom:48px;max-width:70ch}
-.section-title{font-size:var(--h2);line-height:1.3;margin-bottom:12px}
+.section-title{font-size:var(--h2);line-height:1.25;margin-bottom:14px;text-wrap:balance}
 .section-title .highlight{color:var(--teal)}
-.section-subtitle{color:var(--muted);font-size:var(--body);line-height:var(--lh-arabic)}
+.section-subtitle{color:var(--muted-strong);font-size:var(--body);line-height:var(--lh-arabic)}
 
-/* الشارة: عنصر التوقيع #1 — تسمية + مسطرة نحاسية رفيعة، بدل الحبّة الملوّنة.
-   نص التسمية بالتركوازي (تباين مضمون) — النحاسي محصور بالمسطرة الزخرفية. */
+/* ── الشارة (eyebrow) — عنصر التوقيع #1 ──────────────────────
+   تسمية مصغّرة + مسطرة جليدية قصيرة، زي المرجع بالضبط.
+   قرار الـtracking: المرجع بيطلب ٠.٢em على تسميات ١٢px — بس هاد
+   بينطبق على اللاتيني بس. بالعربي التسمية بتحمل حالها بثلاثة أشياء
+   تانية: المسطرة الجليدية، الوزن ٧٠٠، واللون السماوي — والـtracking
+   بينحصر بـhtml[dir="ltr"] تحت. نفس الجهاز البصري، بلا كسر الخط. */
 .section-badge{
-  display:inline-flex;align-items:center;gap:10px;
+  display:inline-flex;align-items:center;gap:12px;
   font-size:var(--label);font-weight:700;color:var(--teal);
-  letter-spacing:.06em;margin-bottom:18px
+  line-height:1.4;margin-bottom:20px
 }
-.section-badge::before{content:'';width:28px;height:1.5px;background:var(--brass);flex:none}
+.section-badge::before{
+  content:'';width:34px;height:1px;background:var(--brass);
+  flex:none;opacity:.85
+}
 .section-badge i{display:none} /* أيقونات FontAwesome بالشارات ما إلها داعي بهالاتجاه */
+/* اللاتيني بس: أحرف كبيرة + tracking واسع (تسمية ١٢px بالمرجع). */
+html[dir="ltr"] .section-badge{text-transform:uppercase;letter-spacing:.2em}
 
 /* ── الأزرار ─────────────────────────────────────────────────
-   بتنعكس عند المرور: تعبئة ↔ إطار. ولا انحناء ولا ظل ولا تدرّج. */
+   حبّة كاملة: "هاد بينكبس". الأساسي ملء أبيض + نص كحلي (لون المرجع
+   للفعل الأهم)، وعند المرور بيروح للأزرق الجليدي — نفس انتقال المرجع.
+   ولا ظل ولا تدرّج: البروز جاي من التباين المطلق مع الفراغ. */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  padding:14px 28px;font-family:var(--font-text);font-size:15px;font-weight:600;
-  border:1px solid var(--teal);cursor:pointer;
-  transition:background-color var(--t-fast),color var(--t-fast),border-color var(--t-fast)
+  padding:14px 30px;font-family:var(--font-text);font-size:15px;font-weight:600;
+  border:1px solid transparent;border-radius:var(--radius-pill);cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease),
+             color var(--t-fast) var(--ease),
+             border-color var(--t-fast) var(--ease),
+             transform var(--t-fast) var(--ease)
 }
-.btn-primary{background:var(--teal);color:var(--bg)}
-.btn-primary:hover{background:transparent;color:var(--teal)}
-.btn-outline{background:transparent;color:var(--teal)}
-.btn-outline:hover{background:var(--teal);color:var(--bg)}
-.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.btn-primary{background:var(--white);color:var(--bg);border-color:var(--white)}
+.btn-primary:hover{background:var(--brass);border-color:var(--brass)}
+.btn-outline{background:var(--surface);color:var(--text);border-color:var(--line-strong)}
+.btn-outline:hover{background:var(--surface-2);border-color:var(--teal);color:var(--teal)}
+.btn:active{transform:scale(.98)}
 
-/* ── الناف بار ──────────────────────────────────────────────── */
+/* ── الناف بار — شريط زجاجي طافي ───────────────────────────── */
 .navbar{
   position:sticky;top:0;z-index:100;
-  background:var(--bg);border-bottom:1px solid var(--line);
-  transition:border-color var(--t-fast)
+  background:var(--surface-3);
+  -webkit-backdrop-filter:blur(var(--blur-hi));backdrop-filter:blur(var(--blur-hi));
+  border-bottom:1px solid var(--line-strong);
+  transition:background-color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)
 }
-.navbar .container{display:flex;align-items:center;gap:24px;height:76px}
-.nav-logo{display:flex;align-items:center;gap:11px;flex:none}
-.site-logo-img{height:40px;width:auto}
-.nav-logo-text{font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--text)}
+/* .scrolled بيتحطّ بالجافاسكربت بعد ٥٠px — قبل هيك ما كان إله أي أثر.
+   بعد التمرير الشريط بيصير أعمق شوي عشان النص اللي بيمرق تحته ما يشوّش. */
+.navbar.scrolled{background:var(--bg-raise);border-bottom-color:var(--line)}
+.navbar .container{display:flex;align-items:center;gap:24px;height:78px}
+.nav-logo{display:flex;align-items:center;gap:12px;flex:none}
+/* اللوجو درع معدني أزرق-تركوازي — على الفراغ الكحلي صار بمكانه،
+   فكبّرناه شوي بدل ما نخبّيه زي ما كان لازم على العاجي. */
+.site-logo-img{height:44px;width:auto}
+.nav-logo-text{font-family:var(--font-display);font-weight:600;font-size:20px;color:var(--text)}
 .nav-menu{display:flex;gap:28px;margin-inline-start:auto}
-.nav-menu a{font-size:14px;font-weight:500;color:var(--muted);transition:color var(--t-fast)}
-.nav-menu a:hover{color:var(--teal)}
-.nav-actions{display:flex;align-items:center;gap:14px;flex:none}
-.nav-actions .btn{padding:9px 18px;font-size:14px}
-
-.lang-toggle{display:flex;border:1px solid var(--line)}
-.lang-btn{
-  padding:6px 12px;background:transparent;color:var(--muted);
-  border:0;cursor:pointer;font-family:var(--font-num);font-size:12px;font-weight:600;
-  transition:background-color var(--t-fast),color var(--t-fast)
+.nav-menu a{
+  position:relative;font-size:14px;font-weight:500;color:var(--muted-strong);
+  padding-bottom:3px;transition:color var(--t-fast) var(--ease)
 }
-.lang-btn+.lang-btn{border-inline-start:1px solid var(--line)}
-.lang-btn.active{background:var(--teal);color:var(--bg)}
+/* خيط سماوي بينرسم تحت الرابط — نفس مؤشّر التبويب النشط بالمرجع */
+.nav-menu a::after{
+  content:'';position:absolute;inset-inline:0;bottom:0;height:1.5px;
+  background:var(--teal);transform:scaleX(0);transform-origin:center;
+  transition:transform var(--t-fast) var(--ease)
+}
+.nav-menu a:hover{color:var(--teal)}
+.nav-menu a:hover::after{transform:scaleX(1)}
+.nav-actions{display:flex;align-items:center;gap:14px;flex:none}
+.nav-actions .btn{padding:10px 22px;font-size:14px}
+
+/* مبدّل اللغة — مقطّع بحبّة واحدة.
+   المقطع النشط ملء أبيض + نص كحلي (١٧:١) مش سماوي: السماوي محجوز
+   للبيانات والتركيز، والأبيض هو "الفعل النشط" بلغة المرجع. */
+.lang-toggle{
+  display:flex;padding:3px;gap:2px;
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  background:var(--surface)
+}
+/* inline-flex + line-height:1 عن قصد: "ع" و"EN" من خطّين مختلفين
+   (Jost ما بيحمل عربي فالعين بتقع على IBM Plex) — بمقاييس السطر
+   الافتراضية العين كانت تنزل تحت خط EN وتبيّن المقطع مايل. */
+.lang-btn{
+  display:inline-flex;align-items:center;justify-content:center;line-height:1;
+  padding:8px 15px;background:transparent;color:var(--muted-strong);
+  border:0;border-radius:var(--radius-pill);cursor:pointer;
+  font-family:var(--font-num);font-size:12px;font-weight:600;
+  transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)
+}
+.lang-btn:hover{color:var(--text)}
+.lang-btn.active{background:var(--white);color:var(--bg)}
 
 .hamburger{
-  display:none;flex-direction:column;gap:5px;background:transparent;
-  border:1px solid var(--line);padding:10px;cursor:pointer
+  display:none;flex-direction:column;gap:5px;background:var(--surface);
+  border:1px solid var(--line);padding:11px;cursor:pointer;
+  border-radius:var(--radius-pill)
 }
-.hamburger span{width:18px;height:2px;background:var(--text);display:block}
+.hamburger span{width:18px;height:1.5px;background:var(--text);display:block}
 
+/* القائمة المتنقلة: معتمة عن قصد — لو خلّيناها زجاج، النص اللي تحتها
+   بيمرق من ورا الروابط وبينزل التباين تحت العتبة. */
 .mobile-menu{
-  position:fixed;inset:0;z-index:200;background:var(--bg);
-  padding:80px var(--gutter) 40px;display:none;flex-direction:column;gap:4px
+  position:fixed;inset:0;z-index:200;background:var(--bg-deep);
+  padding:84px var(--gutter) 40px;display:none;flex-direction:column;gap:4px
 }
 .mobile-menu.open{display:flex}
 .mobile-menu a{
-  padding:16px 0;font-size:17px;font-weight:600;
-  border-bottom:1px solid var(--line);color:var(--text)
+  padding:18px 0;font-size:18px;font-weight:600;
+  border-bottom:1px solid var(--line);color:var(--text);
+  transition:color var(--t-fast) var(--ease)
 }
+.mobile-menu a:hover{color:var(--teal)}
 .mobile-close{
-  position:absolute;top:20px;inset-inline-end:var(--gutter);
-  background:transparent;border:1px solid var(--line);color:var(--text);
-  width:42px;height:42px;cursor:pointer;font-size:18px
+  position:absolute;top:22px;inset-inline-end:var(--gutter);
+  background:var(--surface);border:1px solid var(--line);color:var(--text);
+  width:44px;height:44px;cursor:pointer;font-size:18px;
+  border-radius:var(--radius-pill)
 }
 
 /* ── الهيرو ──────────────────────────────────────────────────
-   مش الكومة الممنوعة (حبّة ← عنوان بالنص ← سطر رمادي ← زرّين).
-   انقسام غير متمركز: العنوان يبدأ من جهة القراءة الطبيعية (يمين بـRTL)،
-   ولوحة التحكم — الدليل الحقيقي — على الجهة التانية، أهدأ وأصغر من النص. */
-.hero{padding:64px 0 var(--section-y)}
-.hero-content{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+   الانقسام لعمودين محمول استراتيجياً: لوحة التحكم هي الدليل على
+   الوعد الأساسي (بتديره إنت) — فما بينشال لصالح هيرو متمركز.
+   اللي تغيّر: الطباعة صارت أضخم وأكثر سينمائية (--h1 وصل ٩٢px)،
+   واللوحة صارت كرت زجاجي بخيط سماوي مضيء بدل المسطرة النحاسية. */
+.hero{padding:72px 0 var(--section-y)}
+.hero-content{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center}
+/* text-wrap:balance ضروري هون مش ترف: بحجم ٩٢px السطر الإنجليزي
+   "A site for your shop —" كان بيلفّ والشرطة بتوقف وحدها بسطر —
+   يتيم طباعي واضح. الموازنة بتوزّع الأسطر بدل ما تكسر عند آخر حرف. */
 .hero-title{
-  font-size:var(--h1);line-height:1.22;margin-bottom:22px;
-  font-weight:600
+  font-size:var(--h1);line-height:1.14;margin-bottom:24px;font-weight:600;
+  text-wrap:balance
 }
-.hero-title .grad{color:var(--teal)}
+/* السطر الثاني هو الوعد — سماوي مضيء، أقوى نقطة ضوء بالصفحة كلها */
+.hero-title .grad{color:var(--teal);text-shadow:var(--glow-text)}
 .hero-subtitle{
-  color:var(--muted);font-size:var(--body);line-height:var(--lh-arabic);
-  max-width:52ch;margin-bottom:32px
+  color:var(--muted-strong);font-size:var(--body);line-height:var(--lh-arabic);
+  max-width:52ch;margin-bottom:36px
 }
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
 
 /* الضمان — بيقتل الاعتراض الأكبر (الحرق). حاشية هادئة هون، وقسم كامل تحت. */
 .hero-guarantee{
   display:flex;align-items:center;gap:14px;
-  padding-top:22px;border-top:1px solid var(--line);
-  font-family:var(--font-display);font-weight:600;font-size:16px;line-height:1.55;
+  padding-top:24px;border-top:1px solid var(--line);
+  font-family:var(--font-display);font-weight:600;font-size:17px;line-height:1.55;
   max-width:480px
 }
 .hero-guarantee i{color:var(--brass);font-size:18px;flex:none}
 
-/* لوحة التحكم كـ"لوحة مؤطّرة" — عنصر التوقيع #2. خط نحاسي علوي رفيع
-   بدل توهّج التدرّج القديم؛ الباقي حياد شعري هادئ. */
-.hero-card{border:1px solid var(--line);background:var(--surface);position:relative}
-.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--brass)}
+/* لوحة التحكم — كرت زجاجي (المستوى ١) بخيط سماوي مضيء على الحافة
+   العليا: "فتيلة" المرجع. هو المكان الوحيد بالصفحة اللي بينفع فيه
+   الزجاج فعلياً — بيقعد فوق بؤرة الضوء الجوّية فبتنكسر من خلاله. */
+.hero-card{
+  position:relative;border:1px solid var(--line);background:var(--surface);
+  -webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur));
+  border-radius:var(--radius-lg);overflow:hidden
+}
+.hero-card::before{
+  content:'';position:absolute;inset-inline:0;top:0;height:1px;
+  background:var(--teal);box-shadow:var(--glow)
+}
 .card-header{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 18px;border-bottom:1px solid var(--line)
+  padding:16px 20px;border-bottom:1px solid var(--line)
 }
 .card-dots{display:flex;gap:6px}
-.card-dots span{width:7px;height:7px;background:var(--line);border-radius:50%}
-.card-dots .dot-g{background:var(--teal)}
-.panel-chrome{font-size:var(--label);font-weight:600;color:var(--muted)}
+.card-dots span{width:7px;height:7px;background:var(--line-strong);border-radius:50%}
+.card-dots .dot-g{background:var(--teal);box-shadow:var(--glow-soft)}
+.panel-chrome{font-size:var(--label);font-weight:600;color:var(--muted-strong)}
 
 .panel-row{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:15px 18px;border-bottom:1px solid var(--line)
+  padding:16px 20px;border-bottom:1px solid var(--line)
 }
 .panel-label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
 .panel-label i{color:var(--muted);font-size:13px;width:14px;text-align:center}
@@ -226,39 +329,58 @@ h1,h2,h3,.section-title{font-family:var(--font-display);font-weight:600}
   font-variant-numeric:tabular-nums;direction:ltr
 }
 .panel-thumbs{display:flex;gap:5px;align-items:center}
-.panel-thumbs i{width:18px;height:18px;background:var(--line);display:block}
+.panel-thumbs i{width:18px;height:18px;background:var(--surface-2);border:1px solid var(--line);display:block;border-radius:4px}
 .panel-thumbs b{color:var(--teal);font-size:13px;font-family:var(--font-num)}
 .panel-save{
-  padding:13px 18px;display:flex;align-items:center;gap:8px;
+  padding:14px 20px;display:flex;align-items:center;gap:8px;
   color:var(--teal);font-size:13px;font-weight:600;border-bottom:1px solid var(--line)
 }
 /* شرح تحت اللوحة — بطاقة متحف، مش تعليق واجهة */
-.panel-caption{padding:13px 18px;font-size:var(--label);color:var(--muted);background:var(--surface);font-style:italic}
+.panel-caption{padding:14px 20px;font-size:var(--label);color:var(--muted-strong);background:var(--surface-2);font-style:italic}
 
-.scroll-ind{display:none} /* "اكتشف أكثر" ما بيضيف إشي — الصفحة بتبيّن إنها بتنزل */
+/* مؤشّر النزول — رجع بعد ما كان display:none.
+   بالاتجاه القديم كان زيادة على صفحة عاجية قصيرة النَفَس؛ هون الهيرو
+   بيملا الشاشة تقريباً والفراغ الكحلي بينهي المشهد بلا حافة واضحة،
+   فالمؤشّر صار إفادة حقيقية "في تحت". حركته transform/opacity بس. */
+.scroll-ind{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:64px;color:var(--muted);font-size:var(--label);font-weight:600
+}
+html[dir="ltr"] .scroll-ind{text-transform:uppercase;letter-spacing:.2em}
+.scroll-ind i{color:var(--teal);animation:sink 2.8s var(--ease) infinite}
+@keyframes sink{
+  0%,100%{transform:translateY(0);opacity:.45}
+  50%{transform:translateY(6px);opacity:1}
+}
 
-/* ── الخدمات — صفوف تحريرية مرقّمة، مش كروت ×٣ ───────────────── */
+/* ── الخدمات — صفوف تحريرية مرقّمة بين خيوط ضوء ───────────────
+   بقي إيقاع الصفوف (بيقرا تحريري/راقي)، بس أعيد نطقه بالزجاج:
+   المرور بيرفع الصف لسطح المستوى ٢ والرقم بيشتعل سماوي كامل.
+   ملاحظة أداء: ولا backdrop-filter على الصفوف — الـblur غالي
+   والقائمة ٦ صفوف؛ الزجاج محصور بالعناصر المحدودة (الشريط،
+   كرت الهيرو، لوحة الأرقام، الفورم، القائمة المتنقلة). */
 .services-grid{display:block;border-top:1px solid var(--line)}
 .service-card{
-  display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;
-  padding:24px 8px;border-bottom:1px solid var(--line);
-  transition:background-color var(--t-fast)
+  display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;
+  padding:26px 20px;border-bottom:1px solid var(--line);
+  border-radius:var(--radius);
+  transition:background-color var(--t-fast) var(--ease)
 }
-.service-card:hover{background:var(--surface)}
+.service-card:hover{background:var(--surface-2)}
 .svc-idx{
-  font-family:var(--font-display);font-weight:600;font-size:26px;
-  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.55;text-align:center;
-  min-width:38px;font-variant-numeric:tabular-nums;
-  transition:opacity var(--t-fast)
+  font-family:var(--font-latin);font-weight:400;font-size:32px;
+  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.5;text-align:center;
+  min-width:44px;font-variant-numeric:tabular-nums;
+  transition:opacity var(--t-fast) var(--ease),color var(--t-fast) var(--ease),filter var(--t-fast) var(--ease)
 }
-.service-card:hover .svc-idx{opacity:1}
+.service-card:hover .svc-idx{opacity:1;color:var(--teal);filter:var(--bloom)}
 .svc-icon{display:none}  /* الرقم هو العلامة بهالاتجاه، مش الأيقونة */
-.svc-title{font-family:var(--font-display);font-weight:600;font-size:18px;margin-bottom:4px}
-.svc-desc{color:var(--muted);font-size:14px;line-height:1.7}
+.svc-title{font-family:var(--font-display);font-weight:600;font-size:19px;margin-bottom:5px}
+.svc-desc{color:var(--muted-strong);font-size:14px;line-height:1.75}
 .svc-body{min-width:0}
 .svc-arrow{
   font-size:var(--label);color:var(--muted);white-space:nowrap;
-  display:flex;align-items:center;gap:7px;transition:color var(--t-fast)
+  display:flex;align-items:center;gap:7px;transition:color var(--t-fast) var(--ease)
 }
 .service-card:hover .svc-arrow{color:var(--teal)}
 
@@ -267,43 +389,55 @@ h1,h2,h3,.section-title{font-family:var(--font-display);font-weight:600}
 .about-points{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .about-points li{
   display:flex;align-items:flex-start;gap:12px;
-  padding:14px 0;border-bottom:1px solid var(--line);
-  font-size:15px;line-height:1.7
+  padding:15px 0;border-bottom:1px solid var(--line);
+  font-size:15px;line-height:1.75
 }
-.about-points li i{color:var(--teal);font-size:14px;margin-top:5px;flex:none}
+.about-points li i{color:var(--teal);font-size:14px;margin-top:6px;flex:none}
 /* لوحة الأرقام: الأدلة القابلة للتحقق بدل كروت التقنيات (React/Node/Flutter)
-   — جمهورنا أصحاب محلات، أسماء التقنيات إشارة جمهور غلط (STRATEGY §5). */
-.about-visual{border:1px solid var(--line);background:var(--surface)}
+   — جمهورنا أصحاب محلات، أسماء التقنيات إشارة جمهور غلط (STRATEGY §5).
+   صارت كرت زجاجي كامل، الصفوف مفصولة بخيوط ضوء ١px. */
+.about-visual{
+  border:1px solid var(--line);background:var(--surface);
+  -webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur));
+  border-radius:var(--radius-lg);overflow:hidden
+}
 .about-fact{
   display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;
-  padding:22px;border-bottom:1px solid var(--line)
+  padding:24px;border-bottom:1px solid var(--line);
+  transition:background-color var(--t-fast) var(--ease)
 }
 .about-fact:last-child{border-bottom:0}
+.about-fact:hover{background:var(--surface-2)}
 .about-fact-idx{
-  font-family:var(--font-display);font-weight:600;font-size:36px;line-height:1;
-  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.6
+  font-family:var(--font-latin);font-weight:400;font-size:38px;line-height:1;
+  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.55;
+  transition:opacity var(--t-fast) var(--ease),filter var(--t-fast) var(--ease)
 }
-.about-fact-t{font-family:var(--font-display);font-weight:600;font-size:16px;margin-bottom:3px}
-.about-fact-d{color:var(--muted);font-size:13.5px;line-height:1.65}
+.about-fact:hover .about-fact-idx{opacity:1;filter:var(--bloom)}
+.about-fact-t{font-family:var(--font-display);font-weight:600;font-size:17px;margin-bottom:4px}
+.about-fact-d{color:var(--muted-strong);font-size:13.5px;line-height:1.7}
 
 /* ── كيف بشتغل — صفوف مرقّمة بأرقام التوقيع العملاقة ────────── */
 .process-grid{display:block;border-top:1px solid var(--line)}
 .process-step{
-  display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
-  padding:26px 8px;border-bottom:1px solid var(--line);
-  transition:background-color var(--t-fast)
+  display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;
+  padding:28px 20px;border-bottom:1px solid var(--line);
+  border-radius:var(--radius);
+  transition:background-color var(--t-fast) var(--ease)
 }
-.process-step:hover{background:var(--surface)}
-/* عنصر التوقيع #3 — أرقام فهرسة سيريف عملاقة مفرّغة بحدّ تركوازي رفيع */
+.process-step:hover{background:var(--surface-2)}
+/* عنصر التوقيع #2 — أرقام سيريف عملاقة مفرّغة بحدّ سماوي، بتشتعل
+   بتوهّج عند المرور. هاد أقوى توقيع بالمرجع (أرقام لوحات البيانات). */
 .step-num{
-  font-family:var(--font-display);font-weight:600;
-  font-size:var(--idx);line-height:.85;text-align:center;
-  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.5;
-  transition:opacity var(--t-fast),color var(--t-fast)
+  font-family:var(--font-latin);font-weight:400;
+  font-size:var(--idx);line-height:.9;text-align:center;
+  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.45;
+  font-variant-numeric:tabular-nums;
+  transition:opacity var(--t-fast) var(--ease),color var(--t-fast) var(--ease),filter var(--t-fast) var(--ease)
 }
-.process-step:hover .step-num{opacity:1}
-.step-title{font-family:var(--font-display);font-weight:600;font-size:18px;margin-bottom:5px}
-.step-desc{color:var(--muted);font-size:14px;line-height:1.75;max-width:70ch}
+.process-step:hover .step-num{opacity:1;color:var(--teal);filter:var(--bloom)}
+.step-title{font-family:var(--font-display);font-weight:600;font-size:19px;margin-bottom:6px}
+.step-desc{color:var(--muted-strong);font-size:14px;line-height:1.8;max-width:70ch}
 
 /* ── الأسعار — قسم البطل، هو اللي بيوعد فيه زر الهيرو ────────── */
 .products-section{padding:var(--section-y) 0;border-bottom:1px solid var(--line)}
@@ -316,30 +450,39 @@ h1,h2,h3,.section-title{font-family:var(--font-display);font-weight:600}
    بيطلع أعرض من var(--idx) حتماً، فكان بيفيض على النص ويتراكب معه. */
 .product-card{
   display:grid;grid-template-columns:auto 1fr auto;
-  gap:26px;align-items:center;
-  padding:30px 8px;border-bottom:1px solid var(--line);
-  transition:background-color var(--t-fast)
+  gap:28px;align-items:center;
+  padding:32px 20px;border-bottom:1px solid var(--line);
+  border-radius:var(--radius);
+  transition:background-color var(--t-fast) var(--ease)
 }
-.product-card:hover{background:var(--surface)}
+.product-card:hover{background:var(--surface-2)}
 .product-idx{
-  font-family:var(--font-display);font-weight:600;
-  font-size:var(--idx);line-height:.85;text-align:center;
-  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.5;
-  transition:opacity var(--t-fast)
+  font-family:var(--font-latin);font-weight:400;
+  font-size:var(--idx);line-height:.9;text-align:center;
+  color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.45;
+  font-variant-numeric:tabular-nums;
+  transition:opacity var(--t-fast) var(--ease),color var(--t-fast) var(--ease),filter var(--t-fast) var(--ease)
 }
-.product-card:hover .product-idx{opacity:1}
+.product-card:hover .product-idx{opacity:1;color:var(--teal);filter:var(--bloom)}
 .product-image{display:none}  /* كان بيعرض إيموجي — ممنوع. السعر هو المرساة. */
 .product-body{min-width:0}
-.product-cat{font-size:var(--label);font-weight:700;color:var(--teal);letter-spacing:.04em;margin-bottom:6px}
-.product-title{font-family:var(--font-display);font-weight:600;font-size:19px;margin-bottom:6px}
-.product-desc{color:var(--muted);font-size:14px;line-height:1.75;max-width:64ch;margin-bottom:10px}
-.product-tags{display:flex;gap:6px;flex-wrap:wrap}
-.product-tag{font-size:var(--label);color:var(--muted);border:1px solid var(--line);padding:3px 9px}
-.product-footer{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
-/* السعر — الاستعمال الوحيد الكبير للنحاسي كنص: رقم واحد، بحجم كبير،
-   بيعدّي عتبة WCAG للنص الكبير (٣:١) بارتياح. هاد بالضبط سبب اللمسة النحاسية. */
+.product-cat{font-size:var(--label);font-weight:700;color:var(--teal);margin-bottom:7px}
+html[dir="ltr"] .product-cat,html[dir="ltr"] .port-cat{text-transform:uppercase;letter-spacing:.16em}
+.product-title{font-family:var(--font-display);font-weight:600;font-size:20px;margin-bottom:7px}
+.product-desc{color:var(--muted-strong);font-size:14px;line-height:1.8;max-width:64ch;margin-bottom:12px}
+.product-tags{display:flex;gap:7px;flex-wrap:wrap}
+/* رقاقات: حبّة كاملة — نقاط لمس/وسم زي المرجع */
+.product-tag{
+  font-size:var(--label);color:var(--muted-strong);
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  padding:4px 12px;background:var(--surface)
+}
+.product-footer{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+/* السعر — أكبر رقم بالموقع، سيريف عرضي بالأزرق الجليدي.
+   ملاحظة: الملاحظة القديمة عن تباين النحاسي (٣.١٢:١ على العاجي)
+   ما عادت تنطبق — الجليدي على الفراغ الكحلي ١٣.٤:١، بيعدّي حتى كنص صغير. */
 .product-price{
-  font-family:var(--font-display);font-weight:600;font-size:var(--price);
+  font-family:var(--font-latin);font-weight:400;font-size:var(--price);
   color:var(--brass);font-variant-numeric:tabular-nums;
   direction:ltr;white-space:nowrap;line-height:1
 }
@@ -347,109 +490,145 @@ h1,h2,h3,.section-title{font-family:var(--font-display);font-weight:600}
    بيحملوا رمز الشيكل. مقيس، مش مفترض.
    الصنف بيربط الخط بس — الحجم واللون بينتحدّدوا حسب السياق تحت. */
 .cur-glyph{font-family:var(--font-text)!important}
-.product-price .cur-glyph{font-size:.5em;color:var(--muted)}
+.product-price .cur-glyph{font-size:.5em;color:var(--muted-strong)}
 .product-link{
   font-size:var(--label);color:var(--muted);display:flex;align-items:center;gap:6px;
-  transition:color var(--t-fast)
+  transition:color var(--t-fast) var(--ease)
 }
 .product-link:hover{color:var(--teal)}
 .product-contact-btn{
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
-  padding:11px 20px;font-size:14px;font-weight:600;
-  border:1px solid var(--teal);color:var(--teal);
-  transition:background-color var(--t-fast),color var(--t-fast)
+  padding:12px 22px;font-size:14px;font-weight:600;
+  border:1px solid var(--line-strong);border-radius:var(--radius-pill);
+  background:var(--surface);color:var(--text);
+  transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)
 }
-.product-contact-btn:hover{background:var(--teal);color:var(--bg)}
+.product-contact-btn:hover{background:var(--white);color:var(--bg);border-color:var(--white)}
 
-/* ── شريط الضمان — عنصر التوقيع #4 ───────────────────────────
-   الشريط الغامق الوحيد فوق الفوتر مباشرة — وقفة درامية متعمّدة تكسر
-   إيقاع العاجي، بتخصّص وزناً بصرياً كامل لأهم جملة بالموقع كلّه. */
+/* ── شريط الضمان — عنصر التوقيع #3 ───────────────────────────
+   قبل: الشريط الغامق الوحيد اللي بيكسر صفحة عاجية. هلأ الصفحة كلها
+   غامقة، فالشريط لازم يكسب وقفته بطريقة تانية: صار أعمق نقطة بالموقع
+   (--band) + بؤرة ضوء سماوية خلف النص + ختم اللوجو المائي.
+   أهم جملة بالموقع — بتاخد وزنها كامل. */
 .guarantee-band{
   background:var(--band);color:var(--band-text);
-  padding:var(--section-y) 0;text-align:center;
-  position:relative;overflow:hidden
+  padding:calc(var(--section-y) + 16px) 0;text-align:center;
+  position:relative;overflow:hidden;
+  border-top:1px solid var(--line)
 }
+/* الختم المائي — اللوجو صار على خلفية بتناسبه، فرفعنا شفافيته شوي */
 .guarantee-band::before{
   content:'';position:absolute;top:50%;left:50%;
-  width:560px;height:560px;transform:translate(-50%,-50%);
+  width:620px;height:620px;transform:translate(-50%,-50%);
   background:url('img/logo.png') center/contain no-repeat;
-  opacity:.05;pointer-events:none
+  opacity:.07;pointer-events:none
 }
-.guarantee-inner{max-width:640px;margin:0 auto;position:relative;z-index:1}
-.guarantee-rule{width:44px;height:2px;background:var(--brass);margin:0 auto 26px}
-.guarantee-icon{color:var(--brass);font-size:30px;margin-bottom:20px;display:block}
-.guarantee-title{font-family:var(--font-display);font-size:var(--h2);font-weight:600;line-height:1.35;margin-bottom:16px}
-.guarantee-desc{color:var(--band-text);opacity:.8;font-size:var(--body);line-height:var(--lh-arabic)}
+/* بؤرة الضوء — نفس لغة الغلاف الجوّي بس أوضح، عشان الشريط يحسّ
+   إنه "مضاء من جوّا" مش بس أغمق. */
+.guarantee-band::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:min(1000px,130%);height:560px;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,var(--atmo-teal),transparent);
+  pointer-events:none
+}
+.guarantee-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+.guarantee-rule{width:48px;height:1px;background:var(--brass);margin:0 auto 26px}
+.guarantee-icon{color:var(--teal);font-size:30px;margin-bottom:20px;display:block;filter:var(--bloom)}
+.guarantee-title{font-family:var(--font-display);font-size:var(--h2);font-weight:600;line-height:1.35;margin-bottom:18px;text-wrap:balance}
+.guarantee-desc{color:var(--muted-strong);font-size:var(--body);line-height:var(--lh-arabic)}
 
 /* ── التواصل ─────────────────────────────────────────────── */
 .contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
 .contact-item{
   display:flex;align-items:center;gap:16px;
-  padding:16px 0;border-bottom:1px solid var(--line)
+  padding:18px 0;border-bottom:1px solid var(--line)
 }
 .ci-icon{
-  width:38px;height:38px;flex:none;display:grid;place-items:center;
-  border:1px solid var(--line);color:var(--teal);font-size:14px
+  width:42px;height:42px;flex:none;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  background:var(--surface);color:var(--teal);font-size:15px
 }
 .ci-text{display:flex;flex-direction:column;min-width:0}
-.ci-text strong{font-size:var(--label);color:var(--muted);font-weight:600}
+.ci-text strong{font-size:var(--label);color:var(--muted-strong);font-weight:600}
 .ci-text span{font-size:15px;direction:ltr;text-align:start}
 html[dir="rtl"] .ci-text span{text-align:right}
 
-.contact-form{border:1px solid var(--line);background:var(--surface);padding:30px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:var(--label);font-weight:600;color:var(--muted);margin-bottom:7px}
+.contact-form{
+  border:1px solid var(--line);background:var(--surface);
+  -webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur));
+  border-radius:var(--radius-lg);padding:34px
+}
+.form-group{margin-bottom:22px}
+.form-group label{display:block;font-size:var(--label);font-weight:600;color:var(--muted-strong);margin-bottom:6px}
+html[dir="ltr"] .form-group label{text-transform:uppercase;letter-spacing:.16em}
+/* حقول مينيماليّة: حدّ سفلي بس، ٤٨px — نمط المرجع بالضبط. */
 .form-group input,.form-group select,.form-group textarea{
-  width:100%;padding:12px 14px;
-  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+  width:100%;height:48px;padding:0 2px;
+  background:transparent;border:0;border-bottom:1px solid var(--line-strong);
+  border-radius:0;
   color:var(--text);font-family:var(--font-text);font-size:15px;
-  transition:border-color var(--t-fast)
+  transition:border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)
 }
-.form-group textarea{min-height:110px;resize:vertical}
+.form-group textarea{height:auto;min-height:110px;padding:12px 2px;resize:vertical;line-height:1.7}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--muted)}
+/* التركيز: الحدّ بيصير سماوي و"يتوسّع لـ٢px" — بننفّذ التوسّع بظل
+   داخلي سماوي بدل ما نزيد عرض الحدّ، لأن زيادة العرض بتحرّك النص
+   ١px عند كل تركيز. الظل هون خط سماوي، مش أداة عمق. */
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-  outline:none;border-color:var(--teal)   /* ما في توهّج — الحدّ بيكفي */
+  outline:none;border-bottom-color:var(--teal);box-shadow:inset 0 -1px 0 var(--teal)
 }
-.form-submit{width:100%}
+/* <option> بينرسم من نظام التشغيل — الزجاج بينهار فيه، فبيلزمه سطح معتم */
+.form-group select option{background:var(--surface-solid);color:var(--text)}
+.form-submit{width:100%;margin-top:8px}
 
-/* ── واتساب العائم ─────────────────────────────────────────── */
+/* ── واتساب العائم ─────────────────────────────────────────────
+   أخضر المنصة مستثنى من قاعدة اللكنتين (موثّق بـtokens.css) — الزر
+   لازم يتعرّف فوراً. حبّة كاملة عشان يقرا كنقطة لمس. */
 .wa-float{
-  position:fixed;bottom:22px;inset-inline-start:22px;z-index:90;
-  width:54px;height:54px;display:grid;place-items:center;
-  background:var(--wa);color:var(--band);font-size:26px;
-  border:1px solid var(--wa);
-  transition:background-color var(--t-fast),color var(--t-fast)
+  position:fixed;bottom:24px;inset-inline-start:24px;z-index:90;
+  width:56px;height:56px;display:grid;place-items:center;
+  background:var(--wa);color:var(--bg-deep);font-size:26px;
+  border:1px solid var(--wa);border-radius:var(--radius-pill);
+  transition:background-color var(--t-fast) var(--ease),
+             color var(--t-fast) var(--ease),
+             transform var(--t-fast) var(--ease)
 }
-.wa-float:hover{background:transparent;color:var(--wa)}
+.wa-float:hover{background:transparent;color:var(--wa);transform:translateY(-3px)}
 
-/* ── الفوتر — يواصل غموق شريط الضمان مباشرة فوقه: خاتمة واحدة، مش جزيرة مفاجئة ── */
-footer{padding:var(--section-y) 0 26px;background:var(--band);color:var(--band-text)}
+/* ── الفوتر — بيواصل أعمق نقطة بالموقع، خاتمة واحدة مع شريط الضمان ── */
+footer{padding:var(--section-y) 0 28px;background:var(--band);color:var(--band-text);position:relative}
 .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px}
-footer .site-logo-img{height:64px}
-.footer-brand-desc{color:var(--band-text);opacity:.7;font-size:14px;line-height:1.8;margin:16px 0 18px;max-width:44ch}
-.footer-socials{display:flex;gap:8px}
+footer .site-logo-img{height:68px}
+.footer-brand-desc{color:var(--muted-strong);font-size:14px;line-height:1.85;margin:18px 0 20px;max-width:44ch}
+.footer-socials{display:flex;gap:9px}
 .fsoc{
-  width:36px;height:36px;display:grid;place-items:center;
-  border:1px solid rgba(241,237,226,.2);color:var(--band-text);opacity:.7;font-size:14px;
-  transition:opacity var(--t-fast),border-color var(--t-fast)
+  width:40px;height:40px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  background:var(--surface);color:var(--muted-strong);font-size:14px;
+  transition:color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease)
 }
-.fsoc:hover{opacity:1;border-color:var(--brass)}
-.footer-heading{font-family:var(--font-display);font-weight:600;font-size:14px;margin-bottom:14px}
-.footer-links li{margin-bottom:9px}
-.footer-links a{color:var(--band-text);opacity:.7;font-size:14px;transition:opacity var(--t-fast)}
-.footer-links a:hover{opacity:1}
+.fsoc:hover{color:var(--teal);border-color:var(--teal-dim);background:var(--teal-soft)}
+.footer-heading{font-family:var(--font-display);font-weight:600;font-size:15px;margin-bottom:16px;color:var(--band-text)}
+.footer-links li{margin-bottom:10px}
+.footer-links a{color:var(--muted-strong);font-size:14px;transition:color var(--t-fast) var(--ease)}
+.footer-links a:hover{color:var(--teal)}
 .footer-bottom{
-  margin-top:44px;padding-top:22px;border-top:1px solid rgba(241,237,226,.14);
+  margin-top:48px;padding-top:24px;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap
 }
-.footer-copy{color:var(--band-text);opacity:.55;font-size:var(--label)}
+.footer-copy{color:var(--muted);font-size:var(--label)}
 
-/* ── التوست ─────────────────────────────────────────────── */
+/* ── التوست ───────────────────────────────────────────────────
+   الحالة محمولة بالحدّ (showToast بيحطّ borderColor بالجافاسكربت)،
+   والسطح معتم عن قصد: التوست بيطفو فوق أي محتوى، ولو خلّيناه زجاج
+   ما بنقدر نضمن تباين النص على اللي وراه. */
 .toast{
-  position:fixed;bottom:22px;inset-inline-end:22px;z-index:300;
-  background:var(--surface);border:1px solid var(--teal);color:var(--text);
-  padding:14px 20px;font-size:14px;font-weight:500;
+  position:fixed;bottom:24px;inset-inline-end:24px;z-index:300;
+  background:var(--surface-solid);border:1px solid var(--teal);color:var(--text);
+  padding:15px 22px;font-size:14px;font-weight:500;
+  border-radius:var(--radius);
   transform:translateY(120%);opacity:0;
-  transition:transform var(--t-mid),opacity var(--t-mid);pointer-events:none
+  transition:transform var(--t-mid) var(--ease),opacity var(--t-mid) var(--ease);pointer-events:none
 }
 .toast.show{transform:translateY(0);opacity:1}
 .toast.err{border-color:var(--danger)}
@@ -458,43 +637,79 @@ footer .site-logo-img{height:64px}
    خصائص مركّبة بس (opacity/transform) — الكودبيس أصلاً صلّح
    ملاحظة Lighthouse عن الحركات غير المركّبة، وما بدنا نرجّعها.
    بطيء ومحتشم — تأكيد بصري، مش استعراض. */
-.reveal{opacity:0;transform:translateY(18px);transition:opacity var(--t-mid) ease-out,transform var(--t-mid) ease-out}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity var(--t-mid) var(--ease),transform var(--t-mid) var(--ease)}
 .reveal.visible{opacity:1;transform:none}
 .reveal-delay-1{transition-delay:.08s}
 .reveal-delay-2{transition-delay:.16s}
 .reveal-delay-3{transition-delay:.24s}
 .reveal-delay-4{transition-delay:.32s}
+/* الخامس كان ناقص من قبل: renderServices بيطبع reveal-delay-5 على الخدمة
+   السادسة، وما كان إله قاعدة — فكانت بتظهر بلا تأخير وبتكسر السلّم. */
+.reveal-delay-5{transition-delay:.40s}
 
-/* الأقسام المخفية (إحصائيات/أعمال/توصيات فاضية) — بتخفي حالها بالجافاسكربت */
+/* ── بينتو الزجاج (إحصائيات/أعمال/توصيات) ─────────────────────
+   قبل: حيلة شبكة بفجوة ١px والخلفية بتبيّن كخطوط. الحيلة هاي بتنهار
+   على لوحة زجاجية — فصارت كروت زجاجية منفصلة بفجوة حقيقية وحواف
+   ١٦–٢٤px، زي بينتو المرجع. */
 .stats-wrap{padding:var(--section-y) 0;border-bottom:1px solid var(--line)}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line)}
-.stat-item{background:var(--bg);padding:28px;text-align:center}
-.stat-number{font-family:var(--font-display);font-weight:600;font-size:38px;color:var(--teal);font-variant-numeric:tabular-nums;direction:ltr}
-.stat-label{color:var(--muted);font-size:13px;margin-top:5px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.stat-item{
+  background:var(--surface);border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur));
+  border-radius:var(--radius-lg);padding:34px 24px;text-align:center
+}
+/* أقوى توقيع بالمرجع: رقم سيريف ضخم بتوهّج سماوي */
+.stat-number{
+  font-family:var(--font-latin);font-weight:400;font-size:clamp(38px,4.6vw,58px);
+  line-height:1.05;color:var(--teal);text-shadow:var(--glow-text);
+  font-variant-numeric:tabular-nums;direction:ltr
+}
+.stat-label{color:var(--muted-strong);font-size:13px;margin-top:8px}
+
 .portfolio-header,.services-header{margin-bottom:44px}
-.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line)}
-.port-card{background:var(--bg);border:0}
-.port-image{aspect-ratio:16/10;background:var(--surface);display:grid;place-items:center;overflow:hidden}
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+/* كروت الأعمال بتحمل صور — وblur فوق صورة أغلى تركيبة بالمتصفح.
+   فبتاخد نفس وصفة الزجاج (ملء ٣٪ + حدّ ضوء) بدون backdrop-filter:
+   بصرياً نفس الشي فوق فراغ شبه مسطّح، وبلا كلفة الرسم. */
+.port-card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-lg);overflow:hidden;
+  transition:background-color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)
+}
+.port-card:hover{background:var(--surface-2);border-color:var(--line-strong)}
+.port-image{aspect-ratio:16/10;background:var(--surface-2);display:grid;place-items:center;overflow:hidden}
 .port-image img{width:100%;height:100%;object-fit:cover}
 .port-idx{
-  font-family:var(--font-display);font-weight:600;font-size:var(--idx);line-height:.85;
+  font-family:var(--font-latin);font-weight:400;font-size:var(--idx);line-height:.9;
   color:transparent;-webkit-text-stroke:1px var(--teal);opacity:.35
 }
-.port-info{padding:22px}
-.port-cat{font-size:var(--label);color:var(--teal);font-weight:700;letter-spacing:.04em;margin-bottom:5px}
-.port-title{font-family:var(--font-display);font-weight:600;font-size:18px;margin-bottom:7px}
-.port-desc{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:12px}
-.port-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.port-tag{font-size:var(--label);color:var(--muted);border:1px solid var(--line);padding:3px 9px}
+.port-info{padding:24px}
+.port-cat{font-size:var(--label);color:var(--teal);font-weight:700;margin-bottom:6px}
+.port-title{font-family:var(--font-display);font-weight:600;font-size:19px;margin-bottom:8px}
+.port-desc{color:var(--muted-strong);font-size:14px;line-height:1.75;margin-bottom:14px}
+.port-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.port-tag{
+  font-size:var(--label);color:var(--muted-strong);
+  border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 12px
+}
 .port-link{color:var(--teal);font-size:13px;display:inline-flex;align-items:center;gap:6px}
-.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--line)}
-.testi-card{background:var(--bg);padding:26px}
-.testi-quote{font-family:var(--font-display);font-size:38px;color:var(--teal);line-height:1}
-.testi-text{font-size:15px;line-height:1.8;margin:10px 0}
-.testi-stars{color:var(--brass);font-size:13px;margin-bottom:12px}
+
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.testi-card{
+  background:var(--surface);border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur));
+  border-radius:var(--radius-lg);padding:28px
+}
+.testi-quote{font-family:var(--font-latin);font-size:44px;color:var(--teal);line-height:1;opacity:.7}
+.testi-text{font-size:15px;line-height:1.85;margin:10px 0}
+.testi-stars{color:var(--brass);font-size:13px;margin-bottom:14px}
 .testi-author{display:flex;align-items:center;gap:12px}
-.testi-avatar{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);font-size:18px}
-.testi-name{font-family:var(--font-display);font-weight:600;font-size:14px}
+.testi-avatar{
+  width:44px;height:44px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:var(--radius-pill);
+  background:var(--surface-2);font-size:18px
+}
+.testi-name{font-family:var(--font-display);font-weight:600;font-size:15px}
 .testi-role{color:var(--muted);font-size:var(--label)}
 
 /* ══ متجاوب ══════════════════════════════════════════════════
@@ -508,30 +723,37 @@ footer .site-logo-img{height:64px}
      زر الـCTA النصي هو اللي بيتنازل عن مساحته تحت. */
 }
 @media (max-width:768px){
-  .navbar .container{height:64px;gap:10px}
-  .site-logo-img{height:34px}
+  .navbar .container{height:66px;gap:10px}
+  .site-logo-img{height:36px}
+  .nav-logo-text{font-size:17px}
   /* زر "راسلني" النصي بينشال من الناف بالموبايل: الواتساب العائم بيغطّي نفس
      الوظيفة وهو ثابت بالشاشة — فبتتحرّر مساحة للوجو ومبدّل اللغة والهامبرغر. */
   .nav-actions .btn{display:none}
-  .product-card{grid-template-columns:auto 1fr;gap:16px}
+  .hero{padding:44px 0 var(--section-y)}
+  .product-card{grid-template-columns:auto 1fr;gap:16px;padding:26px 12px}
   .product-footer{grid-column:1 / -1;align-items:flex-start}
-  .process-step{gap:16px}
-  .service-card{grid-template-columns:auto 1fr;gap:14px}
+  .process-step{gap:16px;padding:22px 12px}
+  .service-card{grid-template-columns:auto 1fr;gap:14px;padding:20px 12px}
   .svc-arrow{display:none}
   .footer-grid{grid-template-columns:1fr}
-  .hero-btns .btn{flex:1;justify-content:center}
-  .guarantee-band::before{width:340px;height:340px}
+  /* حشوة أضيق + nowrap: بحشوة الديسكتوب (٣٠px) نصّ الزرّين كان بيلفّ
+     لسطرين عند ٣٧٥px ("See / Pricing") وبيقرا كعطل، مش كتصميم. */
+  .hero-btns .btn{flex:1;justify-content:center;padding:14px 16px;white-space:nowrap}
+  .contact-form{padding:24px}
+  .guarantee-band::before{width:360px;height:360px}
+  .scroll-ind{margin-top:44px}
 }
 @media (max-width:480px){
   .products-header{flex-direction:column;align-items:flex-start}
+  .svc-idx{font-size:26px;min-width:34px}
+  .stat-item,.testi-card{padding:24px 18px}
 }
 
 /* ── أهداف اللمس ≥44×44 ──────────────────────────────────────
    على الأجهزة اللمسية بس (pointer:coarse) — فالنسب المضغوطة
-   الأنيقة بتضل كما هي على الديسكتوب حيث المؤشر دقيق.
-   كانت: مبدّل اللغة ٣٢×٣٠ والهامبرغر ٤٠×٣٨ — تحت العتبة. */
+   الأنيقة بتضل كما هي على الديسكتوب حيث المؤشر دقيق. */
 @media (pointer:coarse){
-  .lang-btn{min-height:44px;min-width:44px;padding:6px 14px}
+  .lang-btn{min-height:44px;min-width:44px;padding:6px 16px}
   .hamburger{min-height:44px;min-width:44px;align-items:center;justify-content:center}
   .nav-logo{min-height:44px;display:inline-flex;align-items:center}
   .mobile-close{min-height:44px;min-width:44px}
@@ -541,10 +763,12 @@ footer .site-logo-img{height:64px}
   .footer-links li{margin-bottom:0}
 }
 
-/* ── احترام تقليل الحركة ─────────────────────────────────── */
+/* ── احترام تقليل الحركة ───────────────────────────────────
+   بيشمل الحركات الجديدة (مؤشّر النزول) كمان — animation مطفية. */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   .reveal{opacity:1;transform:none}
+  .scroll-ind i{animation:none}
 }
   </style>
 </head>
