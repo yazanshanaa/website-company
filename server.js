@@ -5,6 +5,7 @@ const express = require('express');
 const session = require('express-session');
 const path    = require('path');
 const getClientIp = require('./lib/getClientIp');
+const { getPool } = require('./lib/db');
 
 // âââ Startup guards âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
@@ -60,7 +61,7 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '1mb' }));
 
-app.use(session({
+const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
@@ -70,7 +71,23 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     maxAge: 2 * 60 * 60 * 1000, // 2 hours
   },
-}));
+};
+
+// مخزن جلسات دائم على Postgres عند وجود قاعدة بيانات. بدونه يستعمل
+// express-session مخزن الذاكرة الافتراضي — وهو قاتل على Vercel: كل استدعاء
+// serverless له ذاكرته، فجلسة الأدمن تُفقد بين الطلبات ويظهر أنه خرج فوراً
+// بعد الدخول. connect-pg-simple يخزّنها بجدول user_sessions فتصمد عبر النسخ.
+const _pool = getPool();
+if (_pool) {
+  const pgSession = require('connect-pg-simple')(session);
+  sessionConfig.store = new pgSession({
+    pool: _pool,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+  });
+}
+
+app.use(session(sessionConfig));
 
 // âââ CSRF protection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // Reject cross-origin state-changing requests by comparing Origin/Referer host

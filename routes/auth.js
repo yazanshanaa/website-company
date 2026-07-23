@@ -4,50 +4,29 @@ const bcrypt      = require('bcryptjs');
 const fs          = require('fs');
 const path        = require('path');
 const getClientIp = require('../lib/getClientIp');
+const { hasDb, kvGet, kvSet } = require('../lib/db');
 
 const router    = express.Router();
 const PASS_FILE = path.join(__dirname, '../data/password.txt');
 
 // âââ MongoDB (optional) âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// When MONGODB_URI is set (e.g. on Vercel where the filesystem is read-only),
-// the admin password hash is stored in MongoDB Atlas instead of password.txt.
-
-let _mongoClient = null;
-let _db          = null;
-
-async function getDb() {
-  if (!process.env.MONGODB_URI) return null;
-  if (_db) return _db;
-  const { MongoClient } = require('mongodb');
-  _mongoClient = new MongoClient(process.env.MONGODB_URI);
-  await _mongoClient.connect();
-  _db = _mongoClient.db('itqan');
-  return _db;
-}
+// الأولوية: ADMIN_PASS_HASH من البيئة، ثم قاعدة البيانات (Neon، الصف 'admin')،
+// ثم ملف محلي. على Vercel نظام الملفات للقراءة فقط، فالبيئة/القاعدة هي المصدر.
 
 async function readPassHash() {
-  // Priority 1: environment variable (required on Vercel without MongoDB)
+  // الأولوية 1: متغيّر البيئة (مطلوب على Vercel، ويبقى مصدر الحقيقة إذا ضُبط)
   if (process.env.ADMIN_PASS_HASH) return process.env.ADMIN_PASS_HASH;
-  // Priority 2: MongoDB
-  const db = await getDb();
-  if (db) {
-    const doc = await db.collection('config').findOne({ _id: 'admin' });
+  // الأولوية 2: قاعدة البيانات (Neon) — الصف 'admin' في app_kv
+  if (hasDb()) {
+    const doc = await kvGet('admin');
     if (doc?.passHash) return doc.passHash;
   }
-  // Priority 3: local file (development)
+  // الأولوية 3: ملف محلي (تطوير)
   return fs.readFileSync(PASS_FILE, 'utf8').trim();
 }
 
 async function writePassHash(hash) {
-  const db = await getDb();
-  if (db) {
-    await db.collection('config').replaceOne(
-      { _id: 'admin' },
-      { _id: 'admin', passHash: hash },
-      { upsert: true }
-    );
-    return;
-  }
+  if (hasDb()) { await kvSet('admin', { passHash: hash }); return; }
   fs.writeFileSync(PASS_FILE, hash);
 }
 

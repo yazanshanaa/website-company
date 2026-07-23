@@ -1,6 +1,6 @@
 const express    = require('express');
 const nodemailer = require('nodemailer');
-const { getDb }  = require('../lib/db');
+const { hasDb, kvGet } = require('../lib/db');
 
 const router = express.Router();
 
@@ -21,14 +21,17 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-  // البريد الإلكتروني للمستلم من قاعدة البيانات مع التحقق من الصيغة
+  // بريد المستلم من قاعدة البيانات (الصف 'site' في app_kv) مع التحقق من الصيغة.
+  // سابقاً كان يقرأ collection 'siteData' التي لا يكتبها أحد فيسقط دائماً على
+  // SMTP_FROM — وُحّد الآن مع مصدر محتوى الموقع الفعلي.
   let recipient = process.env.SMTP_FROM;
   try {
-    const db = await getDb();
-    const doc = await db.collection('siteData').findOne({ _id: 'site' });
-    const dbEmail = doc?.data?.company?.email;
-    if (dbEmail && /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(dbEmail)) {
-      recipient = dbEmail;
+    if (hasDb()) {
+      const site = await kvGet('site');
+      const dbEmail = site?.company?.email;
+      if (dbEmail && /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(dbEmail)) {
+        recipient = dbEmail;
+      }
     }
   } catch { /* fallback to SMTP_FROM */ }
 
