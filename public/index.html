@@ -1793,8 +1793,8 @@ footer .site-logo-img{height:68px}
         </div>
         <div class="product-footer">
           ${p.price ? `<span class="product-price"><span class="cur-glyph">${esc(p.currency||'')}</span>${esc(fmtPrice(p.price))}</span>` : ''}
-          ${p.showUrl && p.url && safeUrl(p.url) ? `<a href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener noreferrer" class="product-link"><i class="fas fa-external-link-alt" aria-hidden="true"></i><span data-key="prod.viewBtn">${t('prod.viewBtn')}</span></a>` : ''}
-          <a href="#contact" data-wa-link class="product-contact-btn"><i class="fab fa-whatsapp" aria-hidden="true"></i>${t('prod.contactBtn')}</a>
+          ${p.showUrl && p.url && safeUrl(p.url) ? `<a href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener noreferrer" class="product-link"><i class="fas fa-external-link-alt" aria-hidden="true"></i><span data-key="prod.viewBtn">${esc(t('prod.viewBtn'))}</span></a>` : ''}
+          <a href="#contact" data-wa-link class="product-contact-btn"><i class="fab fa-whatsapp" aria-hidden="true"></i>${esc(t('prod.contactBtn'))}</a>
         </div>
       </div>`).join('');
     // fix arrow direction for LTR

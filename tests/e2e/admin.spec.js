@@ -260,7 +260,9 @@ test.describe.serial('Admin Panel', () => {
 
   test('mismatched confirm password shows error toast', async ({ page }) => {
     await page.locator('[onclick*="showSection"][onclick*="\'password\'"]').click();
-    await page.locator('#p-old').fill('itqan2024');
+    // قيمة وهمية: changePass() يتحقق من التطابق/الطول في العميل ويرجع قبل
+    // إرسال أي شيء، فقيمة الحقل القديم لا تُفحص هنا — لا تضع سرّاً حقيقياً.
+    await page.locator('#p-old').fill('placeholder-not-a-real-pass');
     await page.locator('#p-new').fill('NewPass@999');
     await page.locator('#p-conf').fill('DifferentPass@999');    // Different from #p-new
     await page.locator('[onclick="changePass()"]').click();
@@ -269,7 +271,8 @@ test.describe.serial('Admin Panel', () => {
 
   test('new password shorter than 6 chars shows error toast', async ({ page }) => {
     await page.locator('[onclick*="showSection"][onclick*="\'password\'"]').click();
-    await page.locator('#p-old').fill('itqan2024');
+    // قيمة وهمية — نفس السبب: التحقق من الطول يرجع في العميل قبل الإرسال.
+    await page.locator('#p-old').fill('placeholder-not-a-real-pass');
     await page.locator('#p-new').fill('12');
     await page.locator('#p-conf').fill('12');
     await page.locator('[onclick="changePass()"]').click();

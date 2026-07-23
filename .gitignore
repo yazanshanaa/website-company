@@ -18,3 +18,12 @@ Thumbs.db
 # إعدادات Claude Code المحلية — بتحتوي أوامر مسموحة فيها أسرار صريحة
 .claude/settings.local.json
 .claude/settings.json
+
+# تقرير التقييم الأمني — خارطة ثغرات، ممنوع يوصل مستودع عام
+SECURITY-ASSESSMENT.md
+
+# نسخ احتياطية — قد تحوي أسرار (.env.bak، password.txt.bak). ممنوع تتبعها.
+*.bak
+*.bak.*
+.env.*
+!.env.example

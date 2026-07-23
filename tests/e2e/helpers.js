@@ -3,10 +3,14 @@
 /**
  * Shared helpers for all Itqan E2E test suites.
  *
- * Admin password:  set  TEST_ADMIN_PASS=yourPassword  or leave blank to use
- * the project default.
+ * Admin password:  must be provided via  TEST_ADMIN_PASS=yourPassword .
+ * لا قيمة افتراضية بعد اليوم: كلمة مرور حقيقية كـfallback هي بالضبط ما تسرّب
+ * لتاريخ git عام. الاختبار يفشل بوضوح إذا المتغيّر فاضي بدل أن يحمل سرّاً.
  */
-const ADMIN_PASS = process.env.TEST_ADMIN_PASS || 'itqan2024';
+const ADMIN_PASS = process.env.TEST_ADMIN_PASS;
+if (!ADMIN_PASS) {
+  throw new Error('TEST_ADMIN_PASS مطلوب — عيّنه ببيئة التشغيل، ولا تضع كلمة مرور حقيقية كقيمة افتراضية بالكود.');
+}
 
 /**
  * Navigate to /itqan-cp9x.html and authenticate.

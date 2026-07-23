@@ -1359,10 +1359,13 @@
     const cf = document.getElementById('p-conf').value;
     if(nw !== cf || nw.length < 8) { showToast('كلمة المرور الجديدة لا تتطابق أو قصيرة جداً (8 أحرف على الأقل)','var(--danger)'); return; }
     try {
+      // الخادم routes/auth.js يعرّفها POST ويقرأ oldPassword — كانت الواجهة
+      // ترسل PUT وحقل currentPassword، فالطلب ما بيطابق أي مسار وتغيير
+      // الكلمة كان معطّلاً بالكامل من اللوحة. صوّبنا الفعل واسم الحقل.
       const res = await fetch('/api/auth/change-password', {
-        method: 'PUT',
+        method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({currentPassword: old, newPassword: nw})
+        body: JSON.stringify({oldPassword: old, newPassword: nw})
       });
       const data = await res.json();
       if(res.ok) {

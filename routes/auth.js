@@ -102,7 +102,12 @@ router.post('/login', async (req, res) => {
   }
 
   const { password } = req.body;
-  if (!password) return res.status(400).json({ error: 'Password required' });
+  // حارس النوع: قيمة truthy غير نصية ({}، []، رقم) كانت تعدّي `!password`
+  // ثم تُرفض داخل bcrypt.compare كـunhandled rejection فتُسقط العملية —
+  // إزعاج خدمة عن بُعد بلا مصادقة. التحقق من string يقفل هذا المسار.
+  if (typeof password !== 'string' || !password) {
+    return res.status(400).json({ error: 'Password required' });
+  }
 
   let hash;
   try {
@@ -146,7 +151,8 @@ router.post('/logout', (req, res) => {
  */
 router.post('/change-password', requireAuth, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  if (!oldPassword || !newPassword) {
+  // نفس حارس النوع كـ/login: قيمة غير نصية تُرفض داخل bcrypt.compare أدناه.
+  if (typeof oldPassword !== 'string' || typeof newPassword !== 'string' || !oldPassword || !newPassword) {
     return res.status(400).json({ error: 'Both fields required' });
   }
   if (newPassword.length < 8) {

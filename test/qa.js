@@ -1,6 +1,6 @@
 'use strict';
 // QA Test Runner — Itqan Company Website
-// Usage: TEST_PASS=itqan2024 node test/qa.js
+// Usage: TEST_PASS=yourAdminPassword node test/qa.js
 const http = require('http');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -55,7 +55,8 @@ function extractCookie(headers) {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 async function runTests() {
-  const PASS = process.env.TEST_PASS || 'itqan2024';
+  const PASS = process.env.TEST_PASS;
+  if (!PASS) throw new Error('TEST_PASS مطلوب — عيّنه ببيئة التشغيل، لا تضع كلمة مرور حقيقية كقيمة افتراضية.');
 
   // ── AUTH ──────────────────────────────────────────────────────────────────
   console.log('\n══ AUTH TESTS ══════════════════════════════');

@@ -45,7 +45,8 @@ test.describe.serial('Brute-Force Lockout (opt-in / isolated)', () => {
     test.skip(!ENABLED, 'Set  RUN_LOCKOUT_TESTS=1  to enable this test');
     // Assumes the lockout was triggered by the previous test in the serial group
     const res = await request.post('/api/auth/login', {
-      data: { password: process.env.TEST_ADMIN_PASS || 'itqan2024' },
+      // كلمة المرور الصحيحة من البيئة فقط — بلا fallback حقيقي (منع تسريب).
+      data: { password: process.env.TEST_ADMIN_PASS },
     });
     expect(res.status()).toBe(429);
     expect((await res.json()).error).toBe('locked');
